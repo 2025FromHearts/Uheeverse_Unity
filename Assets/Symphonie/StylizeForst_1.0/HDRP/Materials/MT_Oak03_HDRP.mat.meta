@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: dc359c15232c20b4d8280cd40fe0e6e1
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 306129
+  packageName: Stylized Forest Kit
+  packageVersion: 1.2
+  assetPath: Assets/Symphonie/StylizeForst_1.0/HDRP/Materials/MT_Oak03_HDRP.mat
+  uploadId: 725637

@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: d8ad0cfdf4502c34eb951e554666d633
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: 625f186215c104763be7675aa2d941aa, type: 3}
+AssetOrigin:
+  serializedVersion: 1
+  productId: 306129
+  packageName: Stylized Forest Kit
+  packageVersion: 1.2
+  assetPath: Assets/Symphonie/StylizeForst_1.0/Shader_URP/Shader/SnowShader.shadergraph
+  uploadId: 725637

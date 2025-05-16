@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 024821a73ed73ec43b94e256c216f36e
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 8574412962073106934
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 306129
+  packageName: Stylized Forest Kit
+  packageVersion: 1.2
+  assetPath: Assets/Symphonie/StylizeForst_1.0/Terrain/GrassLayer.terrainlayer
+  uploadId: 725637

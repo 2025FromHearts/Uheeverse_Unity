@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 58f9bc5978e3ce64f9152a7fe0918191
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 112000000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 306129
+  packageName: Stylized Forest Kit
+  packageVersion: 1.2
+  assetPath: Assets/Symphonie/StylizeForst_1.0/Demo/DisplayScene/LightingData.asset
+  uploadId: 725637

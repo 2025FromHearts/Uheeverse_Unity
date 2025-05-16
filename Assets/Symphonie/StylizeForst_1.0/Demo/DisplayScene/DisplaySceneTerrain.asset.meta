@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 8ab648b50ec9a21478463ae37cda5010
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 15600000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 306129
+  packageName: Stylized Forest Kit
+  packageVersion: 1.2
+  assetPath: Assets/Symphonie/StylizeForst_1.0/Demo/DisplayScene/DisplaySceneTerrain.asset
+  uploadId: 725637
