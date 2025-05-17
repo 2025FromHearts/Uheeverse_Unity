@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: dffad254354b93b46bef08bc2b7cad21
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 8574412962073106934
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 306129
+  packageName: Stylized Forest Kit
+  packageVersion: 1.2
+  assetPath: Assets/Symphonie/StylizeForst_1.0/Terrain/FrozenSoil.terrainlayer
+  uploadId: 725637

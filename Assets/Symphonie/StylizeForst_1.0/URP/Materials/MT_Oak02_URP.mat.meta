@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: ffb25b9f2f25bb1478b49f9094dc8b0e
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 306129
+  packageName: Stylized Forest Kit
+  packageVersion: 1.2
+  assetPath: Assets/Symphonie/StylizeForst_1.0/URP/Materials/MT_Oak02_URP.mat
+  uploadId: 725637
