@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: cd7d8e4cc458acf439a8c533e9c4dc4c
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 203303
+  packageName: SUNTAIL - Stylized Fantasy Village
+  packageVersion: 1.1.6
+  assetPath: Assets/Suntail Village/Animations/CloseDoor.anim
+  uploadId: 706330

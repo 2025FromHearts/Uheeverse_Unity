@@ -4,11 +4,14 @@
 TagManager:
   serializedVersion: 3
   tags:
-  - Ground
   - Apple
-  - Basket
   - Banana
   - Bomb
+  - Ground
+  - Basket
+  - Item
+  - Door
+  - GeneratedFromOSM
   layers:
   - Default
   - TransparentFX

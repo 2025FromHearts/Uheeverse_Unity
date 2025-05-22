@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: f9e4727c9efb2094b800a7d0545949a6
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 203303
+  packageName: SUNTAIL - Stylized Fantasy Village
+  packageVersion: 1.1.6
+  assetPath: Assets/Suntail Village/Animations/Fire Light.controller
+  uploadId: 706330

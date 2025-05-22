@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 1e0ae5b75a77cbd409122b809fbebe28
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures: []
+  nonModifiableTextures: []
+  preprocessorOverride: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 203303
+  packageName: SUNTAIL - Stylized Fantasy Village
+  packageVersion: 1.1.6
+  assetPath: Assets/Suntail Village/Shaders/Suntail_Water.shader
+  uploadId: 706330
