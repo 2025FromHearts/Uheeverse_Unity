@@ -49,11 +49,11 @@ public class OXQuizZoneManager : MonoBehaviour
 
         if (!string.IsNullOrEmpty(character_id))
         {
-            yield return StartCoroutine(SendResultToServer(character_id, quizId, choice, correctAnswer));
+            yield return StartCoroutine(SendResultToServer(character_id, quizId, choice, correctAnswer, isCorrect));
         }
     }
 
-    private IEnumerator SendResultToServer(string characterId, int quizId, string choice, string correctAnswer)
+    private IEnumerator SendResultToServer(string characterId, int quizId, string choice, string correctAnswer, bool isCorrect)
     {
         WWWForm form = new WWWForm();
         form.AddField("character_id", characterId);
@@ -72,8 +72,10 @@ public class OXQuizZoneManager : MonoBehaviour
 
             yield return request.SendWebRequest();
 
-            if (request.result == UnityWebRequest.Result.Success)
+            if (request.result == UnityWebRequest.Result.Success) { 
                 Debug.Log("✅ 서버 전송 성공");
+                currentQuizManager.ReceiveAnswerResult(isCorrect, choice);
+            }
             else
                 Debug.LogError($"❌ 서버 전송 실패: {request.error}");
         }
