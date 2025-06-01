@@ -13,7 +13,7 @@ public class TalkToNPC : MonoBehaviour
     public TextMeshProUGUI replyText;
 
     [Header("¼­¹ö URL")]
-    public string apiUrl = "http://127.0.0.1:8000/api/talk_to_npc/";
+    public string apiUrl = ServerConfig.baseUrl + "/api/talk_to_npc/";
 
     public void OnSendButtonClicked()
     {

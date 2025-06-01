@@ -61,7 +61,7 @@ public class OXQuizZoneManager : MonoBehaviour
         form.AddField("selected", choice);
         form.AddField("correct", correctAnswer);
 
-        string submitUrl = "http://127.0.0.1:8000/users/submit_result/";
+        string submitUrl = ServerConfig.baseUrl + "/users/submit_result/";
         using (UnityWebRequest request = UnityWebRequest.Post(submitUrl, form))
         {
             string token = PlayerPrefs.GetString("access_token", "");
@@ -72,12 +72,14 @@ public class OXQuizZoneManager : MonoBehaviour
 
             yield return request.SendWebRequest();
 
-            if (request.result == UnityWebRequest.Result.Success) { 
+            if (request.result == UnityWebRequest.Result.Success)
+            {
                 Debug.Log("✅ 서버 전송 성공");
-                currentQuizManager.ReceiveAnswerResult(isCorrect, choice);
             }
             else
+            {
                 Debug.LogError($"❌ 서버 전송 실패: {request.error}");
+            }
         }
     }
 }

@@ -83,7 +83,7 @@ public class QuizManager : MonoBehaviour
         }
         else
         {
-            Debug.Log("🎉 모든 퀴즈 완료!");    
+            Debug.Log("🎉 모든 퀴즈 완료!");
             resultText.text = $"총 {maxRounds}문제 중 {correctCount}개 정답!\n{correctCount}개를 맞추셨으니 코인 {correctCount * 100}개를 드릴게요.";
 
             StartCoroutine(ShowArrivalMessageAndMoveScene());
@@ -143,7 +143,7 @@ public class QuizManager : MonoBehaviour
 
     private IEnumerator FetchQuizFromServer(string region)
     {
-        string url = "http://localhost:8000/users/generate_quiz/";
+        string url = ServerConfig.baseUrl + "/users/generate_quiz/";
 
         // POST 요청을 위해 form 사용
         WWWForm form = new WWWForm();

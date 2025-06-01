@@ -11,6 +11,14 @@ public class LoginManager : MonoBehaviour
     private string accessToken;
     private string characterId;
 
+    // 로그인 요청용 구조체
+    [System.Serializable]
+    public class LoginRequest
+    {
+        public string username;
+        public string password;
+    }
+
     [System.Serializable]
     public class LoginRequest
     {
@@ -24,6 +32,7 @@ public class LoginManager : MonoBehaviour
         public string refresh;
     }
 
+    // 사용자 정보 구조
     public class UserInfo
     {
         public string user_id;
@@ -49,7 +58,7 @@ public class LoginManager : MonoBehaviour
         string jsonData = JsonConvert.SerializeObject(requestData);
         byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonData);
 
-        UnityWebRequest www = new UnityWebRequest("http://localhost:8000/users/token/", "POST");
+        UnityWebRequest www = new UnityWebRequest(ServerConfig.baseUrl + "/users/token/", "POST");
         www.uploadHandler = new UploadHandlerRaw(bodyRaw);
         www.downloadHandler = new DownloadHandlerBuffer();
         www.SetRequestHeader("Content-Type", "application/json");
@@ -58,10 +67,12 @@ public class LoginManager : MonoBehaviour
 
         if (www.result != UnityWebRequest.Result.Success)
         {
-            Debug.LogError("Login failed: " + www.error);
+            Debug.LogError("Login failed: " + www.error + "\n응답: " + www.downloadHandler.text);
+            Debug.Log("Sending JSON: " + jsonData);
         }
         else
         {
+            // JWT 토큰 파싱 및 저장
             LoginResponse res = JsonConvert.DeserializeObject<LoginResponse>(www.downloadHandler.text);
             accessToken = res.access;
 
@@ -78,7 +89,7 @@ public class LoginManager : MonoBehaviour
 
     IEnumerator GetUserInfo()
     {
-        UnityWebRequest www = UnityWebRequest.Get("http://127.0.0.1:8000/users/get_user_info/");
+        UnityWebRequest www = UnityWebRequest.Get(ServerConfig.baseUrl + "/users/get_user_info/");
         www.SetRequestHeader("Authorization", "Bearer " + accessToken);
 
         yield return www.SendWebRequest();
@@ -108,7 +119,7 @@ public class LoginManager : MonoBehaviour
 
     IEnumerator CheckOrCreateInventory()
     {
-        string url = "http://127.0.0.1:8000/item/inventory/init/" + characterId + "/";
+        string url = ServerConfig.baseUrl + "/item/inventory/init/" + characterId + "/";
         Debug.Log("Calling URL: " + url);
 
         UnityWebRequest www = UnityWebRequest.Get(url);

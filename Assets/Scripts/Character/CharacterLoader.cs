@@ -23,7 +23,7 @@ public class CharacterLoader : MonoBehaviour
 
     IEnumerator LoadCharacter(string token)
     {
-        using (UnityWebRequest request = UnityWebRequest.Get("http://localhost:8000/users/get_my_character/"))
+        using (UnityWebRequest request = UnityWebRequest.Get(ServerConfig.baseUrl + "/users/get_my_character/"))
         {
             request.SetRequestHeader("Authorization", "Bearer " + token);
 

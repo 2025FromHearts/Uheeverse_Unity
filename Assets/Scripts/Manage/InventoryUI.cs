@@ -56,7 +56,7 @@ public class InventoryUI : MonoBehaviour
         Debug.Log($"🟡 character_id: {characterId}");
         Debug.Log($"🟡 access_token: {accessToken}");
 
-        string url = "http://127.0.0.1:8000/item/inventory/" + characterId + "/";
+        string url = ServerConfig.baseUrl + "/item/inventory/" + characterId + "/";
         Debug.Log($"🔵 요청 URL: {url}");
 
         UnityWebRequest www = UnityWebRequest.Get(url);

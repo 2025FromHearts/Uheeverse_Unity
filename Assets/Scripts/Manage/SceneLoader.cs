@@ -28,7 +28,7 @@ public class SceneLoader : MonoBehaviour
     }
 
     // 추가: 캐릭터 유무에 따라 분기 이동
-    public string getCharacterUrl = "http://localhost:8000/users/get_my_character/";
+    public string getCharacterUrl = ServerConfig.baseUrl + "/users/get_my_character/";
     public string characterCreateSceneName = "CreateCharacter"; // 실제 씬 이름에 맞게 수정
     public string myStationSceneName = "MyStation";             // 실제 씬 이름에 맞게 수정
 
