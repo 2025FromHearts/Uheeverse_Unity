@@ -6,7 +6,7 @@ using System.Text;
 public class ScoreUploader : MonoBehaviour
 {
     [Header("서버 설정")]
-    public string serverUrl = "http://localhost:8000/map/submit_score/";
+    public string serverUrl = ServerConfig.baseUrl + "/map/submit_score/";
 
     // 버튼 관련 코드 완전히 제거
 

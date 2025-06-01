@@ -36,7 +36,7 @@ public class LoginManager : MonoBehaviour
         string jsonData = JsonUtility.ToJson(requestData);
         byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonData);
 
-        UnityWebRequest www = new UnityWebRequest("http://localhost:8000/users/token/", "POST");
+        UnityWebRequest www = new UnityWebRequest(ServerConfig.baseUrl + "/users/token/", "POST");
         www.uploadHandler = new UploadHandlerRaw(bodyRaw);
         www.downloadHandler = new DownloadHandlerBuffer();
         www.SetRequestHeader("Content-Type", "application/json");
@@ -45,8 +45,12 @@ public class LoginManager : MonoBehaviour
 
         if (www.result != UnityWebRequest.Result.Success)
         {
+<<<<<<< Updated upstream
             Debug.LogError("Login failed: " + www.error);
             Debug.Log("Sending JSON: " + jsonData);
+=======
+            Debug.LogError("Login failed: " + www.error + "\n응답: " + www.downloadHandler.text);
+>>>>>>> Stashed changes
         }
         else
         {
@@ -65,7 +69,7 @@ public class LoginManager : MonoBehaviour
 
     IEnumerator GetUserInfo()
     {
-        UnityWebRequest www = UnityWebRequest.Get("http://127.0.0.1:8000/users/get_user_info/");
+        UnityWebRequest www = UnityWebRequest.Get(ServerConfig.baseUrl + "/users/get_user_info/");
         www.SetRequestHeader("Authorization", "Bearer " + accessToken);
 
         yield return www.SendWebRequest();
@@ -76,7 +80,44 @@ public class LoginManager : MonoBehaviour
         }
         else
         {
+<<<<<<< Updated upstream
             Debug.Log("User info: " + www.downloadHandler.text);
+=======
+            string json = www.downloadHandler.text;
+            Debug.Log("User info raw JSON: " + json);
+
+            try
+            {
+                UserInfo userInfo = JsonConvert.DeserializeObject<UserInfo>(json);
+                characterId = userInfo.character_id;
+                Debug.Log("Parsed characterId: " + characterId);
+                PlayerPrefs.SetString("character_id", characterId);
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError("Failed to parse user info: " + e.Message);
+            }
+        }
+    }
+
+    IEnumerator CheckOrCreateInventory()
+    {
+        string url = ServerConfig.baseUrl + "/item/inventory/init/" + characterId + "/";
+        Debug.Log("Calling URL: " + url);
+
+        UnityWebRequest www = UnityWebRequest.Get(url);
+        www.SetRequestHeader("Authorization", "Bearer " + accessToken);
+
+        yield return www.SendWebRequest();
+
+        if (www.result != UnityWebRequest.Result.Success)
+        {
+            Debug.LogError("Inventory init failed: " + www.error);
+        }
+        else
+        {
+            Debug.Log("Inventory checked or created: " + www.downloadHandler.text);
+>>>>>>> Stashed changes
         }
     }
 }

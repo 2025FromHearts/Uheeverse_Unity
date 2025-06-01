@@ -4,8 +4,7 @@ using System.Collections;
 using System.Text;
 
 public class AuthManager : MonoBehaviour
-{ 
-
+{
     public void RegisterUser(string username, string password, string email, bool marketingAgree)
     {
         StartCoroutine(RegisterCoroutine(username, password, email));
@@ -13,7 +12,7 @@ public class AuthManager : MonoBehaviour
 
     IEnumerator RegisterCoroutine(string username, string password, string email)
     {
-        string url = "http://localhost:8000/users/register/";
+        string url = ServerConfig.baseUrl + "/users/register/";
 
         // JSON 데이터 구성 (약관 3개는 true, 마케팅은 선택적으로 설정 가능)
         string json = JsonUtility.ToJson(new RegisterPayload

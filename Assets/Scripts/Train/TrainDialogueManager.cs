@@ -66,7 +66,7 @@ public class TrainDialogueManager : MonoBehaviour
 
     IEnumerator FetchQuizFromServer(string region)
     {
-        string url = "http://localhost:8000/users/generate_quiz/?region=" + region;
+        string url = ServerConfig.baseUrl + "/users/generate_quiz/?region=" + region;
 
         UnityWebRequest www = new UnityWebRequest(url, "POST");
         www.uploadHandler = new UploadHandlerRaw(new byte[0]);  // 바디 없음
