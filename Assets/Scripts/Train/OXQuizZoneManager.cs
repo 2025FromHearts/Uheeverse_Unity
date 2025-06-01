@@ -73,13 +73,13 @@ public class OXQuizZoneManager : MonoBehaviour
             yield return request.SendWebRequest();
 
             if (request.result == UnityWebRequest.Result.Success)
-<<<<<<< Updated upstream
-=======
             {
->>>>>>> Stashed changes
                 Debug.Log("✅ 서버 전송 성공");
+            }
             else
+            {
                 Debug.LogError($"❌ 서버 전송 실패: {request.error}");
+            }
         }
     }
 }
