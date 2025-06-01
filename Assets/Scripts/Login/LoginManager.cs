@@ -19,8 +19,6 @@ public class LoginManager : MonoBehaviour
         public string password;
     }
 
-    // JWT 응답 파싱용 구조
-    [System.Serializable]
     public class LoginResponse
     {
         public string access;
@@ -44,7 +42,6 @@ public class LoginManager : MonoBehaviour
 
     IEnumerator Login(string username, string password)
     {
-        // 로그인 요청 JSON 데이터 생성
         LoginRequest requestData = new LoginRequest
         {
             username = username,
