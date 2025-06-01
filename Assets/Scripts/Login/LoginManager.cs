@@ -19,13 +19,6 @@ public class LoginManager : MonoBehaviour
         public string password;
     }
 
-    [System.Serializable]
-    public class LoginRequest
-    {
-        public string username;
-        public string password;
-    }
-
     public class LoginResponse
     {
         public string access;

@@ -600,7 +600,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
+  m_Color: {r: 0.084905684, g: 0.084905684, b: 0.084905684, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -608,7 +608,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 12800000, guid: a23111da9729b4e44ba1ea46a66f6bdc, type: 3}
+    m_Font: {fileID: 12800000, guid: 34e1e018a8b5fbb44b1538ffcf911760, type: 3}
     m_FontSize: 14
     m_FontStyle: 0
     m_BestFit: 0
@@ -617,7 +617,7 @@ MonoBehaviour:
     m_Alignment: 0
     m_AlignByGeometry: 0
     m_RichText: 1
-    m_HorizontalOverflow: 0
+    m_HorizontalOverflow: 1
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\uAC1C\uC778\uC815\uBCF4 \uC81C3\uC790 \uC81C\uACF5 \uB3D9\uC758 (\uC120\uD0DD)"
@@ -1121,8 +1121,8 @@ MonoBehaviour:
     \uC120\uD0DD \uC57D\uAD00\uC5D0 \uB3D9\uC758\uD558\uC9C0 \uC54A\uC73C\uC154\uB3C4
     \uD68C\uC6D0\uAC00\uC785\uC774 \uAC00\uB2A5\uD569\uB2C8\uB2E4."
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: e09e5840658e0394688d011076d61f4c, type: 2}
-  m_sharedMaterial: {fileID: -3271016548280654313, guid: e09e5840658e0394688d011076d61f4c, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: b2ac9280e08e3d04d8a63caedf3c2210, type: 2}
+  m_sharedMaterial: {fileID: 5512678219165994834, guid: b2ac9280e08e3d04d8a63caedf3c2210, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1393,8 +1393,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: e09e5840658e0394688d011076d61f4c, type: 2}
-  m_sharedMaterial: {fileID: -3271016548280654313, guid: e09e5840658e0394688d011076d61f4c, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -2441,8 +2441,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\uC774\uBA54\uC77C"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: e09e5840658e0394688d011076d61f4c, type: 2}
-  m_sharedMaterial: {fileID: -3271016548280654313, guid: e09e5840658e0394688d011076d61f4c, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: dc5e4adc52862a7429a20e433a13d9c0, type: 2}
+  m_sharedMaterial: {fileID: 848139096007801366, guid: dc5e4adc52862a7429a20e433a13d9c0, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -3263,8 +3263,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\uC544\uC774\uB514"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: e09e5840658e0394688d011076d61f4c, type: 2}
-  m_sharedMaterial: {fileID: -3271016548280654313, guid: e09e5840658e0394688d011076d61f4c, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: dc5e4adc52862a7429a20e433a13d9c0, type: 2}
+  m_sharedMaterial: {fileID: 848139096007801366, guid: dc5e4adc52862a7429a20e433a13d9c0, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -3496,6 +3496,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 44a048c3ffae18f428f2e8917c63a948, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  getCharacterUrl: https://209f-203-252-223-254.ngrok-free.app/users/get_my_character/
+  characterCreateSceneName: CreateCharacter
+  myStationSceneName: MyStation
 --- !u!4 &808760364
 Transform:
   m_ObjectHideFlags: 0
@@ -3902,8 +3905,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\uBE44\uBC00\uBC88\uD638"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: e09e5840658e0394688d011076d61f4c, type: 2}
-  m_sharedMaterial: {fileID: -3271016548280654313, guid: e09e5840658e0394688d011076d61f4c, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: dc5e4adc52862a7429a20e433a13d9c0, type: 2}
+  m_sharedMaterial: {fileID: 848139096007801366, guid: dc5e4adc52862a7429a20e433a13d9c0, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -4029,7 +4032,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
+  m_Color: {r: 0.084905684, g: 0.084905684, b: 0.084905684, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -4037,7 +4040,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 12800000, guid: a23111da9729b4e44ba1ea46a66f6bdc, type: 3}
+    m_Font: {fileID: 12800000, guid: 34e1e018a8b5fbb44b1538ffcf911760, type: 3}
     m_FontSize: 14
     m_FontStyle: 0
     m_BestFit: 0
@@ -4046,7 +4049,7 @@ MonoBehaviour:
     m_Alignment: 0
     m_AlignByGeometry: 0
     m_RichText: 1
-    m_HorizontalOverflow: 0
+    m_HorizontalOverflow: 1
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\uAC1C\uC778\uC815\uBCF4 \uC218\uC9D1 \uBC0F \uC774\uC6A9 \uB3D9\uC758
@@ -4158,7 +4161,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
+  m_Color: {r: 0.084905684, g: 0.084905684, b: 0.084905684, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -4166,7 +4169,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 12800000, guid: a23111da9729b4e44ba1ea46a66f6bdc, type: 3}
+    m_Font: {fileID: 12800000, guid: 34e1e018a8b5fbb44b1538ffcf911760, type: 3}
     m_FontSize: 14
     m_FontStyle: 0
     m_BestFit: 0
@@ -4175,7 +4178,7 @@ MonoBehaviour:
     m_Alignment: 0
     m_AlignByGeometry: 0
     m_RichText: 1
-    m_HorizontalOverflow: 0
+    m_HorizontalOverflow: 1
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\uC804\uCCB4 \uC57D\uAD00 \uB3D9\uC758"
@@ -4399,7 +4402,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
+  m_Color: {r: 0.084905684, g: 0.084905684, b: 0.084905684, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -4407,7 +4410,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 12800000, guid: a23111da9729b4e44ba1ea46a66f6bdc, type: 3}
+    m_Font: {fileID: 12800000, guid: 34e1e018a8b5fbb44b1538ffcf911760, type: 3}
     m_FontSize: 14
     m_FontStyle: 0
     m_BestFit: 0
@@ -4416,7 +4419,7 @@ MonoBehaviour:
     m_Alignment: 0
     m_AlignByGeometry: 0
     m_RichText: 1
-    m_HorizontalOverflow: 0
+    m_HorizontalOverflow: 1
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\uB9C8\uCF00\uD305 \uC218\uC2E0 \uB3D9\uC758 (\uC120\uD0DD)"
@@ -5554,7 +5557,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
+  m_Color: {r: 0.084905684, g: 0.084905684, b: 0.084905684, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -5562,7 +5565,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 12800000, guid: a23111da9729b4e44ba1ea46a66f6bdc, type: 3}
+    m_Font: {fileID: 12800000, guid: 34e1e018a8b5fbb44b1538ffcf911760, type: 3}
     m_FontSize: 14
     m_FontStyle: 0
     m_BestFit: 0
@@ -5571,7 +5574,7 @@ MonoBehaviour:
     m_Alignment: 0
     m_AlignByGeometry: 0
     m_RichText: 1
-    m_HorizontalOverflow: 0
+    m_HorizontalOverflow: 1
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\uD68C\uC6D0 \uC11C\uBE44\uC2A4 \uC774\uC6A9\uC57D\uAD00 \uB3D9\uC758
@@ -7107,8 +7110,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\uBE44\uBC00\uBC88\uD638 \uD655\uC778"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: e09e5840658e0394688d011076d61f4c, type: 2}
-  m_sharedMaterial: {fileID: -3271016548280654313, guid: e09e5840658e0394688d011076d61f4c, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: dc5e4adc52862a7429a20e433a13d9c0, type: 2}
+  m_sharedMaterial: {fileID: 848139096007801366, guid: dc5e4adc52862a7429a20e433a13d9c0, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
