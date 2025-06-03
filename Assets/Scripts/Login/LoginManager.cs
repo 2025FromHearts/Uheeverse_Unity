@@ -3,8 +3,12 @@ using UnityEngine.Networking;
 using System.Collections;
 using TMPro;
 using Newtonsoft.Json;
+using FishNet;
+using FishNet.Transporting;
+using System;
+using FishNet.Object;
 
-public class LoginManager : MonoBehaviour
+public class LoginManager : NetworkBehaviour
 {
     public TMP_InputField usernameInput;
     public TMP_InputField passwordInput;
@@ -76,8 +80,27 @@ public class LoginManager : MonoBehaviour
             yield return StartCoroutine(GetUserInfo());
             yield return StartCoroutine(CheckOrCreateInventory());
 
-            UnityEngine.SceneManagement.SceneManager.LoadScene("MyStation");
+            InstanceFinder.ClientManager.OnClientConnectionState += OnClientConnected;
+            InstanceFinder.ClientManager.StartConnection();
+            
+
         }
+    }
+
+    private void OnClientConnected(ClientConnectionStateArgs args)
+    {
+        if (args.ConnectionState == LocalConnectionState.Started)
+        {
+            Debug.Log("서버에 연결됨 ㅅㄱ");
+
+            SessionManager sm = FindAnyObjectByType<SessionManager>();
+            if (sm != null)
+            {
+                sm.CreateSessionFromTagServerRpc(SessionType.Station); // 또는 "Lobby"
+            }
+
+            InstanceFinder.ClientManager.OnClientConnectionState -= OnClientConnected;
+            }
     }
 
     IEnumerator GetUserInfo()

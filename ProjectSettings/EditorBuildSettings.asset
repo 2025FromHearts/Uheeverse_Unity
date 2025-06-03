@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/Start_CreateCharacter/startFishNet.unity
+    guid: 596ce8edda96946b2870b823d2a1ed31
+  - enabled: 1
     path: Assets/Scenes/Start_CreateCharacter/StartScene.unity
     guid: 55b460a4483bfd842a72587d2106aada
   - enabled: 1
