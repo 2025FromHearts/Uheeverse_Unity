@@ -6,9 +6,11 @@ using UnityEngine;
 using FishNet;
 using System;
 using Unity.VisualScripting;
+using FishNet.Transporting;
 
 public enum SessionType
 {
+    Login,
     Station,
     Game
     // 필요하면 Train, Plaza 등도 추가 가능
@@ -41,8 +43,17 @@ public class SessionManager : NetworkBehaviour
         {
             Destroy(gameObject);
         }
+        InstanceFinder.ServerManager.OnRemoteConnectionState += OnRemoteClientConnected;
     }
 
+    private void OnRemoteClientConnected(NetworkConnection conn, RemoteConnectionStateArgs args)
+    {
+        if (args.ConnectionState == RemoteConnectionState.Started)
+        {
+            Debug.Log($"[서버] 클라이언트 {conn.ClientId} 접속됨 → 개인 StationScene 로딩 시작");
+
+        }
+    }
     public void CreateSession(NetworkConnection hostConn, SessionType type)
     {
 
@@ -64,18 +75,30 @@ public class SessionManager : NetworkBehaviour
         sessions.Add(sessionId, session);
 
         // 타입에 따라 씬 이름 결정
-        string sceneName = type switch
-        {
-            SessionType.Station => "Mystaion", // 로비 세션이면 Train(열차) 씬
-            SessionType.Game => "GameScene", // 게임 세션이면 Game 씬
-            _ => "Train"
-        };
+        // string sceneName = type switch
+        // {
+        //     SessionType.Login => "MyStaion", // 로비 세션이면 Train(열차) 씬
+        //     SessionType.Station => "GameScene", // 게임 세션이면 Game 씬
+        //     _ => "MyStation"
+        // };
+        string sceneName;
+        switch (type)
+        { 
+            case SessionType.Login:
+                sceneName = "MyStation";
+                break;
+            case SessionType.Station:
+                sceneName = "GameScene";
+                break;
+            default:
+                sceneName = "MyStation";
+                break;
+        }
 
         SceneLoadData sld = new SceneLoadData(sceneName); // (필요하면)
         sld.Options.AllowStacking = true;
         sld.Options.AutomaticallyUnload = true;
-        sld.ReplaceScenes = ReplaceOption.None;
-
+        sld.ReplaceScenes = ReplaceOption.OnlineOnly;
 
         NetworkConnection[] connections = new NetworkConnection[] { hostConn };
         SceneManager.OnLoadEnd += OnSceneLoadEnd;
@@ -112,7 +135,7 @@ public class SessionManager : NetworkBehaviour
         // 서버라면 세션 생성
        
         // Owner 대신 네트워크 연결자 사용
-        CreateSession(base.Owner, type);
+        // CreateSession(base.Owner, type);
         
         // throw new NotImplementedException();
     }

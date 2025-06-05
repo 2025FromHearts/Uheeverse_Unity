@@ -7,8 +7,11 @@ using FishNet;
 using FishNet.Transporting;
 using System;
 using FishNet.Object;
+using FishNet.Connection;
+using UnityEngine.SceneManagement;
+using FishNet.Managing.Scened;
 
-public class LoginManager : NetworkBehaviour
+public class LoginManager : MonoBehaviour
 {
     public TMP_InputField usernameInput;
     public TMP_InputField passwordInput;
@@ -37,6 +40,13 @@ public class LoginManager : NetworkBehaviour
         public string character_id;
     }
 
+    private void Awake()
+    {
+        Debug.Log("LoginManager Awake 실행됨");
+        
+    }
+
+    [Obsolete]
     public void OnLoginButtonClick()
     {
         string username = usernameInput.text;
@@ -44,6 +54,7 @@ public class LoginManager : NetworkBehaviour
         StartCoroutine(Login(username, password));
     }
 
+    [Obsolete]
     IEnumerator Login(string username, string password)
     {
         LoginRequest requestData = new LoginRequest
@@ -78,17 +89,24 @@ public class LoginManager : NetworkBehaviour
             Debug.Log("Login success! Access Token: " + accessToken);
 
             yield return StartCoroutine(GetUserInfo());
-            yield return StartCoroutine(CheckOrCreateInventory());
+
+
 
             InstanceFinder.ClientManager.OnClientConnectionState += OnClientConnected;
+
             InstanceFinder.ClientManager.StartConnection();
-            
+            Debug.Log("IsClient: " + InstanceFinder.IsClient);
+            Debug.Log("IsServer: " + InstanceFinder.IsServer);
+                        
 
         }
+        
     }
+    
 
     private void OnClientConnected(ClientConnectionStateArgs args)
     {
+         Debug.Log($"클라이언트 연결 상태: {args.ConnectionState}"); // 추가
         if (args.ConnectionState == LocalConnectionState.Started)
         {
             Debug.Log("서버에 연결됨 ㅅㄱ");
@@ -96,11 +114,11 @@ public class LoginManager : NetworkBehaviour
             SessionManager sm = FindAnyObjectByType<SessionManager>();
             if (sm != null)
             {
-                sm.CreateSessionFromTagServerRpc(SessionType.Station); // 또는 "Lobby"
+                sm.CreateSessionFromTagServerRpc(SessionType.Login); // 또는 "Lobby"
             }
 
             InstanceFinder.ClientManager.OnClientConnectionState -= OnClientConnected;
-            }
+        }
     }
 
     IEnumerator GetUserInfo()
