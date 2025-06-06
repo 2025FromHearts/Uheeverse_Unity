@@ -8,8 +8,10 @@ using UnityEngine.Networking;
 public class InventoryUI : MonoBehaviour
 {
     public GameObject inventoryPanel;
-    public Transform slotParent; // 그리드 패널
-    public GameObject slotPrefab; // 슬롯 프리팹
+    public Transform slotParent;
+    public GameObject slotPrefab;
+
+    public Transform attachPoint; // 아이템 장착 위치 (Empty GameObject)
 
     private string characterId;
     private string accessToken;
@@ -22,14 +24,16 @@ public class InventoryUI : MonoBehaviour
         public string item_name;
         public string item_description;
         public int item_price;
+        public string item_icon;
         public string map;
+        public string item_rotation;  // ← 추가됨
     }
 
     [System.Serializable]
     public class InventoryItem
     {
         public string inventory_id;
-        public ItemData item;  // 중첩 구조로 변경
+        public ItemData item;
         public int slot_location;
     }
 
@@ -41,15 +45,17 @@ public class InventoryUI : MonoBehaviour
 
     public void OpenInventory()
     {
-        Debug.Log("✅ OpenInventory 호출됨");
         inventoryPanel.SetActive(true);
         StartCoroutine(LoadInventory());
     }
 
+    public void CloseInventory()
+    {
+        inventoryPanel.SetActive(false);
+    }
+
     IEnumerator LoadInventory()
     {
-        Debug.Log("🔵 LoadInventory 시작");
-
         characterId = PlayerPrefs.GetString("character_id", "");
         accessToken = PlayerPrefs.GetString("access_token", "");
 
@@ -64,21 +70,14 @@ public class InventoryUI : MonoBehaviour
 
         yield return www.SendWebRequest();
 
-        Debug.Log($"🟡 응답 상태: {www.result}, 코드: {www.responseCode}");
-
         if (www.result != UnityWebRequest.Result.Success)
         {
             Debug.LogError("❌ Inventory load failed: " + www.error);
         }
         else
         {
-            Debug.Log("🟢 Inventory 데이터 로드 성공");
-            Debug.Log("📦 응답 데이터: " + www.downloadHandler.text);
-
             string json = "{\"Items\":" + www.downloadHandler.text + "}";
             InventoryWrapper wrapper = JsonUtility.FromJson<InventoryWrapper>(json);
-
-            Debug.Log($"📦 파싱된 아이템 개수: {wrapper.Items.Count}");
 
             foreach (Transform child in slotParent)
             {
@@ -88,15 +87,59 @@ public class InventoryUI : MonoBehaviour
             foreach (var item in wrapper.Items)
             {
                 GameObject slot = Instantiate(slotPrefab, slotParent);
+
+                // 이름 텍스트
                 TMP_Text text = slot.transform.Find("ItemName").GetComponent<TMP_Text>();
                 text.text = item.item.item_name;
-                Debug.Log($"✅ 슬롯 생성됨: {text.text}");
-            }
 
-            if (wrapper.Items.Count == 0)
-            {
-                Debug.Log("❌ 인벤토리에 아이템 없음");
+                // 아이콘 이미지
+                Image iconImage = slot.transform.Find("ItemImage").GetComponent<Image>();
+                Sprite iconSprite = Resources.Load<Sprite>("Icons/" + item.item.item_icon);
+                if (iconSprite != null) iconImage.sprite = iconSprite;
+
+                // 버튼 클릭 → 아이템 착용
+                Button btn = slot.GetComponent<Button>();
+                if (btn != null)
+                {
+                    ItemData capturedItem = item.item;
+                    btn.onClick.AddListener(() => EquipItem(capturedItem));
+                }
             }
         }
+    }
+
+    void EquipItem(ItemData item)
+    {
+        // 기존 아이템 제거
+        foreach (Transform child in attachPoint)
+        {
+            Destroy(child.gameObject);
+        }
+
+        // 프리팹 로드
+        GameObject prefab = Resources.Load<GameObject>("Wearables/" + item.item_icon);
+        if (prefab == null)
+        {
+            Debug.LogWarning($"❌ 프리팹 없음: {item.item_icon}");
+            return;
+        }
+
+        // 장착
+        GameObject equipped = Instantiate(prefab, attachPoint);
+        equipped.transform.localPosition = Vector3.zero;
+
+        // 회전값 적용
+        string[] rotParts = item.item_rotation.Split(',');
+        if (rotParts.Length == 3)
+        {
+            if (float.TryParse(rotParts[0], out float x) &&
+                float.TryParse(rotParts[1], out float y) &&
+                float.TryParse(rotParts[2], out float z))
+            {
+                equipped.transform.localRotation = Quaternion.Euler(x, y, z);
+            }
+        }
+
+        Debug.Log($"🎮 아이템 장착됨: {item.item_name}");
     }
 }
