@@ -10,11 +10,12 @@ public class InventoryUI : MonoBehaviour
     public GameObject inventoryPanel;
     public Transform slotParent;
     public GameObject slotPrefab;
-
-    public Transform attachPoint; // 아이템 장착 위치 (Empty GameObject)
+    public ItemAttacher itemAttacher;
 
     private string characterId;
     private string accessToken;
+
+    private const string BASE_URL = "https://209f-203-252-223-254.ngrok-free.app";
 
     [System.Serializable]
     public class ItemData
@@ -26,7 +27,7 @@ public class InventoryUI : MonoBehaviour
         public int item_price;
         public string item_icon;
         public string map;
-        public string item_rotation;  // ← 추가됨
+        public string item_rotation;
     }
 
     [System.Serializable]
@@ -59,7 +60,7 @@ public class InventoryUI : MonoBehaviour
         characterId = PlayerPrefs.GetString("character_id", "");
         accessToken = PlayerPrefs.GetString("access_token", "");
 
-        string url = "http://127.0.0.1:8000/item/inventory/" + characterId + "/";
+        string url = BASE_URL + "/item/inventory/" + characterId + "/";
         UnityWebRequest www = UnityWebRequest.Get(url);
         www.SetRequestHeader("Authorization", "Bearer " + accessToken);
 
@@ -71,33 +72,44 @@ public class InventoryUI : MonoBehaviour
         }
         else
         {
+            Debug.Log("✅ Raw inventory JSON: " + www.downloadHandler.text);
+
             string json = "{\"Items\":" + www.downloadHandler.text + "}";
             InventoryWrapper wrapper = JsonUtility.FromJson<InventoryWrapper>(json);
 
             foreach (Transform child in slotParent)
-            {
                 Destroy(child.gameObject);
-            }
 
             foreach (var item in wrapper.Items)
             {
                 GameObject slot = Instantiate(slotPrefab, slotParent);
 
-                // 이름 텍스트
-                TMP_Text text = slot.transform.Find("ItemName").GetComponent<TMP_Text>();
-                text.text = item.item.item_name;
+                TMP_Text text = slot.transform.Find("Button/ItemName")?.GetComponent<TMP_Text>();
+                if (text != null)
+                    text.text = item.item.item_name;
+                else
+                    Debug.LogWarning("⚠️ ItemName 텍스트 누락");
 
-                // 아이콘 이미지
-                Image iconImage = slot.transform.Find("ItemImage").GetComponent<Image>();
-                Sprite iconSprite = Resources.Load<Sprite>("Icons/" + item.item.item_icon);
-                if (iconSprite != null) iconImage.sprite = iconSprite;
+                Transform iconTransform = slot.transform.Find("Button/ItemImage");
+                if (iconTransform != null)
+                {
+                    Image iconImage = iconTransform.GetComponent<Image>();
+                    Sprite iconSprite = Resources.Load<Sprite>("Icons/" + item.item.item_icon);
+                    if (iconSprite != null)
+                        iconImage.sprite = iconSprite;
+                    else
+                        Debug.LogWarning("⚠️ 아이콘 스프라이트를 못 찾음: " + item.item.item_icon);
+                }
 
-                // 버튼 클릭 → 아이템 착용
-                Button btn = slot.GetComponent<Button>();
+                Button btn = slot.transform.Find("Button")?.GetComponent<Button>();
                 if (btn != null)
                 {
                     ItemData capturedItem = item.item;
                     btn.onClick.AddListener(() => EquipItem(capturedItem));
+                }
+                else
+                {
+                    Debug.LogWarning("⚠️ Button 컴포넌트 누락");
                 }
             }
         }
@@ -105,36 +117,62 @@ public class InventoryUI : MonoBehaviour
 
     void EquipItem(ItemData item)
     {
-        // 기존 아이템 제거
-        foreach (Transform child in attachPoint)
-        {
-            Destroy(child.gameObject);
-        }
+        Debug.Log($"🧩 EquipItem() 호출됨 | item: {(item != null ? item.item_name : "null")}");
 
-        // 프리팹 로드
-        GameObject prefab = Resources.Load<GameObject>("Wearables/" + item.item_icon);
-        if (prefab == null)
+        if (item == null)
         {
-            Debug.LogWarning($"❌ 프리팹 없음: {item.item_icon}");
+            Debug.LogError("❌ item is null");
             return;
         }
 
-        // 장착
+        if (itemAttacher == null)
+        {
+            Debug.LogError("❌ itemAttacher is null. 에디터에서 할당했는지 확인!");
+            return;
+        }
+
+        if (string.IsNullOrEmpty(item.item_type))
+        {
+            Debug.LogError("❌ item_type is null or empty");
+            return;
+        }
+
+        Transform attachPoint = itemAttacher.GetAttachPoint(item.item_type);
+        if (attachPoint == null)
+        {
+            Debug.LogError($"❌ GetAttachPoint()에서 null 반환됨: {item.item_type}");
+            return;
+        }
+
+        foreach (Transform child in attachPoint)
+            Destroy(child.gameObject);
+
+        GameObject prefab = Resources.Load<GameObject>("ItemModels/" + item.item_icon);
+        if (prefab == null)
+        {
+            Debug.LogError("❌ 프리팹 로드 실패: " + item.item_icon);
+            return;
+        }
+
         GameObject equipped = Instantiate(prefab, attachPoint);
         equipped.transform.localPosition = Vector3.zero;
 
-        // 회전값 적용
-        string[] rotParts = item.item_rotation.Split(',');
-        if (rotParts.Length == 3)
+        if (!string.IsNullOrEmpty(item.item_rotation))
         {
-            if (float.TryParse(rotParts[0], out float x) &&
+            string[] rotParts = item.item_rotation.Split(',');
+            if (rotParts.Length == 3 &&
+                float.TryParse(rotParts[0], out float x) &&
                 float.TryParse(rotParts[1], out float y) &&
                 float.TryParse(rotParts[2], out float z))
             {
                 equipped.transform.localRotation = Quaternion.Euler(x, y, z);
             }
+            else
+            {
+                Debug.LogWarning("⚠️ 회전값 파싱 실패: " + item.item_rotation);
+            }
         }
 
-        Debug.Log($"🎮 아이템 장착됨: {item.item_name}");
+        Debug.Log($"✅ 장착 완료: {item.item_name}");
     }
 }
