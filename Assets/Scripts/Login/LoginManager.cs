@@ -43,8 +43,12 @@ public class LoginManager : MonoBehaviour
     private void Awake()
     {
         Debug.Log("LoginManager Awake 실행됨");
+
+        
         
     }
+
+
 
     [Obsolete]
     public void OnLoginButtonClick()
@@ -91,34 +95,8 @@ public class LoginManager : MonoBehaviour
             yield return StartCoroutine(GetUserInfo());
 
 
-
-            InstanceFinder.ClientManager.OnClientConnectionState += OnClientConnected;
-
-            InstanceFinder.ClientManager.StartConnection();
-            Debug.Log("IsClient: " + InstanceFinder.IsClient);
-            Debug.Log("IsServer: " + InstanceFinder.IsServer);
-                        
-
         }
         
-    }
-    
-
-    private void OnClientConnected(ClientConnectionStateArgs args)
-    {
-         Debug.Log($"클라이언트 연결 상태: {args.ConnectionState}"); // 추가
-        if (args.ConnectionState == LocalConnectionState.Started)
-        {
-            Debug.Log("서버에 연결됨 ㅅㄱ");
-
-            SessionManager sm = FindAnyObjectByType<SessionManager>();
-            if (sm != null)
-            {
-                sm.CreateSessionFromTagServerRpc(SessionType.Login); // 또는 "Lobby"
-            }
-
-            InstanceFinder.ClientManager.OnClientConnectionState -= OnClientConnected;
-        }
     }
 
     IEnumerator GetUserInfo()

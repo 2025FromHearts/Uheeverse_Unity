@@ -24,6 +24,8 @@ public class SessionData
 
 public class SessionManager : NetworkBehaviour
 {
+    private NetworkConnection _pendingConn;
+    
     public GameObject playerPrefab;
     public static SessionManager Instance { get; private set; }
     public object PreferredActiveScene { get; private set; }
@@ -38,6 +40,7 @@ public class SessionManager : NetworkBehaviour
         if (Instance == null)
         {
             Instance = this;
+            Debug.Log("인스턴스화 됐긔");
         }
         else
         {
@@ -50,10 +53,17 @@ public class SessionManager : NetworkBehaviour
     {
         if (args.ConnectionState == RemoteConnectionState.Started)
         {
+            _pendingConn = conn;
             Debug.Log($"[서버] 클라이언트 {conn.ClientId} 접속됨 → 개인 StationScene 로딩 시작");
+            NetworkConnection[] connections = new NetworkConnection[] { conn };
 
         }
+        if (IsServer)
+        {
+            Debug.Log("서버다");
+        }
     }
+
     public void CreateSession(NetworkConnection hostConn, SessionType type)
     {
 
@@ -83,7 +93,7 @@ public class SessionManager : NetworkBehaviour
         // };
         string sceneName;
         switch (type)
-        { 
+        {
             case SessionType.Login:
                 sceneName = "MyStation";
                 break;
@@ -130,13 +140,14 @@ public class SessionManager : NetworkBehaviour
     internal void CreateSessionFromTagServerRpc(SessionType type, NetworkConnection conn = null)
     {
         if (conn == null) conn = base.Owner;
-        CreateSession(conn, type);
+        CreateSession(base.Owner, type);
+        Debug.Log($"[ServerRpc] CreateSessionFromTagServerRpc 실행됨 - IsServer: {IsServer}, IsOwner: {IsOwner}");
 
         // 서버라면 세션 생성
-       
+
         // Owner 대신 네트워크 연결자 사용
         // CreateSession(base.Owner, type);
-        
+
         // throw new NotImplementedException();
     }
     
