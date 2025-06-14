@@ -3,8 +3,8 @@ using UnityEngine.UI;
 
 public class StationInteraction : MonoBehaviour
 {
-    public GameObject uiPanel; // ÃàÁ¦ Áñ±â±â UI ÆÐ³Î
-    public LayerMask stationLayer; // ±âÂ÷¿ªÀÌ Æ÷ÇÔµÈ ·¹ÀÌ¾î
+    public GameObject uiPanel; // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ UI ï¿½Ð³ï¿½
+    public LayerMask stationLayer; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ôµï¿½ ï¿½ï¿½ï¿½Ì¾ï¿½
 
     private GameObject currentHovered;
 
@@ -17,12 +17,12 @@ public class StationInteraction : MonoBehaviour
         {
             GameObject target = hit.collider.gameObject;
 
-            // È£¹ö ÁßÀÌ¸é ÇÏÀÌ¶óÀÌÆ®
+            // È£ï¿½ï¿½ ï¿½ï¿½ï¿½Ì¸ï¿½ ï¿½ï¿½ï¿½Ì¶ï¿½ï¿½ï¿½Æ®
             if (currentHovered != target)
             {
                 if (currentHovered != null)
                 {
-                    // È£¹ö ÇØÁ¦
+                    // È£ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
                     Unhighlight(currentHovered);
                 }
 
@@ -30,11 +30,12 @@ public class StationInteraction : MonoBehaviour
                 Highlight(currentHovered);
             }
 
-            // Å¬¸¯ ½Ã UI È°¼ºÈ­
+            // Å¬ï¿½ï¿½ ï¿½ï¿½ UI È°ï¿½ï¿½È­
             if (Input.GetMouseButtonDown(0))
             {
                 ShowUIPanel();
             }
+            Debug.Log("Raycast hit: " + hit.collider.gameObject.name);
         }
         else
         {
@@ -48,7 +49,7 @@ public class StationInteraction : MonoBehaviour
 
     void Highlight(GameObject obj)
     {
-        // ÇÏÀÌ¶óÀÌÆ® Ã³¸® (¿¹: Outline È¿°ú Ãß°¡, ¸ÓÆ¼¸®¾ó º¯°æ µî)
+        // ï¿½ï¿½ï¿½Ì¶ï¿½ï¿½ï¿½Æ® Ã³ï¿½ï¿½ (ï¿½ï¿½: Outline È¿ï¿½ï¿½ ï¿½ß°ï¿½, ï¿½ï¿½Æ¼ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½)
         Renderer rend = obj.GetComponent<Renderer>();
         if (rend != null)
             rend.material.color = Color.cyan;

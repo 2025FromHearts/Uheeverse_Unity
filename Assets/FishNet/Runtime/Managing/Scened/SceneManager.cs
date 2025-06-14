@@ -3075,7 +3075,6 @@ namespace FishNet.Managing.Scened
                 {
                     if (excludedScenes == null)
                         excludedScenes = new();
-
                     excludedScenes.Add(gs);
                 }
             }

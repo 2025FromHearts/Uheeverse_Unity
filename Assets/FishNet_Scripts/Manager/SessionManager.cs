@@ -91,6 +91,7 @@ public class SessionManager : NetworkBehaviour
         //     SessionType.Station => "GameScene", // 게임 세션이면 Game 씬
         //     _ => "MyStation"
         // };
+        NetworkConnection[] connections = new NetworkConnection[] { hostConn };
         string sceneName;
         switch (type)
         {
@@ -98,7 +99,7 @@ public class SessionManager : NetworkBehaviour
                 sceneName = "MyStation";
                 break;
             case SessionType.Station:
-                sceneName = "GameScene";
+                sceneName = "Train";
                 break;
             default:
                 sceneName = "MyStation";
@@ -108,11 +109,22 @@ public class SessionManager : NetworkBehaviour
         SceneLoadData sld = new SceneLoadData(sceneName); // (필요하면)
         sld.Options.AllowStacking = true;
         sld.Options.AutomaticallyUnload = true;
-        sld.ReplaceScenes = ReplaceOption.OnlineOnly;
+        sld.ReplaceScenes = ReplaceOption.None;
 
-        NetworkConnection[] connections = new NetworkConnection[] { hostConn };
         SceneManager.OnLoadEnd += OnSceneLoadEnd;
         SceneManager.LoadConnectionScenes(connections, sld);
+
+        if (sceneName == "MyStation")
+        { 
+            SceneUnloadData sud = new SceneUnloadData(new string[] { "StartScene" });
+            SceneManager.UnloadConnectionScenes(connections, sud);
+        }
+        else if(sceneName == "Train") { 
+            SceneUnloadData sud = new SceneUnloadData(new string[] { "MyStation", "StartScene" });
+            SceneManager.UnloadConnectionScenes(connections, sud);
+        }
+        
+
 
 
 
