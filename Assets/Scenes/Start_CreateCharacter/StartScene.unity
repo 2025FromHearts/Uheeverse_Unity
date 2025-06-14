@@ -2001,7 +2001,7 @@ RectTransform:
   m_GameObject: {fileID: 1501307610}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.69947, y: 0.69947, z: 0.69947}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1672085887}
@@ -2078,7 +2078,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 44a048c3ffae18f428f2e8917c63a948, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  getCharacterUrl: ' https://209f-203-252-223-254.ngrok-free.app/users/get_my_character/'
+  getCharacterUrl: http://localhost:8000/users/get_my_character/
   characterCreateSceneName: CreateCharacter
   myStationSceneName: MyStation
 --- !u!4 &1614307545
