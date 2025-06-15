@@ -12,7 +12,8 @@ public enum SessionType
 {
     Login,
     Station,
-    Game
+    Game,
+    Train
     // 필요하면 Train, Plaza 등도 추가 가능
 }
 public class SessionData
@@ -106,20 +107,23 @@ public class SessionManager : NetworkBehaviour
                 break;
         }
 
-        SceneLoadData sld = new SceneLoadData(sceneName); // (필요하면)
+        SceneLoadData sld = new SceneLoadData(sceneName);
         sld.Options.AllowStacking = true;
-        sld.Options.AutomaticallyUnload = true;
+        sld.Options.AutomaticallyUnload = true;// (필요하면)
+
         sld.ReplaceScenes = ReplaceOption.None;
 
         SceneManager.OnLoadEnd += OnSceneLoadEnd;
-        SceneManager.LoadConnectionScenes(connections, sld);
+        base.SceneManager.LoadConnectionScenes(connections, sld);
+        
 
         if (sceneName == "MyStation")
-        { 
+        {
             SceneUnloadData sud = new SceneUnloadData(new string[] { "StartScene" });
             SceneManager.UnloadConnectionScenes(connections, sud);
         }
-        else if(sceneName == "Train") { 
+        else if (sceneName == "Train")
+        {
             SceneUnloadData sud = new SceneUnloadData(new string[] { "MyStation", "StartScene" });
             SceneManager.UnloadConnectionScenes(connections, sud);
         }

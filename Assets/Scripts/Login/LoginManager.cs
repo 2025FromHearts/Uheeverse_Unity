@@ -9,10 +9,12 @@ using System;
 using FishNet.Object;
 using FishNet.Connection;
 using UnityEngine.SceneManagement;
+
 using FishNet.Managing.Scened;
 
 public class LoginManager : MonoBehaviour
 {
+    private SessionManager sessionManager;
     public TMP_InputField usernameInput;
     public TMP_InputField passwordInput;
     private string accessToken;
@@ -56,6 +58,7 @@ public class LoginManager : MonoBehaviour
         string username = usernameInput.text;
         string password = passwordInput.text;
         StartCoroutine(Login(username, password));
+        Debug.Log("로그인버튼실행됨");
     }
 
     [Obsolete]
@@ -75,12 +78,16 @@ public class LoginManager : MonoBehaviour
         www.downloadHandler = new DownloadHandlerBuffer();
         www.SetRequestHeader("Content-Type", "application/json");
 
+        Debug.Log("ㅅㅂ");
+
         yield return www.SendWebRequest();
 
         if (www.result != UnityWebRequest.Result.Success)
         {
             Debug.LogError("Login failed: " + www.error + "\n응답: " + www.downloadHandler.text);
             Debug.Log("Sending JSON: " + jsonData);
+
+            Debug.Log("ㅅㅂ2");
         }
         else
         {
@@ -94,15 +101,27 @@ public class LoginManager : MonoBehaviour
 
             yield return StartCoroutine(GetUserInfo());
 
+            Debug.Log("ㅅㅂ3");
 
-        }
+            sessionManager = SessionManager.Instance;
+
+            Debug.LogWarning("🔥 MyStationLoader.Awake() 호출됨!");
+            if (sessionManager != null)
+            {
+                Debug.Log("dd");
+                SessionManager.Instance.CreateSessionFromTagServerRpc(SessionType.Login);
+            }
+            if (sessionManager == null)
+                Debug.Log("SessionManager 인스턴스를 찾을 수 없습니다!");
+            }
         
     }
 
     IEnumerator GetUserInfo()
     {
+        string token = PlayerPrefs.GetString("access_token");
         UnityWebRequest www = UnityWebRequest.Get(ServerConfig.baseUrl + "/users/get_user_info/");
-        www.SetRequestHeader("Authorization", "Bearer " + accessToken);
+        www.SetRequestHeader("Authorization", "Bearer " + token);
 
         yield return www.SendWebRequest();
 
@@ -134,8 +153,10 @@ public class LoginManager : MonoBehaviour
         string url = ServerConfig.baseUrl + "/item/inventory/init/" + characterId + "/";
         Debug.Log("Calling URL: " + url);
 
+        string token = PlayerPrefs.GetString("access_token");
+
         UnityWebRequest www = UnityWebRequest.Get(url);
-        www.SetRequestHeader("Authorization", "Bearer " + accessToken);
+        www.SetRequestHeader("Authorization", "Bearer " + token);
 
         yield return www.SendWebRequest();
 
