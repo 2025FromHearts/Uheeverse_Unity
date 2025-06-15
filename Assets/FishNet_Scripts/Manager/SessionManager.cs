@@ -116,6 +116,7 @@ public class SessionManager : NetworkBehaviour
 
         if (sceneName == "MyStation")
         {
+            
             SceneUnloadData sud = new SceneUnloadData(new string[] { "StartScene" });
             SceneManager.UnloadConnectionScenes(connections, sud);
         }
@@ -140,18 +141,9 @@ public class SessionManager : NetworkBehaviour
     private void OnSceneLoadEnd(SceneLoadEndEventArgs args)
     {
         SceneManager.OnLoadEnd -= OnSceneLoadEnd;
+        
+        
 
-        // foreach (var conn in args.LoadConnectionScenes)
-        // {
-        //     Vector3 spawnPos = new Vector3(0, 1, 0);
-        //     Quaternion spawnRot = Quaternion.identity;
-
-        //     GameObject playerObj = Instantiate(playerPrefab, spawnPos, spawnRot);
-        //     var nob = playerObj.GetComponent<NetworkObject>();
-        //     nob.SpawnAsPlayerObject(conn);
-
-        //     playerObjects[conn] = nob;
-        // }
     }
 
     [ServerRpc(RequireOwnership = false)]
