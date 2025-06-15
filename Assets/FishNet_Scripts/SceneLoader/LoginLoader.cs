@@ -1,13 +1,13 @@
-using UnityEngine;
-using UnityEngine.SceneManagement;
 using FishNet;
-using FishNet.Managing.Client;
-using FishNet.Transporting;
 using FishNet.Connection;
 using FishNet.Managing;
 using FishNet.Managing.Server;
+using FishNet.Managing.Scened;
+using UnityEngine;
+using FishNet.Transporting;
 using System;
 using FishNet.Object;
+using UnityEngine.SceneManagement;
 
 public class LoginSceneLoader : MonoBehaviour
 {
@@ -28,19 +28,43 @@ public class LoginSceneLoader : MonoBehaviour
         // InstanceFinder.ClientManager.OnClientConnectionState += HandleClientConnected;
     }
 
+
+
     private void OnRemoteClientConnected(NetworkConnection conn, RemoteConnectionStateArgs args)
     {
         if (args.ConnectionState == RemoteConnectionState.Started)
         {
             _pendingConn = conn;
             Debug.Log($"[서버] 클라이언트 {conn.ClientId} 접속됨 → 개인 StationScene 로딩 시작");
-            NetworkConnection[] connections = new NetworkConnection[] { conn };
-        }
-        if (SceneManager.GetActiveScene().name != "StartScene")
+
+            if (conn.FirstObject != null)
             {
-                SceneManager.LoadScene("StartScene", LoadSceneMode.Additive);
+                conn.FirstObject.Despawn();
             }
+            SceneLoadData sld = new SceneLoadData("StartScene");
+            sld.Options.AllowStacking = true;
+            sld.ReplaceScenes = ReplaceOption.OnlineOnly;
+
+            // InstanceFinder.SceneManager.OnLoadEnd += OnSceneLoadEnd;
+            NetworkConnection[] connections = new NetworkConnection[] { conn };
+
+        InstanceFinder.SceneManager.LoadConnectionScenes(connections, sld);
+        }
     }
+
+    // private void OnRemoteClientConnected(NetworkConnection conn, RemoteConnectionStateArgs args)
+    // {
+    //     if (args.ConnectionState == RemoteConnectionState.Started)
+    //     {
+    //         _pendingConn = conn;
+    //         Debug.Log($"[서버] 클라이언트 {conn.ClientId} 접속됨 → 개인 StationScene 로딩 시작");
+    //         NetworkConnection[] connections = new NetworkConnection[] { conn };
+    //     }
+    //     if (SceneManager.GetActiveScene().name != "StartScene")
+    //         {
+    //             SceneManager.LoadScene("StartScene", LoadSceneMode.Additive);
+    //         }
+    // }
 
     // private void HandleClientConnected(ClientConnectionStateArgs args)
     // {
@@ -57,6 +81,44 @@ public class LoginSceneLoader : MonoBehaviour
     //             SceneManager.LoadScene("StartScene", LoadSceneMode.Additive);
     //         }
     //     }
+    // }
+
+
+    // private void OnSceneLoadEnd(SceneLoadEndEventArgs args)
+    // {
+    //     if (!InstanceFinder.IsServerStarted)
+    //     return;
+
+    //     InstanceFinder.SceneManager.OnLoadEnd -= OnSceneLoadEnd;
+        
+    //     Scene mystationScene = default;
+    //     foreach (var loadedScene in args.LoadedScenes)
+    //     {
+    //         if (loadedScene.name == "StartScene")
+    //         {
+    //             mystationScene = loadedScene;
+    //             break;
+    //         }
+    //     }
+    //     if (!mystationScene.IsValid())
+    //     {
+    //         Debug.LogError("Mystation 씬을 찾을 수 없습니다!");
+    //         return;
+    //     }
+
+    //     InstanceFinder.SceneManager.AddConnectionToScene(_pendingConn, mystationScene);
+        
+    //     // // 6. 캐릭터 스폰
+    //     // Vector3 spawnPos = new Vector3(0, 1, 0);
+    //     // Quaternion spawnRot = Quaternion.identity;
+
+    //     // GameObject playerObj = Instantiate(playerPrefab, spawnPos, spawnRot);
+
+    //     // UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(playerObj, mystationScene);
+    //     // NetworkObject nob = playerObj.GetComponent<NetworkObject>();
+
+    //     // // 7. 네트워크에 소유자 지정 스폰
+    //     // InstanceFinder.ServerManager.Spawn(nob, _pendingConn);
     // }
 
     private void OnDestroy()
