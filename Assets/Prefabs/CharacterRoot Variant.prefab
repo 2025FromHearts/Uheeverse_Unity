@@ -8,6 +8,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -7341765042941610316, guid: a5dce827108a03645a132a0131641443, type: 3}
+      propertyPath: <AssetPathHash>k__BackingField
+      value: 247971620095666755
+      objectReference: {fileID: 0}
     - target: {fileID: 3003731852610320257, guid: a5dce827108a03645a132a0131641443, type: 3}
       propertyPath: m_Name
       value: CharacterRoot Variant
