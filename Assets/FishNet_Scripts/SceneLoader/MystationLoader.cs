@@ -11,7 +11,7 @@ public class MyStationLoader : MonoBehaviour
         Debug.LogWarning("🔥 MyStationLoader.Awake() 호출됨!");
         if (sessionManager != null)
         {
-            Debug.Log("dd");
+            Debug.Log("StationLoader rr");
         }
         if (sessionManager == null)
             Debug.Log("SessionManager 인스턴스를 찾을 수 없습니다!");
