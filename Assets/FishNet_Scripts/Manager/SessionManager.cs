@@ -157,8 +157,8 @@ public class SessionManager : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     internal void CreateSessionFromTagServerRpc(SessionType type, NetworkConnection conn = null)
     {
-        if (conn == null) conn = base.Owner;
-        CreateSession(base.Owner, type);
+        if (conn == null) conn = base.LocalConnection;
+        CreateSession(conn, type);
         Debug.Log($"[ServerRpc] CreateSessionFromTagServerRpc 실행됨 - IsServer: {IsServer}, IsOwner: {IsOwner}");
 
         // 서버라면 세션 생성
