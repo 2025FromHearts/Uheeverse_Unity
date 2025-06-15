@@ -85,13 +85,6 @@ public class SessionManager : NetworkBehaviour
         session.Members.Add(hostConn);
         sessions.Add(sessionId, session);
 
-        // 타입에 따라 씬 이름 결정
-        // string sceneName = type switch
-        // {
-        //     SessionType.Login => "MyStaion", // 로비 세션이면 Train(열차) 씬
-        //     SessionType.Station => "GameScene", // 게임 세션이면 Game 씬
-        //     _ => "MyStation"
-        // };
         NetworkConnection[] connections = new NetworkConnection[] { hostConn };
         string sceneName;
         switch (type)
@@ -102,10 +95,14 @@ public class SessionManager : NetworkBehaviour
             case SessionType.Station:
                 sceneName = "Train";
                 break;
+            case SessionType.Train:
+                sceneName = "FestivalMainScene";
+                break;
             default:
                 sceneName = "MyStation";
                 break;
         }
+        SceneLookupData lookup = new SceneLookupData(sceneName);
 
         SceneLoadData sld = new SceneLoadData(sceneName);
         sld.Options.AllowStacking = true;
@@ -115,7 +112,7 @@ public class SessionManager : NetworkBehaviour
 
         SceneManager.OnLoadEnd += OnSceneLoadEnd;
         base.SceneManager.LoadConnectionScenes(connections, sld);
-        
+
 
         if (sceneName == "MyStation")
         {
@@ -125,6 +122,11 @@ public class SessionManager : NetworkBehaviour
         else if (sceneName == "Train")
         {
             SceneUnloadData sud = new SceneUnloadData(new string[] { "MyStation", "StartScene" });
+            SceneManager.UnloadConnectionScenes(connections, sud);
+        }
+        else if (sceneName == "FestivalMainScene")
+        { 
+            SceneUnloadData sud = new SceneUnloadData(new string[] { "MyStation", "StartScene", "Train" });
             SceneManager.UnloadConnectionScenes(connections, sud);
         }
         
