@@ -37,13 +37,16 @@ public class LoginSceneLoader : MonoBehaviour
             _pendingConn = conn;
             Debug.Log($"[서버] 클라이언트 {conn.ClientId} 접속됨 → 개인 StationScene 로딩 시작");
 
-            if (conn.FirstObject != null)
-            {
-                conn.FirstObject.Despawn();
-            }
+            
+            NetworkObject myPlayerObj = conn.FirstObject;
+
+            
             SceneLoadData sld = new SceneLoadData("StartScene");
             sld.Options.AllowStacking = true;
             sld.ReplaceScenes = ReplaceOption.OnlineOnly;
+
+            if (myPlayerObj != null)
+            sld.MovedNetworkObjects = new NetworkObject[] { myPlayerObj };
 
             // InstanceFinder.SceneManager.OnLoadEnd += OnSceneLoadEnd;
             NetworkConnection[] connections = new NetworkConnection[] { conn };

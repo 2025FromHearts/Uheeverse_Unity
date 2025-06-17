@@ -7,13 +7,16 @@ using FishNet;
 using System;
 using Unity.VisualScripting;
 using FishNet.Transporting;
+using UnityEngine.SceneManagement;
+using FishNet.Component.Prediction;
 
 public enum SessionType
 {
     Login,
     Station,
     Game,
-    Train
+    Train,
+    Festival
     // 필요하면 Train, Plaza 등도 추가 가능
 }
 public class SessionData
@@ -116,9 +119,9 @@ public class SessionManager : NetworkBehaviour
 
         if (sceneName == "MyStation")
         {
-            
             SceneUnloadData sud = new SceneUnloadData(new string[] { "StartScene" });
             SceneManager.UnloadConnectionScenes(connections, sud);
+            Debug.Log("씬 삭제됨");
         }
         else if (sceneName == "Train")
         {
@@ -126,7 +129,7 @@ public class SessionManager : NetworkBehaviour
             SceneManager.UnloadConnectionScenes(connections, sud);
         }
         else if (sceneName == "FestivalMainScene")
-        { 
+        {
             SceneUnloadData sud = new SceneUnloadData(new string[] { "MyStation", "StartScene", "Train" });
             SceneManager.UnloadConnectionScenes(connections, sud);
         }
@@ -141,8 +144,38 @@ public class SessionManager : NetworkBehaviour
     private void OnSceneLoadEnd(SceneLoadEndEventArgs args)
     {
         SceneManager.OnLoadEnd -= OnSceneLoadEnd;
+
+        Scene myScene = default;
+        foreach (var loadedScene in args.LoadedScenes)
+        {
+            if (loadedScene.name == "MyStation")
+            {
+                myScene = loadedScene;
+                break;
+            }
+            else if (loadedScene.name == "Train")
+            {
+                myScene = loadedScene;
+                break;
+            }
+            else if (loadedScene.name == "FestivalMainScene")
+            {
+                myScene = loadedScene;
+            }
+        }
+
+        InstanceFinder.SceneManager.AddConnectionToScene(_pendingConn, myScene);
         
-        
+        Vector3 spawnPos = new Vector3(0, 1, 0);
+        Quaternion spawnRot = Quaternion.identity;
+
+        GameObject playerObj = Instantiate(playerPrefab, spawnPos, spawnRot);
+
+        UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(playerObj, myScene);
+        NetworkObject nob = playerObj.GetComponent<NetworkObject>();
+
+        // 7. 네트워크에 소유자 지정 스폰
+        InstanceFinder.ServerManager.Spawn(nob, _pendingConn);
 
     }
 

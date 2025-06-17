@@ -10,8 +10,8 @@ public class UDPReceiver : MonoBehaviour
 {
     private UdpClient udpClient;
     private Thread receiveThread;
-    public int listenPort = 8888;
-    [SerializeField] private NetworkManager networkManager;
+    public int listenPort = 8887;
+    [SerializeField] private FishNet.Managing.NetworkManager networkManager;
 
     void Start()
     {
