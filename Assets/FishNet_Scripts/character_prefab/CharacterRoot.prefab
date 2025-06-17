@@ -98,6 +98,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 3003731852610320257, guid: a5dce827108a03645a132a0131641443, type: 3}
       insertIndex: -1
       addedObject: {fileID: -6102151902435736186}
+    - targetCorrespondingSourceObject: {fileID: 3003731852610320257, guid: a5dce827108a03645a132a0131641443, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -9016036809408252671}
   m_SourcePrefab: {fileID: 100100000, guid: a5dce827108a03645a132a0131641443, type: 3}
 --- !u!114 &5068026964938151274 stripped
 MonoBehaviour:
@@ -182,3 +185,18 @@ MonoBehaviour:
   _componentIndexCache: 0
   _addedNetworkObject: {fileID: 5068026964938151274}
   _networkObjectCache: {fileID: 5068026964938151274}
+--- !u!114 &-9016036809408252671
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8495642741092766815}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 91a41f598eef746518a9e17188cb71ae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _componentIndexCache: 255
+  _addedNetworkObject: {fileID: 5068026964938151274}
+  _networkObjectCache: {fileID: 0}
