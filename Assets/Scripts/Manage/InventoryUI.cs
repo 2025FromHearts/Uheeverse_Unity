@@ -13,6 +13,10 @@ public class InventoryUI : MonoBehaviour
 
     private string characterId;
     private string accessToken;
+<<<<<<< Updated upstream
+=======
+    private string BASE_URL;
+>>>>>>> Stashed changes
 
     [System.Serializable]
     public class ItemData
@@ -48,8 +52,12 @@ public class InventoryUI : MonoBehaviour
 
     IEnumerator LoadInventory()
     {
+<<<<<<< Updated upstream
         Debug.Log("🔵 LoadInventory 시작");
 
+=======
+        BASE_URL = ServerConfig.baseUrl;
+>>>>>>> Stashed changes
         characterId = PlayerPrefs.GetString("character_id", "");
         accessToken = PlayerPrefs.GetString("access_token", "");
 
