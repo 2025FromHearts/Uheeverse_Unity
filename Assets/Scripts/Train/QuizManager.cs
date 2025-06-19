@@ -85,6 +85,8 @@ public class QuizManager : MonoBehaviour
         {
             Debug.Log("🎉 모든 퀴즈 완료!");
             resultText.text = $"총 {maxRounds}문제 중 {correctCount}개 정답!\n{correctCount}개를 맞추셨으니 코인 {correctCount * 100}개를 드릴게요.";
+
+            StartCoroutine(ShowArrivalMessageAndMoveScene());
         }
     }
 
@@ -160,6 +162,18 @@ public class QuizManager : MonoBehaviour
         string json = www.downloadHandler.text;
         QuizData quiz = JsonUtility.FromJson<QuizData>(json);
         ShowQuiz(quiz);
+    }
+
+    private IEnumerator ShowArrivalMessageAndMoveScene()
+    {
+        yield return new WaitForSeconds(2f); // 결과 멘트 잠깐 보여줌
+
+        // 축제장 안내 멘트 UI 표시
+        resultText.text = "🎊 이제 곧 축제장에 도착합니다! 이동 중...";
+
+        yield return new WaitForSeconds(3f);
+
+        UnityEngine.SceneManagement.SceneManager.LoadScene("FestivalMainScene"); // 축제 맵 씬 이름
     }
 
     // 다음 퀴즈 요청
