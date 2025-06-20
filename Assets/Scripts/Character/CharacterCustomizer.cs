@@ -29,7 +29,7 @@ public class CharacterCustomizer : MonoBehaviour
             // 씬 이동도 SceneLoader로!
             var loader = FindAnyObjectByType<SceneLoader>();
             if (loader != null)
-                loader.LoadSceneByName("LoginScene");
+                loader.LoadSceneByName("StartScene");
         }
     }
 
@@ -85,7 +85,7 @@ public class CharacterCustomizer : MonoBehaviour
                     PlayerPrefs.DeleteKey("access_token");
                     var loader = FindAnyObjectByType<SceneLoader>();
                     if (loader != null)
-                        loader.LoadSceneByName("LoginScene");
+                        loader.LoadSceneByName("StartScene");
                 }
             }
         }
