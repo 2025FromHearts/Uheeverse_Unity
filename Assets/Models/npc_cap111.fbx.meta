@@ -22,7 +22,7 @@ ModelImporter:
     animationDoRetargetingWarnings: 0
     importAnimatedCustomProperties: 0
     importConstraints: 0
-    animationCompression: 1
+    animationCompression: 3
     animationRotationError: 0.5
     animationPositionError: 0.5
     animationScaleError: 0.5
@@ -80,7 +80,77 @@ ModelImporter:
   humanDescription:
     serializedVersion: 3
     human: []
-    skeleton: []
+    skeleton:
+    - name: npc_cap111(Clone)
+      parentName: 
+      position: {x: 0, y: 0, z: 0}
+      rotation: {x: 0, y: 0, z: 0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: Cube.022
+      parentName: npc_cap111(Clone)
+      position: {x: 2.6889662e-11, y: 1.2302499, z: 0.0000025120091}
+      rotation: {x: 0, y: -0, z: -0, w: 1}
+      scale: {x: 0.6220398, y: 0.7157173, z: 0.6356356}
+    - name: Sphere.006
+      parentName: npc_cap111(Clone)
+      position: {x: -0, y: 2.0562365, z: 0.9742931}
+      rotation: {x: 0.20259042, y: 1.4126237e-24, z: 4.4984103e-17, w: 0.9792636}
+      scale: {x: 0.10328577, y: 0.039735127, z: 0.022134284}
+    - name: Sphere.007
+      parentName: npc_cap111(Clone)
+      position: {x: -0.61203575, y: 2.1929526, z: 0.8170676}
+      rotation: {x: 0, y: 0.31072417, z: -0, w: 0.95050013}
+      scale: {x: 0.102646664, y: 0.061356377, z: 0.016061772}
+    - name: Sphere.008
+      parentName: npc_cap111(Clone)
+      position: {x: 0.36202815, y: 2.4932878, z: 0.8723613}
+      rotation: {x: -0.11552214, y: 0.16530828, z: -0.032082975, w: 0.97892725}
+      scale: {x: 0.059276875, y: 0.05963188, z: 0.022050612}
+    - name: Cube.023
+      parentName: npc_cap111(Clone)
+      position: {x: -0, y: 0.57426494, z: 0.007485211}
+      rotation: {x: 0, y: -0, z: -0, w: 1}
+      scale: {x: 0.6226615, y: 0.71820223, z: 0.6769077}
+    - name: Cube.024
+      parentName: npc_cap111(Clone)
+      position: {x: -0.000000029802326, y: 1.3182986, z: -0.022761762}
+      rotation: {x: 0, y: -0, z: -0, w: 1}
+      scale: {x: 0.62183684, y: 0.72508824, z: 0.646514}
+    - name: Cube.025
+      parentName: npc_cap111(Clone)
+      position: {x: -0, y: 2.9740398, z: -0.09396693}
+      rotation: {x: -0.02626944, y: -7.076738e-25, z: -5.8329944e-18, w: 0.9996549}
+      scale: {x: 1.2005912, y: 1.1532784, z: 1.1532784}
+    - name: Cube.026
+      parentName: npc_cap111(Clone)
+      position: {x: -0, y: 2.5593834, z: 0}
+      rotation: {x: 0, y: -0, z: -0, w: 1}
+      scale: {x: 1.1691357, y: 1.1230624, z: 1.1230624}
+    - name: NurbsCurve
+      parentName: npc_cap111(Clone)
+      position: {x: -0, y: 2.7962456, z: -0.026497656}
+      rotation: {x: -0.07040719, y: 9.6405e-25, z: -1.5633527e-17, w: 0.99751836}
+      scale: {x: 1.0045989, y: 0.09959281, z: 0.9405386}
+    - name: SurfPatch
+      parentName: npc_cap111(Clone)
+      position: {x: -0.0048805624, y: 1.5858029, z: 0.34900522}
+      rotation: {x: 0.3945619, y: -0.3460294, z: -0.16343287, w: 0.8353887}
+      scale: {x: 0.12493507, y: 0.12493506, z: 0.124935076}
+    - name: SurfPatch.001
+      parentName: npc_cap111(Clone)
+      position: {x: -0.0058843046, y: 1.287353, z: 0.44650653}
+      rotation: {x: 0.6235466, y: -0.28237793, z: -0.2582814, w: 0.6817207}
+      scale: {x: 0.38473296, y: 0.38473302, z: 0.384733}
+    - name: Cube.031
+      parentName: npc_cap111(Clone)
+      position: {x: 0.00000003623668, y: 3.0910387, z: -0.051653016}
+      rotation: {x: -0.057624914, y: -1.1052689e-24, z: -1.2795302e-17, w: 0.99833834}
+      scale: {x: 1.2323952, y: 1.1230625, z: 1.1817322}
+    - name: Cube.032
+      parentName: npc_cap111(Clone)
+      position: {x: -0.000000082387395, y: 1.2596576, z: -0.007696435}
+      rotation: {x: 0, y: -0, z: -0, w: 1}
+      scale: {x: 0.62342656, y: 0.72694194, z: 0.6481669}
     armTwist: 0.5
     foreArmTwist: 0.5
     upperLegTwist: 0.5
@@ -91,13 +161,13 @@ ModelImporter:
     globalScale: 1
     rootMotionBoneName: 
     hasTranslationDoF: 0
-    hasExtraRoot: 0
+    hasExtraRoot: 1
     skeletonHasParents: 1
   lastHumanDescriptionAvatarSource: {instanceID: 0}
   autoGenerateAvatarMappingIfUnspecified: 1
   animationType: 2
   humanoidOversampling: 1
-  avatarSetup: 0
+  avatarSetup: 1
   addHumanoidExtraRootOnlyWhenUsingAvatar: 1
   importBlendShapeDeformPercent: 1
   remapMaterialsIfMaterialImportModeIsNone: 0
