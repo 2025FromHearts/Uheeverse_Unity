@@ -12,7 +12,6 @@ using UnityEngine.SceneManagement;
 public class LoginSceneLoader : MonoBehaviour
 {
     private NetworkConnection _pendingConn;
-    private bool _hasLoaded = false;
 
     private void Awake()
     {
@@ -47,12 +46,9 @@ public class LoginSceneLoader : MonoBehaviour
             sld.Options.AllowStacking = true;
             sld.ReplaceScenes = ReplaceOption.OnlineOnly;
 
-            if (myPlayerObj != null)
-                sld.MovedNetworkObjects = new NetworkObject[] { myPlayerObj };
 
             InstanceFinder.SceneManager.OnLoadEnd += OnSceneLoadEnd;
 
-            // InstanceFinder.SceneManager.OnLoadEnd += OnSceneLoadEnd;
             NetworkConnection[] connections = new NetworkConnection[] { conn };
 
             
@@ -67,10 +63,22 @@ public class LoginSceneLoader : MonoBehaviour
             return;
 
         InstanceFinder.SceneManager.OnLoadEnd -= OnSceneLoadEnd;
-        foreach (var scene in args.LoadedScenes)
+        Scene StartScene = default;
+        foreach (var loadedScene in args.LoadedScenes)
         {
-            Debug.Log($"[서버] 클라 씬 로딩 완료: {scene.name}");
+            if (loadedScene.name == "StartScene")
+            {
+                StartScene = loadedScene;
+                break;
+            }
         }
+        if (!StartScene.IsValid())
+        {
+            Debug.LogError("login 씬을 찾을 수 없습니다!");
+            return;
+        }
+
+        InstanceFinder.SceneManager.AddConnectionToScene(_pendingConn, StartScene);
     }
 
 
