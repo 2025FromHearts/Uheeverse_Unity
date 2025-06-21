@@ -50,10 +50,12 @@ public class LoginSceneLoader : MonoBehaviour
             if (myPlayerObj != null)
                 sld.MovedNetworkObjects = new NetworkObject[] { myPlayerObj };
 
+            InstanceFinder.SceneManager.OnLoadEnd += OnSceneLoadEnd;
+
             // InstanceFinder.SceneManager.OnLoadEnd += OnSceneLoadEnd;
             NetworkConnection[] connections = new NetworkConnection[] { conn };
 
-            InstanceFinder.SceneManager.OnLoadEnd += OnSceneLoadEnd;
+            
 
             InstanceFinder.SceneManager.LoadConnectionScenes(connections, sld);
         }
