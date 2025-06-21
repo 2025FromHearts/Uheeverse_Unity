@@ -18,7 +18,7 @@ public class PlayerTest : MonoBehaviour
     private Animator animator;
     private float verticalVelocity = 0f;
     private bool isSitting = false;
-    private bool isMovingToSit = false; // 이동 중인지 체크하는 변수 추가
+    private bool isMovingToSit = false; // 이동 중인지 체크하는 변수
     private Transform currentSitPoint;
 
     void Start()
@@ -29,6 +29,7 @@ public class PlayerTest : MonoBehaviour
 
     void Update()
     {
+        // 1. 앉은 상태일 때 (정지 + 일어나기 가능)
         if (isSitting)
         {
             controller.Move(Vector3.down * Time.deltaTime); // 앉아있을 때는 그냥 중력만 적용
@@ -85,13 +86,13 @@ public class PlayerTest : MonoBehaviour
         move.y = verticalVelocity;
         controller.Move(move * Time.deltaTime);
 
-        // I 키로 가장 가까운 좌석으로 이동 + 앉기
+        // I 키 처리 - 중복 제거하고 하나로 통합!
         if (Input.GetKeyDown(KeyCode.I))
         {
             Transform closest = FindClosestSitPoint();
             if (closest != null)
             {
-                StartCoroutine(MoveAndSit(closest));
+                StartCoroutine(QuickMoveAndSit(closest));
             }
         }
     }
@@ -116,7 +117,6 @@ public class PlayerTest : MonoBehaviour
 
             float dist = Vector3.Distance(transform.position, sp.position);
 
-
             if (dist < minDist)
             {
                 minDist = dist;
@@ -124,57 +124,38 @@ public class PlayerTest : MonoBehaviour
             }
         }
 
-
         return closest;
     }
 
     // 이동 후 앉는 코루틴
-    private IEnumerator MoveAndSit(Transform targetSitPoint)
+    private IEnumerator QuickMoveAndSit(Transform targetSitPoint)
     {
-
         isMovingToSit = true;
 
+        // 즉시 앉기 애니메이션 시작
         animator.SetBool("IsSit", true);
 
-        Quaternion targetRotation = Quaternion.LookRotation(Vector3.forward);
-        float moveStartTime = Time.time;
+        // 빠르게 이동 (0.2초 정도)
+        float duration = 0.2f;
+        Vector3 startPos = transform.position;
+        Quaternion startRot = transform.rotation;
+        Quaternion targetRot = Quaternion.LookRotation(Vector3.forward);
 
-        while (Vector3.Distance(transform.position, targetSitPoint.position) > 0.05f)
+        for (float t = 0; t < duration; t += Time.deltaTime)
         {
-            if (Time.time - moveStartTime > 10f)
-            {
-                break;
-            }
-
-            // 이동 계산
-            Vector3 dir = targetSitPoint.position - transform.position;
-            dir.y = 0f;
-            Vector3 move = dir.normalized * sitMoveSpeed;
-
-            // 중력 적용
-            verticalVelocity = controller.isGrounded ? -1f : verticalVelocity + gravity * Time.deltaTime;
-            move.y = verticalVelocity;
-
-            controller.Move(move * Time.deltaTime);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, sitRotationSpeed * Time.deltaTime);
-
+            float progress = t / duration;
+            transform.position = Vector3.Lerp(startPos, targetSitPoint.position, progress);
+            transform.rotation = Quaternion.Lerp(startRot, targetRot, progress);
             yield return null;
         }
 
-        // 최종 위치/회전 고정
+        // 정확한 위치로 고정
         transform.position = targetSitPoint.position;
-        transform.rotation = targetRotation;
+        transform.rotation = targetRot;
 
-        // 상태 전환 (중요: 이동 상태 먼저 해제)
+        // 상태 변경
         isMovingToSit = false;
         isSitting = true;
-
-        // 애니메이션 전환 (즉시 적용)
         animator.SetBool("IsMove", false);
-        animator.SetBool("IsSit", true);
-
-        // 애니메이터 강제 업데이트
-        animator.Update(0f);
-
     }
 }
