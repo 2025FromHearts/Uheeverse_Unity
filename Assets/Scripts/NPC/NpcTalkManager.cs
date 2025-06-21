@@ -4,14 +4,16 @@ using UnityEngine;
 using UnityEngine.Networking;
 using TMPro;
 using UnityEngine.UI;
+using System.Text.RegularExpressions;
 
 public class NpcTalkManager : MonoBehaviour
 {
-    public TMP_Text dialogueText;       // NPC 응답 텍스트
-    public TMP_Text npcNameText;        // NPC 이름 표시
-    public GameObject dialoguePanel;    // 대화 패널
-    public TMP_InputField npcInputField; // 입력창
-    public Button sendButton;           // 보내기 버튼
+    public TMP_Text dialogueText; 
+    public TMP_Text npcNameText; 
+    public GameObject dialoguePanel;    
+    public TMP_InputField npcInputField;
+    public Button sendButton;
+    public Button closeButton; 
 
     private string BASE_URL;
     private string currentNpcId = "";
@@ -27,6 +29,9 @@ public class NpcTalkManager : MonoBehaviour
     {
         if (sendButton != null)
             sendButton.onClick.AddListener(OnSendMessage);
+
+        if (closeButton != null)
+            closeButton.onClick.AddListener(OnCloseDialogue);
     }
 
     // 외부에서 호출되는 대화 시작 함수
@@ -75,10 +80,10 @@ public class NpcTalkManager : MonoBehaviour
         string url = BASE_URL + "/map/npc/talk/";
 
         Dictionary<string, string> payload = new Dictionary<string, string>
-        {
-            { "npc_id", npcId },
-            { "message", message }
-        };
+    {
+        { "npc_id", npcId },
+        { "message", message }
+    };
 
         string jsonData = JsonUtility.ToJson(new JsonWrapper(payload));
 
@@ -99,8 +104,38 @@ public class NpcTalkManager : MonoBehaviour
             Debug.Log($"🧠 GPT 응답: {res.reply}");
 
             if (dialogueText != null)
-                dialogueText.text = res.reply;
+            {
+                // 마침표 기준으로 줄바꿈 처리
+                string[] split = Regex.Split(res.reply, @"(?<=[.?!])\s+");
+                string formatted = "";
+                foreach (string line in split)
+                {
+                    string trimmed = line.Trim();
+                    if (!string.IsNullOrEmpty(trimmed))
+                        formatted += trimmed + "\n";
+                }
+
+                dialogueText.text = formatted;
+            }
         }
+    }
+    public void OnCloseDialogue()
+    {
+        if (dialogueText != null)
+            dialogueText.text = "감사합니다. 또 궁금한 게 있으면 물어봐주세요!";
+
+        StartCoroutine(CloseDialogueAfterDelay(1.5f));
+    }
+
+    private IEnumerator CloseDialogueAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        if (dialoguePanel != null)
+            dialoguePanel.SetActive(false);
+
+        currentNpcId = "";
+        currentNpcName = "";
     }
 
     // JSON 변환용 래퍼 클래스

@@ -8,6 +8,7 @@ using UnityEngine.Networking;
 public class InventoryUI : MonoBehaviour
 {
     public GameObject inventoryPanel;
+    public GameObject closeButtonObject;
     public Transform slotParent;
     public GameObject slotPrefab;
     public ItemAttacher itemAttacher;
@@ -15,22 +16,6 @@ public class InventoryUI : MonoBehaviour
     private string characterId;
     private string accessToken;
     private string BASE_URL;
-
-
-    private const string BASE_URL = "https://209f-203-252-223-254.ngrok-free.app";
-
-    [System.Serializable]
-    public class ItemData
-    {
-        public string item_id;
-        public string item_type;
-        public string item_name;
-        public string item_description;
-        public int item_price;
-        public string item_icon;
-        public string map;
-        public string item_rotation;
-    }
 
     [System.Serializable]
     public class InventoryItem
@@ -49,18 +34,23 @@ public class InventoryUI : MonoBehaviour
     public void OpenInventory()
     {
         inventoryPanel.SetActive(true);
+
+        if (closeButtonObject != null)
+            closeButtonObject.SetActive(true);
+
         StartCoroutine(LoadInventory());
     }
 
     public void CloseInventory()
     {
         inventoryPanel.SetActive(false);
+
+        if (closeButtonObject != null)
+            closeButtonObject.SetActive(false);
     }
 
     IEnumerator LoadInventory()
     {
-
-        Debug.Log("🔵 LoadInventory 시작");
         BASE_URL = ServerConfig.baseUrl;
         characterId = PlayerPrefs.GetString("character_id", "");
         accessToken = PlayerPrefs.GetString("access_token", "");
