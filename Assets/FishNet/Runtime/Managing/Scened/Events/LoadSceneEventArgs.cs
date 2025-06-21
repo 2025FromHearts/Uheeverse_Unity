@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using FishNet.Connection;
 using UnityEngine.SceneManagement;
 
 namespace FishNet.Managing.Scened
@@ -72,6 +71,7 @@ namespace FishNet.Managing.Scened
             LoadedScenes = loaded;
             UnloadedSceneNames = unloadedSceneNames;
         }
+
 
     }
 

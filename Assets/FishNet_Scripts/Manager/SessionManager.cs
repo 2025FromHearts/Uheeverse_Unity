@@ -111,7 +111,7 @@ public class SessionManager : NetworkBehaviour
         sld.Options.AllowStacking = true;
         sld.Options.AutomaticallyUnload = true;// (필요하면)
 
-        sld.ReplaceScenes = ReplaceOption.None;
+        sld.ReplaceScenes = ReplaceOption.OnlineOnly;
 
         SceneManager.OnLoadEnd += OnSceneLoadEnd;
         base.SceneManager.LoadConnectionScenes(connections, sld);
@@ -186,12 +186,6 @@ public class SessionManager : NetworkBehaviour
         CreateSession(conn, type);
         Debug.Log($"[ServerRpc] CreateSessionFromTagServerRpc 실행됨 - IsServer: {IsServer}, IsOwner: {IsOwner}");
 
-        // 서버라면 세션 생성
-
-        // Owner 대신 네트워크 연결자 사용
-        // CreateSession(base.Owner, type);
-
-        // throw new NotImplementedException();
     }
     
     

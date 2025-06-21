@@ -19,8 +19,6 @@ namespace FishNet.Managing.Client
         /// Handler for registered broadcasts.
         /// </summary>
         private readonly Dictionary<ushort, BroadcastHandlerBase> _broadcastHandlers = new();
-
-        public int OnClientConnectedCallback { get; set; }
         #endregion
 
         /// <summary>

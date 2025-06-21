@@ -139,7 +139,7 @@ namespace FishNet.Example
             _clientIndicator.transform.gameObject.SetActive(false);
 #endif
 
-            _networkManager = FindAnyObjectByType<NetworkManager>();
+            _networkManager = FindObjectOfType<NetworkManager>();
             if (_networkManager == null)
             {
                 Debug.LogError("NetworkManager not found, HUD will not function.");
