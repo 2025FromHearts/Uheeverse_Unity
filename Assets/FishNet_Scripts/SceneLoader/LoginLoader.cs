@@ -16,12 +16,14 @@ public class LoginSceneLoader : MonoBehaviour
 
     private void Awake()
     {
+        
         // 서버는 절대 이 코드 실행 안 함
         if (Application.isBatchMode)
         {
             Destroy(this);
             return;
         }
+        Debug.Log("로그인로더 실행");
 
         // 클라이언트 연결 콜백 등록
         InstanceFinder.ServerManager.OnRemoteConnectionState += OnRemoteClientConnected;
