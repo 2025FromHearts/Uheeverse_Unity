@@ -16,12 +16,14 @@ public class LoginSceneLoader : MonoBehaviour
 
     private void Awake()
     {
+
         // 서버는 절대 이 코드 실행 안 함
         if (Application.isBatchMode)
         {
             Destroy(this);
             return;
         }
+        Debug.Log("로그인로더 실행");
 
         // 클라이언트 연결 콜백 등록
         InstanceFinder.ServerManager.OnRemoteConnectionState += OnRemoteClientConnected;
@@ -37,96 +39,87 @@ public class LoginSceneLoader : MonoBehaviour
             _pendingConn = conn;
             Debug.Log($"[서버] 클라이언트 {conn.ClientId} 접속됨 → 개인 StationScene 로딩 시작");
 
-            
+
             NetworkObject myPlayerObj = conn.FirstObject;
 
-            
+
             SceneLoadData sld = new SceneLoadData("StartScene");
             sld.Options.AllowStacking = true;
             sld.ReplaceScenes = ReplaceOption.OnlineOnly;
 
             if (myPlayerObj != null)
-            sld.MovedNetworkObjects = new NetworkObject[] { myPlayerObj };
+                sld.MovedNetworkObjects = new NetworkObject[] { myPlayerObj };
+
+            InstanceFinder.SceneManager.OnLoadEnd += OnSceneLoadEnd;
 
             // InstanceFinder.SceneManager.OnLoadEnd += OnSceneLoadEnd;
             NetworkConnection[] connections = new NetworkConnection[] { conn };
 
-        InstanceFinder.SceneManager.LoadConnectionScenes(connections, sld);
+            
+
+            InstanceFinder.SceneManager.LoadConnectionScenes(connections, sld);
         }
     }
 
-    // private void OnRemoteClientConnected(NetworkConnection conn, RemoteConnectionStateArgs args)
-    // {
-    //     if (args.ConnectionState == RemoteConnectionState.Started)
-    //     {
-    //         _pendingConn = conn;
-    //         Debug.Log($"[서버] 클라이언트 {conn.ClientId} 접속됨 → 개인 StationScene 로딩 시작");
-    //         NetworkConnection[] connections = new NetworkConnection[] { conn };
-    //     }
-    //     if (SceneManager.GetActiveScene().name != "StartScene")
-    //         {
-    //             SceneManager.LoadScene("StartScene", LoadSceneMode.Additive);
-    //         }
-    // }
-
-    // private void HandleClientConnected(ClientConnectionStateArgs args)
-    // {
-    //     if (_hasLoaded) return;
-
-    //     if (args.ConnectionState == LocalConnectionState.Started)
-    //     {
-    //         _hasLoaded = true;
-
-    //         Debug.Log("[클라이언트 연결됨] → 로그인 씬 로드 시작");
-
-    //         if (SceneManager.GetActiveScene().name != "StartScene")
-    //         {
-    //             SceneManager.LoadScene("StartScene", LoadSceneMode.Additive);
-    //         }
-    //     }
-    // }
-
-
-    // private void OnSceneLoadEnd(SceneLoadEndEventArgs args)
-    // {
-    //     if (!InstanceFinder.IsServerStarted)
-    //     return;
-
-    //     InstanceFinder.SceneManager.OnLoadEnd -= OnSceneLoadEnd;
-        
-    //     Scene mystationScene = default;
-    //     foreach (var loadedScene in args.LoadedScenes)
-    //     {
-    //         if (loadedScene.name == "StartScene")
-    //         {
-    //             mystationScene = loadedScene;
-    //             break;
-    //         }
-    //     }
-    //     if (!mystationScene.IsValid())
-    //     {
-    //         Debug.LogError("Mystation 씬을 찾을 수 없습니다!");
-    //         return;
-    //     }
-
-    //     InstanceFinder.SceneManager.AddConnectionToScene(_pendingConn, mystationScene);
-        
-    //     // // 6. 캐릭터 스폰
-    //     // Vector3 spawnPos = new Vector3(0, 1, 0);
-    //     // Quaternion spawnRot = Quaternion.identity;
-
-    //     // GameObject playerObj = Instantiate(playerPrefab, spawnPos, spawnRot);
-
-    //     // UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(playerObj, mystationScene);
-    //     // NetworkObject nob = playerObj.GetComponent<NetworkObject>();
-
-    //     // // 7. 네트워크에 소유자 지정 스폰
-    //     // InstanceFinder.ServerManager.Spawn(nob, _pendingConn);
-    // }
 
     private void OnDestroy()
     {
         if (InstanceFinder.ServerManager != null)
             InstanceFinder.ServerManager.OnRemoteConnectionState -= OnRemoteClientConnected;
     }
+
+    private void OnSceneLoadEnd(SceneLoadEndEventArgs args)
+    {
+        if (!InstanceFinder.IsServerOnlyStarted)
+            return;
+
+        InstanceFinder.SceneManager.OnLoadEnd -= OnSceneLoadEnd;
+
+        foreach (var Scene in args.LoadedScenes)
+        {
+            Debug.Log($"[서버] 클라씬 로딩 완료: {Scene.name}");
+        }
+    }
 }
+
+// using FishNet;
+// using FishNet.Connection;
+// using FishNet.Managing.Scened;
+// using UnityEngine;
+
+//public class LoginSceneLoader : MonoBehaviour
+//{
+//    private void Awake()
+//    {
+//        // 서버에서만 실행
+//        if (!Application.isBatchMode) return;
+//        Debug.Log("로그인로더(서버) 실행");
+
+//        InstanceFinder.ServerManager.OnRemoteConnectionState += OnRemoteClientConnected;
+
+//    }
+
+//    private void OnRemoteClientConnected(NetworkConnection conn, RemoteConnectionStateArgs args)
+//    {
+//        if (args.ConnectionState == RemoteConnectionState.Started)
+//        {
+//            Debug.Log($"[서버] 클라이언트 {conn.ClientId} 접속됨 → StartScene 로딩 시작");
+
+//            SceneLoadData sld = new SceneLoadData("StartScene");
+//            sld.Options.AllowStacking = true;
+//            sld.ReplaceScenes = ReplaceOption.OnlineOnly;
+
+
+//            // InstanceFinder.SceneManager.OnLoadEnd += OnSceneLoadEnd;
+//            NetworkConnection[] connections = new NetworkConnection[] { conn };
+
+//            InstanceFinder.SceneManager.LoadConnectionScenes(connections, sld);
+//        }
+//    }
+
+//    private void OnDestroy()
+//    {
+//        if (InstanceFinder.ServerManager != null)
+//            InstanceFinder.ServerManager.OnRemoteConnectionState -= OnRemoteClientConnected;
+//    }
+//}
