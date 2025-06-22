@@ -8,7 +8,6 @@ public class CameraFollower : NetworkBehaviour
 
     void Update()
     {
-        Debug.Log("ㅇㅋ!!!!!");
         if (!_cameraSet && IsOwner)
         {
             var cam = GameObject.FindAnyObjectByType<CinemachineCamera>();

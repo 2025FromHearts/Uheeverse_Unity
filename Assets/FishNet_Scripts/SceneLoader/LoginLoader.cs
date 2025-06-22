@@ -340,7 +340,7 @@ public class LoginSceneLoader : MonoBehaviour
             Debug.Log($"[디버그] 씬 비교: '{loadedScene.name}' == 'StartScene' ? {loadedScene.name == "StartScene"}");
             Debug.Log($"[디버그] 씬 상태: IsValid = {loadedScene.IsValid()}, IsLoaded = {loadedScene.isLoaded}");
             
-            if (loadedScene.name == "StartScene")
+            if (loadedScene.name == targetSceneName)
             {
                 Debug.Log("찾았다 내씬");
                 startScene = loadedScene;
@@ -381,6 +381,7 @@ public class LoginSceneLoader : MonoBehaviour
         // 모든 이벤트 해제
         if (InstanceFinder.ServerManager != null)
         {
+            Debug.Log("해제완료");
             InstanceFinder.ServerManager.OnRemoteConnectionState -= OnRemoteClientConnected;
             InstanceFinder.ServerManager.OnServerConnectionState -= OnServerStarted;
         }
