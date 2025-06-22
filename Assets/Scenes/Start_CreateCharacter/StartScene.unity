@@ -314,8 +314,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\u200B"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 97d71e7940ed5bd489516197522e997e, type: 2}
-  m_sharedMaterial: {fileID: 4092710814923578033, guid: 97d71e7940ed5bd489516197522e997e, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 646527603a8dc449eb99ac92f9d1f264, type: 2}
+  m_sharedMaterial: {fileID: 4092710814923578033, guid: 646527603a8dc449eb99ac92f9d1f264, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -2644,7 +2644,7 @@ MonoBehaviour:
   m_CaretWidth: 1
   m_ReadOnly: 0
   m_RichText: 1
-  m_GlobalFontAsset: {fileID: 11400000, guid: 97d71e7940ed5bd489516197522e997e, type: 2}
+  m_GlobalFontAsset: {fileID: 11400000, guid: 646527603a8dc449eb99ac92f9d1f264, type: 2}
   m_OnFocusSelectAll: 1
   m_ResetOnDeActivation: 1
   m_KeepTextSelectionVisible: 0
