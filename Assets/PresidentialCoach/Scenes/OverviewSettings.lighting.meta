@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: f267d2d33aae419428504f6d3c6aaabf
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 4890085278179872738
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 279420
+  packageName: Korean Presidential Coach
+  packageVersion: 1.0
+  assetPath: Assets/PresidentialCoach/Scenes/OverviewSettings.lighting
+  uploadId: 650142
