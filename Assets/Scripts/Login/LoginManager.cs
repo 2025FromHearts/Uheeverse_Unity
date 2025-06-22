@@ -78,7 +78,7 @@ public class LoginManager : MonoBehaviour
         www.downloadHandler = new DownloadHandlerBuffer();
         www.SetRequestHeader("Content-Type", "application/json");
 
-        Debug.Log("ㅅㅂ");
+        Debug.Log("로그인코루틴");
 
         yield return www.SendWebRequest();
 
@@ -87,7 +87,7 @@ public class LoginManager : MonoBehaviour
             Debug.LogError("Login failed: " + www.error + "\n응답: " + www.downloadHandler.text);
             Debug.Log("Sending JSON: " + jsonData);
 
-            Debug.Log("ㅅㅂ2");
+            Debug.Log("로그인응답성공");
         }
         else
         {
@@ -101,7 +101,7 @@ public class LoginManager : MonoBehaviour
 
             yield return StartCoroutine(GetUserInfo());
 
-            Debug.Log("ㅅㅂ3");
+            Debug.Log("유저 받아오기");
 
             sessionManager = SessionManager.Instance;
 
