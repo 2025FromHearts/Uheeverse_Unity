@@ -32,6 +32,12 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/MainMenu.unity
     guid: 9c53ae0bc2730954b970d0dfa5b4cba1
+  - enabled: 1
+    path: Assets/Scenes/OSM_Map/Django_FestivalMainScene.unity
+    guid: dca3f01bbb446554a9781b23f0f2da47
+  - enabled: 1
+    path: Assets/Scenes/MiniGame/AppleBasketGame.unity
+    guid: 3ca67e41fb219df4b8cdaada6feacd11
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 289c1b55c9541489481df5cc06664110, type: 3}
   m_UseUCBPForAssetBundles: 0

@@ -8,6 +8,7 @@ using UnityEngine.Networking;
 public class InventoryUI : MonoBehaviour
 {
     public GameObject inventoryPanel;
+    public GameObject closeButtonObject;
     public Transform slotParent;
     public GameObject slotPrefab;
     public ItemAttacher itemAttacher;
@@ -77,6 +78,7 @@ public class InventoryUI : MonoBehaviour
 
     IEnumerator LoadInventory()
     {
+
         baseUrl = ServerConfig.baseUrl;
         characterId = PlayerPrefs.GetString("character_id", "");
         accessToken = PlayerPrefs.GetString("access_token", "");
