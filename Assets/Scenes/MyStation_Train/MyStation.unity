@@ -2493,6 +2493,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   inventoryPanel: {fileID: 1010938033}
+  closeButtonObject: {fileID: 0}
   slotParent: {fileID: 1342913328}
   slotPrefab: {fileID: 8267972431301234475, guid: ce2260791769b0c42a3d1fc284e76908, type: 3}
   itemAttacher: {fileID: 475088134}
@@ -6837,50 +6838,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1629060842}
   m_CullTransparentMesh: 1
---- !u!114 &1633864146 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6025993107555246889, guid: a5dce827108a03645a132a0131641443, type: 3}
-  m_PrefabInstance: {fileID: 4778322677358734666}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 67824f16230bdcf4581d78a1dba3bd5d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &1633864147 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6915615541068164100, guid: a5dce827108a03645a132a0131641443, type: 3}
-  m_PrefabInstance: {fileID: 4778322677358734666}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 67824f16230bdcf4581d78a1dba3bd5d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &1633864148 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 165196965674992344, guid: a5dce827108a03645a132a0131641443, type: 3}
-  m_PrefabInstance: {fileID: 4778322677358734666}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 67824f16230bdcf4581d78a1dba3bd5d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &1633864149 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6016853863335199637, guid: a5dce827108a03645a132a0131641443, type: 3}
-  m_PrefabInstance: {fileID: 4778322677358734666}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 67824f16230bdcf4581d78a1dba3bd5d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1634793419 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: de302244063e89c49b72c5a8bb40ddc6, type: 3}

@@ -20,18 +20,16 @@ public class InventoryUI : MonoBehaviour
     public Button putOnButton;
     public Button putOffButton;
 
-    public GameObject infoGroup;         // 상세 정보 묶음
-    public GameObject placeholderText;   // "아이템을 선택해주세요" 안내문
+    public GameObject infoGroup;
+    public GameObject placeholderText;
 
-    private ItemData currentSelectedItem;
-
+    private ItemDataDTO currentSelectedItem;
+    private string baseUrl;
     private string characterId;
     private string accessToken;
 
-    private const string BASE_URL = "https://970d-203-252-223-254.ngrok-free.app";
-
     [System.Serializable]
-    public class ItemData
+    public class ItemDataDTO
     {
         public string item_id;
         public string item_type;
@@ -47,7 +45,7 @@ public class InventoryUI : MonoBehaviour
     public class InventoryItem
     {
         public string inventory_id;
-        public ItemData item;
+        public ItemDataDTO item;
         public int slot_location;
     }
 
@@ -62,8 +60,8 @@ public class InventoryUI : MonoBehaviour
         inventoryPanel.SetActive(true);
         detailPanel.SetActive(true);
 
-        if (infoGroup != null) infoGroup.SetActive(false);          // 처음엔 안보이게
-        if (placeholderText != null) placeholderText.SetActive(true); // 처음엔 안내문 보이게
+        if (infoGroup != null) infoGroup.SetActive(false);
+        if (placeholderText != null) placeholderText.SetActive(true);
 
         StartCoroutine(LoadInventory());
     }
@@ -79,10 +77,11 @@ public class InventoryUI : MonoBehaviour
 
     IEnumerator LoadInventory()
     {
+        baseUrl = ServerConfig.baseUrl;
         characterId = PlayerPrefs.GetString("character_id", "");
         accessToken = PlayerPrefs.GetString("access_token", "");
 
-        string url = BASE_URL + "/item/inventory/" + characterId + "/";
+        string url = baseUrl + "/item/inventory/" + characterId + "/";
         UnityWebRequest www = UnityWebRequest.Get(url);
         www.SetRequestHeader("Authorization", "Bearer " + accessToken);
 
@@ -122,7 +121,7 @@ public class InventoryUI : MonoBehaviour
                 Button btn = slot.transform.Find("Button")?.GetComponent<Button>();
                 if (btn != null)
                 {
-                    ItemData capturedItem = item.item;
+                    ItemDataDTO capturedItem = item.item;
                     btn.onClick.AddListener(() =>
                     {
                         currentSelectedItem = capturedItem;
@@ -133,14 +132,14 @@ public class InventoryUI : MonoBehaviour
         }
     }
 
-    void ShowDetail(ItemData item)
+    void ShowDetail(ItemDataDTO item)
     {
         if (item == null) return;
 
         detailPanel.SetActive(true);
 
-        if (infoGroup != null) infoGroup.SetActive(true);            // 상세 정보 표시
-        if (placeholderText != null) placeholderText.SetActive(false); // 안내 문구 숨김
+        if (infoGroup != null) infoGroup.SetActive(true);
+        if (placeholderText != null) placeholderText.SetActive(false);
 
         detailName.text = item.item_name;
         detailDescription.text = item.item_description;
@@ -158,7 +157,7 @@ public class InventoryUI : MonoBehaviour
         putOffButton.onClick.AddListener(() => UnEquipItem(item));
     }
 
-    void EquipItem(ItemData item)
+    void EquipItem(ItemDataDTO item)
     {
         Debug.Log($"🧙 EquipItem() | item: {(item != null ? item.item_name : "null")}");
 
@@ -195,7 +194,7 @@ public class InventoryUI : MonoBehaviour
         Debug.Log($"✅ Equipped: {item.item_name}");
     }
 
-    void UnEquipItem(ItemData item)
+    void UnEquipItem(ItemDataDTO item)
     {
         if (item == null || itemAttacher == null || string.IsNullOrEmpty(item.item_type)) return;
 
