@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: baecc614c63f4b24997b9024d7689bd6
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 279420
+  packageName: Korean Presidential Coach
+  packageVersion: 1.0
+  assetPath: Assets/PresidentialCoach/Settings/UniversalRenderPipelineGlobalSettings.asset
+  uploadId: 650142
