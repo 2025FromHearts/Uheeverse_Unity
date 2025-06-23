@@ -44,6 +44,11 @@ public class NpcShopManager : MonoBehaviour
         dialoguePanel.SetActive(false);
 
         if (shopUI != null)
+        {
+            if (shopUIPanel != null)
+                shopUIPanel.SetActive(true);
+
             shopUI.OpenShop();
+        }
     }
 }

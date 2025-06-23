@@ -57,6 +57,27 @@ public class NpcGameManager : MonoBehaviour
     {
         Debug.Log($"✅ {currentNpcName} 미니게임 참여");
 
+        // ✅ 현재 플레이어 위치 저장
+        GameObject player = GameObject.FindWithTag("Player");
+        if (player != null)
+        {
+            Vector3 pos = player.transform.position;
+            Quaternion rot = player.transform.rotation;
+
+            PlayerPrefs.SetFloat("PlayerPosX", pos.x);
+            PlayerPrefs.SetFloat("PlayerPosY", pos.y);
+            PlayerPrefs.SetFloat("PlayerPosZ", pos.z);
+            PlayerPrefs.SetFloat("PlayerRotY", rot.eulerAngles.y);  // 회전값도 저장
+
+            PlayerPrefs.SetInt("ShouldRestorePosition", 1);
+            PlayerPrefs.Save();
+        }
+        else
+        {
+            Debug.LogWarning("❌ 'Player' 태그가 있는 오브젝트를 찾지 못했습니다.");
+        }
+
+        // ✅ 미니게임 씬으로 이동
         if (!string.IsNullOrEmpty(minigameSceneName))
         {
             SceneManager.LoadScene(minigameSceneName);
@@ -82,4 +103,6 @@ public class NpcGameManager : MonoBehaviour
         yield return new WaitForSeconds(delay);
         dialoguePanel.SetActive(false);
     }
+
+
 }
