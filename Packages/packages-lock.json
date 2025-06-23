@@ -163,7 +163,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.services.vivox": {
-      "version": "16.5.4",
+      "version": "16.6.0",
       "depth": 0,
       "source": "registry",
       "dependencies": {

@@ -6,9 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/Start_CreateCharacter/startFishNet.unity
-    guid: 596ce8edda96946b2870b823d2a1ed31
-  - enabled: 1
     path: Assets/Scenes/Start_CreateCharacter/StartScene.unity
     guid: 55b460a4483bfd842a72587d2106aada
   - enabled: 1
@@ -29,6 +26,18 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/OSM_Map/FestivalMainScene.unity
     guid: c74be6256a22c4fbf8b56ef7681ebbe3
+  - enabled: 1
+    path: Assets/Scenes/KartGame.unity
+    guid: 83760dd98fe89364daec0c8817772284
+  - enabled: 1
+    path: Assets/Scenes/MainMenu.unity
+    guid: 9c53ae0bc2730954b970d0dfa5b4cba1
+  - enabled: 1
+    path: Assets/Scenes/OSM_Map/Django_FestivalMainScene.unity
+    guid: dca3f01bbb446554a9781b23f0f2da47
+  - enabled: 1
+    path: Assets/Scenes/MiniGame/AppleBasketGame.unity
+    guid: 3ca67e41fb219df4b8cdaada6feacd11
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 289c1b55c9541489481df5cc06664110, type: 3}
   m_UseUCBPForAssetBundles: 0

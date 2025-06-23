@@ -8,28 +8,45 @@ using UnityEngine.Networking;
 public class InventoryUI : MonoBehaviour
 {
     public GameObject inventoryPanel;
-    public Transform slotParent; // 그리드 패널
-    public GameObject slotPrefab; // 슬롯 프리팹
+    public GameObject closeButtonObject;
+    public Transform slotParent;
+    public GameObject slotPrefab;
+    public ItemAttacher itemAttacher;
 
+    public GameObject detailPanel;
+    public Image detailImage;
+    public Image detailItemImage;
+    public TMP_Text detailName;
+    public TMP_Text detailDescription;
+    public Button putOnButton;
+    public Button putOffButton;
+
+    public GameObject infoGroup;
+    public GameObject placeholderText;
+
+    private ItemDataDTO currentSelectedItem;
+    private string baseUrl;
     private string characterId;
     private string accessToken;
 
     [System.Serializable]
-    public class ItemData
+    public class ItemDataDTO
     {
         public string item_id;
         public string item_type;
         public string item_name;
         public string item_description;
         public int item_price;
+        public string item_icon;
         public string map;
+        public string item_rotation;
     }
 
     [System.Serializable]
     public class InventoryItem
     {
         public string inventory_id;
-        public ItemData item;  // 중첩 구조로 변경
+        public ItemDataDTO item;
         public int slot_location;
     }
 
@@ -41,30 +58,36 @@ public class InventoryUI : MonoBehaviour
 
     public void OpenInventory()
     {
-        Debug.Log("✅ OpenInventory 호출됨");
         inventoryPanel.SetActive(true);
+        detailPanel.SetActive(true);
+
+        if (infoGroup != null) infoGroup.SetActive(false);
+        if (placeholderText != null) placeholderText.SetActive(true);
+
         StartCoroutine(LoadInventory());
+    }
+
+    public void CloseInventory()
+    {
+        inventoryPanel.SetActive(false);
+        detailPanel.SetActive(false);
+
+        if (infoGroup != null) infoGroup.SetActive(false);
+        if (placeholderText != null) placeholderText.SetActive(false);
     }
 
     IEnumerator LoadInventory()
     {
-        Debug.Log("🔵 LoadInventory 시작");
 
+        baseUrl = ServerConfig.baseUrl;
         characterId = PlayerPrefs.GetString("character_id", "");
         accessToken = PlayerPrefs.GetString("access_token", "");
 
-        Debug.Log($"🟡 character_id: {characterId}");
-        Debug.Log($"🟡 access_token: {accessToken}");
-
-        string url = ServerConfig.baseUrl + "/item/inventory/" + characterId + "/";
-        Debug.Log($"🔵 요청 URL: {url}");
-
+        string url = baseUrl + "/item/inventory/" + characterId + "/";
         UnityWebRequest www = UnityWebRequest.Get(url);
         www.SetRequestHeader("Authorization", "Bearer " + accessToken);
 
         yield return www.SendWebRequest();
-
-        Debug.Log($"🟡 응답 상태: {www.result}, 코드: {www.responseCode}");
 
         if (www.result != UnityWebRequest.Result.Success)
         {
@@ -72,31 +95,117 @@ public class InventoryUI : MonoBehaviour
         }
         else
         {
-            Debug.Log("🟢 Inventory 데이터 로드 성공");
-            Debug.Log("📦 응답 데이터: " + www.downloadHandler.text);
+            Debug.Log("✅ Raw inventory JSON: " + www.downloadHandler.text);
 
             string json = "{\"Items\":" + www.downloadHandler.text + "}";
             InventoryWrapper wrapper = JsonUtility.FromJson<InventoryWrapper>(json);
 
-            Debug.Log($"📦 파싱된 아이템 개수: {wrapper.Items.Count}");
-
             foreach (Transform child in slotParent)
-            {
                 Destroy(child.gameObject);
-            }
 
             foreach (var item in wrapper.Items)
             {
                 GameObject slot = Instantiate(slotPrefab, slotParent);
-                TMP_Text text = slot.transform.Find("ItemName").GetComponent<TMP_Text>();
-                text.text = item.item.item_name;
-                Debug.Log($"✅ 슬롯 생성됨: {text.text}");
-            }
 
-            if (wrapper.Items.Count == 0)
-            {
-                Debug.Log("❌ 인벤토리에 아이템 없음");
+                TMP_Text text = slot.transform.Find("Button/ItemName")?.GetComponent<TMP_Text>();
+                if (text != null)
+                    text.text = item.item.item_name;
+
+                Transform iconTransform = slot.transform.Find("Button/ItemImage");
+                if (iconTransform != null)
+                {
+                    Image iconImage = iconTransform.GetComponent<Image>();
+                    Sprite iconSprite = Resources.Load<Sprite>("Icons/" + item.item.item_icon);
+                    if (iconSprite != null)
+                        iconImage.sprite = iconSprite;
+                }
+
+                Button btn = slot.transform.Find("Button")?.GetComponent<Button>();
+                if (btn != null)
+                {
+                    ItemDataDTO capturedItem = item.item;
+                    btn.onClick.AddListener(() =>
+                    {
+                        currentSelectedItem = capturedItem;
+                        ShowDetail(capturedItem);
+                    });
+                }
             }
         }
+    }
+
+    void ShowDetail(ItemDataDTO item)
+    {
+        if (item == null) return;
+
+        detailPanel.SetActive(true);
+
+        if (infoGroup != null) infoGroup.SetActive(true);
+        if (placeholderText != null) placeholderText.SetActive(false);
+
+        detailName.text = item.item_name;
+        detailDescription.text = item.item_description;
+
+        Sprite iconSprite = Resources.Load<Sprite>("Icons/" + item.item_icon);
+        if (iconSprite != null && detailItemImage != null)
+            detailItemImage.sprite = iconSprite;
+        else
+            Debug.LogWarning("⚠️ 아이템 이미지 로드 실패: " + item.item_icon);
+
+        putOnButton.onClick.RemoveAllListeners();
+        putOnButton.onClick.AddListener(() => EquipItem(item));
+
+        putOffButton.onClick.RemoveAllListeners();
+        putOffButton.onClick.AddListener(() => UnEquipItem(item));
+    }
+
+    void EquipItem(ItemDataDTO item)
+    {
+        Debug.Log($"🧙 EquipItem() | item: {(item != null ? item.item_name : "null")}");
+
+        if (item == null || itemAttacher == null || string.IsNullOrEmpty(item.item_type)) return;
+
+        Transform attachPoint = itemAttacher.GetAttachPoint(item.item_type);
+        if (attachPoint == null) return;
+
+        foreach (Transform child in attachPoint)
+            Destroy(child.gameObject);
+
+        GameObject prefab = Resources.Load<GameObject>("ItemModels/" + item.item_icon);
+        if (prefab == null)
+        {
+            Debug.LogError("❌ Prefab not found: " + item.item_icon);
+            return;
+        }
+
+        GameObject equipped = Instantiate(prefab, attachPoint);
+        equipped.transform.localPosition = Vector3.zero;
+
+        if (!string.IsNullOrEmpty(item.item_rotation))
+        {
+            string[] rotParts = item.item_rotation.Split(',');
+            if (rotParts.Length == 3 &&
+                float.TryParse(rotParts[0], out float x) &&
+                float.TryParse(rotParts[1], out float y) &&
+                float.TryParse(rotParts[2], out float z))
+            {
+                equipped.transform.localRotation = Quaternion.Euler(x, y, z);
+            }
+        }
+
+        Debug.Log($"✅ Equipped: {item.item_name}");
+    }
+
+    void UnEquipItem(ItemDataDTO item)
+    {
+        if (item == null || itemAttacher == null || string.IsNullOrEmpty(item.item_type)) return;
+
+        Transform attachPoint = itemAttacher.GetAttachPoint(item.item_type);
+        if (attachPoint == null) return;
+
+        foreach (Transform child in attachPoint)
+            Destroy(child.gameObject);
+
+        Debug.Log($"🔓 Unequipped: {item.item_name}");
     }
 }
