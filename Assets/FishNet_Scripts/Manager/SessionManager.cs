@@ -868,11 +868,14 @@ public class SessionManager : NetworkBehaviour
 
         Debug.Log($"[세션] 세션 데이터 생성 완료: {sessionId}, 타입: {type}, 씬: {sceneName}");
 
-        // 이전 씬 언로드 (해당 클라이언트만)
         UnloadOldScenesForConnection(hostConn, sceneName);
+        LoadSceneForConnection(hostConn, sceneName, session);
+
+        // 이전 씬 언로드 (해당 클라이언트만)
+        
 
         // 새 씬 로드 (해당 클라이언트만)
-        LoadSceneForConnection(hostConn, sceneName, session);
+        
     }
 
     private string GetSceneNameByType(SessionType type)
@@ -889,10 +892,11 @@ public class SessionManager : NetworkBehaviour
 
     private void UnloadOldScenesForConnection(NetworkConnection conn, string newSceneName)
     {
-        if (!connectionCurrentScene.TryGetValue(conn, out string currentSceneName))
+        string currentSceneName = null;
+        if (!connectionCurrentScene.TryGetValue(conn, out currentSceneName))
         {
-            Debug.Log($"[언로드] 클라이언트 {conn.ClientId}의 현재 씬 정보 없음 - 스킵");
-            return;
+            currentSceneName = "StartScene";
+            Debug.Log($"[언로드] 클라이언트 {conn.ClientId}의 현재 씬 정보 없음 - StartScene으로 가정");
         }
 
         // 현재 씬과 새 씬이 다를 때만 언로드
@@ -912,6 +916,7 @@ public class SessionManager : NetworkBehaviour
 
     private void LoadSceneForConnection(NetworkConnection conn, string sceneName, SessionData session)
     {
+        Debug.Log($"🚀 [씬 로드 시작] LoadSceneForConnection 호출됨 - 씬: {sceneName}");
         NetworkConnection[] connections = new NetworkConnection[] { conn };
         
         SceneLoadData sld = new SceneLoadData(sceneName);
@@ -919,16 +924,33 @@ public class SessionManager : NetworkBehaviour
         sld.Options.AutomaticallyUnload = true;
         sld.ReplaceScenes = ReplaceOption.None;
 
-        // 펜딩 씬 로드 추가
         pendingSceneLoads[conn] = sceneName;
 
-        InstanceFinder.SceneManager.LoadConnectionScenes(connections, sld);
+        if (InstanceFinder.SceneManager != null)
+        {
+            // 기존 이벤트 구독 해제 후 다시 구독 (중복 방지)
+            InstanceFinder.SceneManager.OnLoadEnd -= OnSceneLoadEnd;
+            InstanceFinder.SceneManager.OnLoadEnd += OnSceneLoadEnd;
+            Debug.Log("✅ OnSceneLoadEnd 이벤트 재구독 완료");
+        }
+        try
+        {
+            InstanceFinder.SceneManager.LoadConnectionScenes(connections, sld);
+            Debug.Log($"✅ [씬 로드] LoadConnectionScenes 호출 완료 - 씬: {sceneName}");
+        }
+        catch (System.Exception ex)
+        {
+            Debug.Log("씬 로드 실패");
+        }
+        // 펜딩 씬 로드 추가
+
         
         Debug.Log($"[씬 로드] 클라이언트 {conn.ClientId}에 씬 {sceneName} 로드 시작");
     }
 
     private void OnSceneLoadEnd(SceneLoadEndEventArgs args)
     {
+        Debug.Log($"🎯 OnSceneLoadEnd 호출됨!");
         if (!IsServer || !isServerInitialized) return;
 
         Debug.Log($"[씬 로드 완료] {args.LoadedScenes.Length}개 씬 로드됨");

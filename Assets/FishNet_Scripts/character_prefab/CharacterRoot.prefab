@@ -14,7 +14,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -7341765042941610316, guid: a5dce827108a03645a132a0131641443, type: 3}
       propertyPath: NetworkBehaviours.Array.size
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: -7341765042941610316, guid: a5dce827108a03645a132a0131641443, type: 3}
       propertyPath: <AssetPathHash>k__BackingField
@@ -24,6 +24,10 @@ PrefabInstance:
       propertyPath: 'NetworkBehaviours.Array.data[0]'
       value: 
       objectReference: {fileID: -6102151902435736186}
+    - target: {fileID: -7341765042941610316, guid: a5dce827108a03645a132a0131641443, type: 3}
+      propertyPath: 'NetworkBehaviours.Array.data[1]'
+      value: 
+      objectReference: {fileID: -9016036809408252671}
     - target: {fileID: -7341765042941610316, guid: a5dce827108a03645a132a0131641443, type: 3}
       propertyPath: SerializedTransformProperties.Position.x
       value: 10.1
@@ -101,6 +105,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 3003731852610320257, guid: a5dce827108a03645a132a0131641443, type: 3}
       insertIndex: -1
       addedObject: {fileID: -9016036809408252671}
+    - targetCorrespondingSourceObject: {fileID: 3003731852610320257, guid: a5dce827108a03645a132a0131641443, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -2587675486324562661}
   m_SourcePrefab: {fileID: 100100000, guid: a5dce827108a03645a132a0131641443, type: 3}
 --- !u!114 &5068026964938151274 stripped
 MonoBehaviour:
@@ -197,6 +204,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 91a41f598eef746518a9e17188cb71ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _componentIndexCache: 255
+  _componentIndexCache: 1
   _addedNetworkObject: {fileID: 5068026964938151274}
-  _networkObjectCache: {fileID: 0}
+  _networkObjectCache: {fileID: 5068026964938151274}
+--- !u!114 &-2587675486324562661
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8495642741092766815}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2442ad992da41cf4882e3e5648723edd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveSpeed: 5

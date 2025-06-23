@@ -46,8 +46,8 @@ public class LoginManager : MonoBehaviour
     {
         Debug.Log("LoginManager Awake 실행됨");
 
-        
-        
+
+
     }
 
 
@@ -113,8 +113,8 @@ public class LoginManager : MonoBehaviour
             }
             if (sessionManager == null)
                 Debug.Log("SessionManager 인스턴스를 찾을 수 없습니다!");
-            }
-        
+        }
+
     }
 
     IEnumerator GetUserInfo()
@@ -168,5 +168,18 @@ public class LoginManager : MonoBehaviour
         {
             Debug.Log("Inventory checked or created: " + www.downloadHandler.text);
         }
+    }
+    
+        [ContextMenu("서버 상태 확인")]  
+    public void CheckServerStatus()
+    {
+        Debug.Log("=== 서버 측 상태 ===");
+        Debug.Log($"연결된 클라이언트 수: {InstanceFinder.ServerManager?.Clients.Count}");
+        
+        foreach (var client in InstanceFinder.ServerManager.Clients.Values)
+        {
+            Debug.Log($"클라이언트 {client.ClientId}: 활성 {client.IsActive}");
+        }
+        
     }
 }
