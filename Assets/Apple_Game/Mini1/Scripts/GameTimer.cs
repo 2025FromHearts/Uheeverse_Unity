@@ -2,7 +2,6 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.SceneManagement;
 using System.Collections;
-using UnityEngine.UI;
 
 public class GameTimer : MonoBehaviour
 {
@@ -16,9 +15,6 @@ public class GameTimer : MonoBehaviour
     public TextMeshProUGUI winnerText;
     public TextMeshProUGUI restartText;
     public ScoreUploader scoreUploader;
-    public Button quitButton;
-
-
 
     private bool gameEnded = false;
 
@@ -30,8 +26,6 @@ public class GameTimer : MonoBehaviour
         gameOverPanel.SetActive(false);
         winnerPanel.SetActive(false);
         restartText.text = "";
-        quitButton.onClick.AddListener(QuitGame);
-        quitButton.gameObject.SetActive(false); // 게임 시작할 때 꺼두기
     }
 
     void Update()
@@ -106,7 +100,6 @@ public class GameTimer : MonoBehaviour
         winnerPanel.SetActive(true);
         winnerText.text = $" Winner: {winner.playerName}!"; 
         restartText.text = "Press R to Restart";
-        quitButton.gameObject.SetActive(true); 
     }
 
     string FormatTime(float time)
@@ -114,9 +107,5 @@ public class GameTimer : MonoBehaviour
         int minutes = Mathf.FloorToInt(time / 60f);
         int seconds = Mathf.FloorToInt(time % 60f);
         return $"{minutes:00}:{seconds:00}";
-    }
-    private void QuitGame()
-    {
-        SceneManager.LoadScene("Django_FestivalMainScene");
     }
 }

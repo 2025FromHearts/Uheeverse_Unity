@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using System.Collections;
 
 /*Simple player movement controller, based on character controller component, 
 with footstep system based on check the current texture of the component*/

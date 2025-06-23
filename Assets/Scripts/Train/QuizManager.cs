@@ -69,55 +69,30 @@ public class QuizManager : MonoBehaviour
     {
         Debug.Log(isCorrect ? "정답입니다!" : "오답입니다.");
 
-        if (isCorrect) correctCount++;
-        currentRound++;
-
-        // 해설은 텀 주고 보여줌 + 다음 흐름도 거기서 처리
-        StartCoroutine(ShowExplanationAfterDelay(1.5f));
-    }
-
-    private IEnumerator ShowExplanationAfterDelay(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-
-        // 1. 해설 보여줌 (정답에 대한 해설만 표시)
         if (explanationText != null && currentQuiz != null)
         {
             explanationText.text = currentQuiz.explanation;
         }
 
-        // 2. 해설 감상 시간 확보
-        yield return new WaitForSeconds(2f);
+        if (isCorrect) correctCount++;
+        currentRound++;
 
-        // 3. 마지막 문제일 경우 → 해설 지우고 결과 표시
-        if (currentRound >= maxRounds)
+        if (currentRound < maxRounds)
         {
-            // 해설 지우기
-            if (explanationText != null)
-            {
-                explanationText.text = "";
-            }
-
-            // 결과 출력 (다른 텍스트 필드에)
-            if (resultText != null)
-            {
-                resultText.text = $"총 {maxRounds}문제 중 {correctCount}개 정답!\n{correctCount * 100}코인을 드릴게요.";
-            }
-
-            StartCoroutine(ShowArrivalMessageAndMoveScene());
+            StartCoroutine(RequestQuizWithDelay());
         }
         else
         {
-            // 다음 퀴즈 요청
-            StartCoroutine(RequestQuizWithDelay());
+            Debug.Log("🎉 모든 퀴즈 완료!");
+            resultText.text = $"총 {maxRounds}문제 중 {correctCount}개 정답!\n{correctCount}개를 맞추셨으니 코인 {correctCount * 100}개를 드릴게요.";
+
+            StartCoroutine(ShowArrivalMessageAndMoveScene());
         }
     }
 
-
-
     private IEnumerator RequestQuizWithDelay()
     {
-        yield return new WaitForSeconds(2.5f);
+        yield return new WaitForSeconds(2f);
         RequestNextQuiz("청송"); // 다음 퀴즈 요청
     }
 
@@ -191,14 +166,14 @@ public class QuizManager : MonoBehaviour
 
     private IEnumerator ShowArrivalMessageAndMoveScene()
     {
-        yield return new WaitForSeconds(2.5f); // 결과 멘트 잠깐 보여줌
+        yield return new WaitForSeconds(2f); // 결과 멘트 잠깐 보여줌
 
         // 축제장 안내 멘트 UI 표시
-        resultText.text = "이제 곧 축제장에 도착합니다! 이동 중...";
+        resultText.text = "🎊 이제 곧 축제장에 도착합니다! 이동 중...";
 
         yield return new WaitForSeconds(3f);
 
-        UnityEngine.SceneManagement.SceneManager.LoadScene("Django_FestivalMainScene"); // 축제 맵 씬 이름
+        UnityEngine.SceneManagement.SceneManager.LoadScene("FestivalMainScene"); // 축제 맵 씬 이름
     }
 
     // 다음 퀴즈 요청

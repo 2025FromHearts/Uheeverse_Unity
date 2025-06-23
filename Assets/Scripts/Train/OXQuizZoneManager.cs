@@ -41,7 +41,7 @@ public class OXQuizZoneManager : MonoBehaviour
 
         Vector3 pos = playerObj.transform.position;
         string choice = pos.x < quizCenter.position.x ? "O" : "X";
-        bool isCorrect = string.Equals(choice, correctAnswer, System.StringComparison.OrdinalIgnoreCase);
+        bool isCorrect = (choice == correctAnswer);
 
         resultText.text = isCorrect
             ? $"정답! 선택: {choice}"
@@ -50,11 +50,6 @@ public class OXQuizZoneManager : MonoBehaviour
         if (!string.IsNullOrEmpty(character_id))
         {
             yield return StartCoroutine(SendResultToServer(character_id, quizId, choice, correctAnswer, isCorrect));
-        }
-
-        if (currentQuizManager != null)
-        {
-            currentQuizManager.ReceiveAnswerResult(isCorrect, choice);
         }
     }
 
