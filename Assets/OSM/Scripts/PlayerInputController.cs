@@ -6,6 +6,7 @@ public class PlayerInputController : MonoBehaviour
     private InputActions controls;
     private Vector2 moveInput;
     public float moveSpeed = 5f;
+    public bool canMove = true;
 
     public Transform cameraTransform; // 여기 연결 필요!
     private Animator animator; //animator 추가
@@ -24,7 +25,7 @@ public class PlayerInputController : MonoBehaviour
 
     void Update()
     {
-        if (cameraTransform == null) return;
+        if (cameraTransform == null || !canMove) return;
 
         // 카메라 기준 방향 설정
         Vector3 forward = cameraTransform.forward;

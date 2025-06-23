@@ -5,6 +5,8 @@ using UnityEngine.Networking;
 using TMPro;
 using UnityEngine.UI;
 using System.Text.RegularExpressions;
+using Suntail;
+using UnityEngine.EventSystems;
 
 public class NpcTalkManager : MonoBehaviour
 {
@@ -13,7 +15,11 @@ public class NpcTalkManager : MonoBehaviour
     public GameObject dialoguePanel;    
     public TMP_InputField npcInputField;
     public Button sendButton;
-    public Button closeButton; 
+    public Button closeButton;
+    public PlayerInputController playerController;
+    public string npcId;
+    public string npcName;
+    public NpcTalkManager talkManager;
 
     private string BASE_URL;
     private string currentNpcId = "";
@@ -40,6 +46,7 @@ public class NpcTalkManager : MonoBehaviour
         Debug.Log($"🗨️ {npcId}({npcName})에게 대화 요청");
 
         dialoguePanel.SetActive(true);
+        playerController.canMove = false;
 
         // 이름 표시
         if (npcNameText != null)
@@ -132,10 +139,19 @@ public class NpcTalkManager : MonoBehaviour
         yield return new WaitForSeconds(delay);
 
         if (dialoguePanel != null)
+        {
             dialoguePanel.SetActive(false);
+            playerController.canMove = true;
+        }
 
         currentNpcId = "";
         currentNpcName = "";
+
+        NpcInteract npcInteract = FindObjectOfType<NpcInteract>();
+        if (npcInteract != null)
+        {
+            npcInteract.ResetTalkState(); // isTalking = false
+        }
     }
 
     // JSON 변환용 래퍼 클래스

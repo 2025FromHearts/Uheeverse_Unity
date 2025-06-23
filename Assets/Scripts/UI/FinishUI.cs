@@ -55,6 +55,6 @@ public class FinishUI : MonoBehaviour
 
     private void QuitGame()
     {
-        SceneManager.LoadScene("MainMenu");
+        SceneManager.LoadScene("Django_FestivalMainScene");
     }
 }
