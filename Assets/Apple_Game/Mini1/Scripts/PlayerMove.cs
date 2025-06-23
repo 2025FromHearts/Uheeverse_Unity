@@ -21,10 +21,13 @@ public class PlayerMove : MonoBehaviour
     private float invertDuration = 5f;     // 반전 지속 시간
     private Coroutine invertCoroutine = null;
 
+    
+    private Animator animator;
 
     void Start()
     {
         rigidbody = GetComponent<Rigidbody>();
+        animator = GetComponent<Animator>();
     }
 
     void Update()
@@ -43,17 +46,20 @@ public class PlayerMove : MonoBehaviour
         dir.z = inputZ;
         dir.Normalize();
 
+        animator.SetBool("isMoving", dir != Vector3.zero);
+
         CheckGround();
     }
 
     private void FixedUpdate()
     {
+        Vector3 velocity = new Vector3(dir.x * speed, rigidbody.linearVelocity.y, dir.z * speed);
+        rigidbody.linearVelocity = velocity;
+
         if (dir != Vector3.zero)
         {
             transform.forward = Vector3.Lerp(transform.forward, dir, rotSpeed * Time.deltaTime);
         }
-
-        rigidbody.MovePosition(transform.position + dir * speed * Time.deltaTime);
     }
 
     void CheckGround()
@@ -126,12 +132,14 @@ public class PlayerMove : MonoBehaviour
                 Transform target = manualApplePositions[stackIndex];
                 other.transform.SetParent(transform);
 
-                other.transform.position = target.position; 
-                other.transform.localRotation = Quaternion.Euler(
-                    Random.Range(0f, 360f),
-                    Random.Range(0f, 360f),
-                    Random.Range(0f, 360f)
-                );
+                //other.transform.position = target.position;
+                //other.transform.localRotation = Quaternion.Euler(
+                //    Random.Range(0f, 360f),
+                //    Random.Range(0f, 360f),
+                //    Random.Range(0f, 360f)
+                //);
+                other.transform.position = target.position;
+                other.transform.rotation = target.rotation;
 
                 // ✅ stackIndex 저장해두기
                 tag.stackIndex = stackIndex;
