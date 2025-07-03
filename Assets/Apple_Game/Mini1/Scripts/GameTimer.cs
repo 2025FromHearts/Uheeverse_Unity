@@ -8,7 +8,6 @@ public class GameTimer : MonoBehaviour
 {
     public float totalTime = 30f;
     private float currentTime;
-
     public TextMeshProUGUI timerText;
     public GameObject gameOverPanel;
     public PlayerScoreUI[] allPlayers;
@@ -17,9 +16,6 @@ public class GameTimer : MonoBehaviour
     public TextMeshProUGUI restartText;
     public ScoreUploader scoreUploader;
     public Button quitButton;
-
-
-
     private bool gameEnded = false;
 
     void Start()
@@ -30,8 +26,8 @@ public class GameTimer : MonoBehaviour
         gameOverPanel.SetActive(false);
         winnerPanel.SetActive(false);
         restartText.text = "";
+        quitButton.gameObject.SetActive(false);
         quitButton.onClick.AddListener(QuitGame);
-        quitButton.gameObject.SetActive(false); // 게임 시작할 때 꺼두기
     }
 
     void Update()
@@ -65,7 +61,7 @@ public class GameTimer : MonoBehaviour
     {
         if (scoreUploader != null)
         {
-            yield return StartCoroutine(scoreUploader.SubmitScore()); // 점수 전송이 끝날 때까지 대기
+            yield return StartCoroutine(scoreUploader.SubmitScore());
         }
         else
         {
@@ -73,6 +69,7 @@ public class GameTimer : MonoBehaviour
         }
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
+
     public int GetTotalScore()
     {
         int total = 0;
@@ -94,19 +91,74 @@ public class GameTimer : MonoBehaviour
 
     void ShowWinner()
     {
-        if (allPlayers.Length == 0) return;
+        Debug.Log("ShowWinner 메서드 호출됨");
 
-        PlayerScoreUI winner = allPlayers[0];
-        foreach (var p in allPlayers)
+        // allPlayers 배열 검증
+        if (allPlayers == null || allPlayers.Length == 0)
         {
-            if (p.GetScore() > winner.GetScore())
-                winner = p;
+            Debug.LogError("allPlayers 배열이 null이거나 비어 있습니다.");
+            // 그래도 UI는 표시하자
+            ShowFallbackUI();
+            return;
         }
 
-        winnerPanel.SetActive(true);
-        winnerText.text = $" Winner: {winner.playerName}!"; 
+        // 유효한 플레이어 찾기
+        PlayerScoreUI winner = null;
+        int highestScore = -1;
+
+        foreach (var player in allPlayers)
+        {
+            if (player == null)
+            {
+                Debug.LogWarning("allPlayers에 null 플레이어가 있습니다.");
+                continue;
+            }
+
+            try
+            {
+                int playerScore = player.GetScore();
+                Debug.Log($"플레이어 {player.playerName}의 점수: {playerScore}");
+
+                if (playerScore > highestScore)
+                {
+                    highestScore = playerScore;
+                    winner = player;
+                }
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"플레이어 {player.name}의 점수를 가져오는 중 오류: {e.Message}");
+            }
+        }
+
+        // UI 표시
+        if (winner != null)
+        {
+            Debug.Log($"승자: {winner.playerName}, 점수: {highestScore}");
+            winnerPanel.SetActive(true);
+            winnerText.text = $"Winner: {winner.playerName}!";
+        }
+        else
+        {
+            Debug.LogWarning("승자를 찾을 수 없습니다. 기본 UI를 표시합니다.");
+            ShowFallbackUI();
+        }
+
+        // 항상 restart 텍스트와 quit 버튼은 표시
         restartText.text = "Press R to Restart";
-        quitButton.gameObject.SetActive(true); 
+        quitButton.gameObject.SetActive(true);
+
+        Debug.Log("ShowWinner 완료 - UI 표시됨");
+    }
+
+    void ShowFallbackUI()
+    {
+        Debug.Log("ShowFallbackUI 호출됨");
+        winnerPanel.SetActive(true);
+        if (winnerText != null)
+            winnerText.text = "Game Over!";
+        restartText.text = "Press R to Restart";
+        quitButton.gameObject.SetActive(true);
     }
 
     string FormatTime(float time)
@@ -115,6 +167,7 @@ public class GameTimer : MonoBehaviour
         int seconds = Mathf.FloorToInt(time % 60f);
         return $"{minutes:00}:{seconds:00}";
     }
+
     private void QuitGame()
     {
         SceneManager.LoadScene("Django_FestivalMainScene");
