@@ -892,26 +892,26 @@ public class SessionManager : NetworkBehaviour
 
     private void UnloadOldScenesForConnection(NetworkConnection conn, string newSceneName)
     {
-        string currentSceneName = null;
-        if (!connectionCurrentScene.TryGetValue(conn, out currentSceneName))
-        {
-            currentSceneName = "StartScene";
-            Debug.Log($"[언로드] 클라이언트 {conn.ClientId}의 현재 씬 정보 없음 - StartScene으로 가정");
-        }
+        // string currentSceneName = null;
+        // if (!connectionCurrentScene.TryGetValue(conn, out currentSceneName))
+        // {
+        //     currentSceneName = "StartScene";
+        //     Debug.Log($"[언로드] 클라이언트 {conn.ClientId}의 현재 씬 정보 없음 - StartScene으로 가정");
+        // }
 
-        // 현재 씬과 새 씬이 다를 때만 언로드
-        if (currentSceneName != newSceneName)
-        {
-            NetworkConnection[] connections = new NetworkConnection[] { conn };
-            SceneUnloadData sud = new SceneUnloadData(new string[] { currentSceneName });
+        // // 현재 씬과 새 씬이 다를 때만 언로드
+        // if (currentSceneName != newSceneName)
+        // {
+        //     NetworkConnection[] connections = new NetworkConnection[] { conn };
+        //     SceneUnloadData sud = new SceneUnloadData(new string[] { currentSceneName });
             
-            InstanceFinder.SceneManager.UnloadConnectionScenes(connections, sud);
-            Debug.Log($"[언로드] 클라이언트 {conn.ClientId}: {currentSceneName} → {newSceneName}");
-        }
-        else
-        {
-            Debug.Log($"[언로드] 클라이언트 {conn.ClientId}: 동일한 씬이므로 언로드 스킵 ({currentSceneName})");
-        }
+        //     InstanceFinder.SceneManager.UnloadConnectionScenes(connections, sud);
+        //     Debug.Log($"[언로드] 클라이언트 {conn.ClientId}: {currentSceneName} → {newSceneName}");
+        // }
+        // else
+        // {
+        //     Debug.Log($"[언로드] 클라이언트 {conn.ClientId}: 동일한 씬이므로 언로드 스킵 ({currentSceneName})");
+        // }
     }
 
     private void LoadSceneForConnection(NetworkConnection conn, string sceneName, SessionData session)
