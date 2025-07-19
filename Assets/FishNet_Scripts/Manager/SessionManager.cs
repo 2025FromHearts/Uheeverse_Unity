@@ -62,11 +62,11 @@ public class SessionManager : NetworkBehaviour
         base.OnStartServer();
         Debug.Log("[SessionManager] 서버 시작됨 - 이벤트 구독 시작");
         
-        if (IsServerInitialized)
-        {
-            // 서버에만 모든 씬 로드 (클라이언트는 안 보임)
-            StartCoroutine(PreloadAllScenesOnServer());
-        }
+        //if (IsServerInitialized)
+        //{
+        //    // 서버에만 모든 씬 로드 (클라이언트는 안 보임)
+        //    StartCoroutine(PreloadAllScenesOnServer());
+        //}
 
         isServerInitialized = true;
         
@@ -86,20 +86,20 @@ public class SessionManager : NetworkBehaviour
         Debug.Log("[SessionManager] 서버 초기화 완료");
     }
     
-    IEnumerator PreloadAllScenesOnServer()
-{
-    string[] gameScenes = { "StartScene", "MyStation", "Train", "FestivalMainScene" };
+//    IEnumerator PreloadAllScenesOnServer()
+//{
+//    string[] gameScenes = { "StartScene", "MyStation", "Train", "FestivalMainScene" };
     
-    foreach (var sceneName in gameScenes)
-    {
-        // FishNet 방식으로 서버에 씬 로드
-        SceneLoadData sld = new SceneLoadData(sceneName);
-        base.SceneManager.LoadConnectionScenes(sld);  // 매개변수 없음 = 서버만
+//    foreach (var sceneName in gameScenes)
+//    {
+//        // FishNet 방식으로 서버에 씬 로드
+//        SceneLoadData sld = new SceneLoadData(sceneName);
+//        base.SceneManager.LoadConnectionScenes(sld);  // 매개변수 없음 = 서버만
         
-        yield return new WaitForSeconds(0.5f);  // 로드 대기
-        Debug.Log($"[서버] {sceneName} 씬 사전 로드 완료");
-    }
-}
+//        yield return new WaitForSeconds(0.5f);  // 로드 대기
+//        Debug.Log($"[서버] {sceneName} 씬 사전 로드 완료");
+//    }
+//}
 
     public override void OnStopServer()
     {
@@ -289,9 +289,11 @@ public class SessionManager : NetworkBehaviour
         NetworkConnection[] connections = new NetworkConnection[] { conn };
         
         SceneLoadData sld = new SceneLoadData(sceneName);
+        
         sld.Options.AllowStacking = false;
-        sld.Options.AutomaticallyUnload = false;
-        sld.ReplaceScenes = ReplaceOption.None;
+        sld.Options.AutomaticallyUnload = true;
+        sld.ReplaceScenes = ReplaceOption.All;
+
 
         pendingSceneLoads[conn] = sceneName;
 
