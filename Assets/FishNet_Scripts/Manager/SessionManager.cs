@@ -34,6 +34,8 @@ public class SessionManager : NetworkBehaviour
     public GameObject playerPrefab;
     public static SessionManager Instance { get; private set; }
 
+    private int _stackedSceneHandle = 0;
+
     // 서버 전용 데이터
     private Dictionary<string, SessionData> sessions = new Dictionary<string, SessionData>();
     private Dictionary<NetworkConnection, NetworkObject> playerObjects = new Dictionary<NetworkConnection, NetworkObject>();
@@ -62,13 +64,15 @@ public class SessionManager : NetworkBehaviour
         base.OnStartServer();
         Debug.Log("[SessionManager] 서버 시작됨 - 이벤트 구독 시작");
         
-        if (IsServerInitialized)
-        {
-            // 서버에만 모든 씬 로드 (클라이언트는 안 보임)
-            StartCoroutine(PreloadAllScenesOnServer());
-        }
+        
 
         isServerInitialized = true;
+
+        // if (IsServerInitialized)
+        // {
+        //     // 서버에만 모든 씬 로드 (클라이언트는 안 보임)
+        //     StartCoroutine(PreloadAllScenesOnServer());
+        // }
         
         // 서버 시작 후 이벤트 구독
         if (InstanceFinder.ServerManager != null)
@@ -86,20 +90,20 @@ public class SessionManager : NetworkBehaviour
         Debug.Log("[SessionManager] 서버 초기화 완료");
     }
     
-    IEnumerator PreloadAllScenesOnServer()
-{
-    string[] gameScenes = { "StartScene", "MyStation", "Train", "FestivalMainScene" };
+//     IEnumerator PreloadAllScenesOnServer()
+// {
+//     string[] gameScenes = { "StartScene", "MyStation", "Train", "FestivalMainScene" };
     
-    foreach (var sceneName in gameScenes)
-    {
-        // FishNet 방식으로 서버에 씬 로드
-        SceneLoadData sld = new SceneLoadData(sceneName);
-        base.SceneManager.LoadConnectionScenes(sld);  // 매개변수 없음 = 서버만
+//     foreach (var sceneName in gameScenes)
+//     {
+//         // FishNet 방식으로 서버에 씬 로드
+//         SceneLoadData sld = new SceneLoadData(sceneName);
+//         base.SceneManager.LoadConnectionScenes(sld);  // 매개변수 없음 = 서버만
         
-        yield return new WaitForSeconds(0.5f);  // 로드 대기
-        Debug.Log($"[서버] {sceneName} 씬 사전 로드 완료");
-    }
-}
+//         yield return new WaitForSeconds(0.5f);  // 로드 대기
+//         Debug.Log($"[서버] {sceneName} 씬 사전 로드 완료");
+//     }
+// }
 
     public override void OnStopServer()
     {
@@ -205,7 +209,7 @@ public class SessionManager : NetworkBehaviour
 
     public void CreateSession(NetworkConnection hostConn, SessionType type)
     {
-        if (!IsServerStarted || !isServerInitialized) 
+        if (!IsServerStarted || !isServerInitialized)
         {
             Debug.LogWarning("[SessionManager] 서버가 초기화되지 않음 - 세션 생성 중단");
             return;
@@ -223,7 +227,7 @@ public class SessionManager : NetworkBehaviour
 
         string sessionId = System.Guid.NewGuid().ToString();
         string sceneName = GetSceneNameByType(type);
-        
+
         var session = new SessionData
         {
             SessionId = sessionId,
@@ -237,14 +241,15 @@ public class SessionManager : NetworkBehaviour
 
         Debug.Log($"[세션] 세션 데이터 생성 완료: {sessionId}, 타입: {type}, 씬: {sceneName}");
 
-        UnloadOldScenesForConnection(hostConn, sceneName);
+
         LoadSceneForConnection(hostConn, sceneName, session);
+        // UnloadOldScenesForConnection(hostConn, sceneName);
 
         // 이전 씬 언로드 (해당 클라이언트만)
-        
+
 
         // 새 씬 로드 (해당 클라이언트만)
-        
+
     }
 
     private string GetSceneNameByType(SessionType type)
@@ -287,13 +292,16 @@ public class SessionManager : NetworkBehaviour
     {
         Debug.Log($"🚀 [씬 로드 시작] LoadSceneForConnection 호출됨 - 씬: {sceneName}");
         NetworkConnection[] connections = new NetworkConnection[] { conn };
-        
-        SceneLoadData sld = new SceneLoadData(sceneName);
-        sld.Options.AllowStacking = false;
+
+        SceneLookupData lookup = new SceneLookupData(sceneName);
+        SceneLoadData sld = new SceneLoadData(lookup);
+        sld.Options.AllowStacking = true;
         sld.Options.AutomaticallyUnload = false;
-        sld.ReplaceScenes = ReplaceOption.None;
+        sld.ReplaceScenes = ReplaceOption.All;
 
         pendingSceneLoads[conn] = sceneName;
+
+        sld.Options.LocalPhysics = LocalPhysicsMode.Physics3D;
 
         if (InstanceFinder.SceneManager != null)
         {
@@ -328,9 +336,9 @@ public class SessionManager : NetworkBehaviour
         foreach (var loadedScene in args.LoadedScenes)
         {
             Debug.Log($"[씬 로드 완료] 씬: {loadedScene.name}");
-            
+
             var connectionsToProcess = new List<NetworkConnection>();
-            
+
             foreach (var pendingKvp in pendingSceneLoads)
             {
                 if (pendingKvp.Value == loadedScene.name)
@@ -348,6 +356,11 @@ public class SessionManager : NetworkBehaviour
                 }
                 pendingSceneLoads.Remove(conn);
             }
+        }
+
+        if (args.LoadedScenes.Length > 0)
+        {
+            _stackedSceneHandle = args.LoadedScenes[0].handle;
         }
     }
 
