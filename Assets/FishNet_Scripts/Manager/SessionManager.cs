@@ -241,9 +241,8 @@ public class SessionManager : NetworkBehaviour
 
         Debug.Log($"[세션] 세션 데이터 생성 완료: {sessionId}, 타입: {type}, 씬: {sceneName}");
 
-
+        UnloadOldScenesForConnection(hostConn, sceneName);
         LoadSceneForConnection(hostConn, sceneName, session);
-        // UnloadOldScenesForConnection(hostConn, sceneName);
 
         // 이전 씬 언로드 (해당 클라이언트만)
 
@@ -266,6 +265,7 @@ public class SessionManager : NetworkBehaviour
 
     private void UnloadOldScenesForConnection(NetworkConnection conn, string newSceneName)
     {
+        Debug.Log("언로드 진입함");
         string currentSceneName = null;
         if (!connectionCurrentScene.TryGetValue(conn, out currentSceneName))
         {
@@ -276,10 +276,10 @@ public class SessionManager : NetworkBehaviour
         // 현재 씬과 새 씬이 다를 때만 언로드
         if (currentSceneName != newSceneName)
         {
-            NetworkConnection[] connections = new NetworkConnection[] { conn };
-            SceneUnloadData sud = new SceneUnloadData(new string[] { currentSceneName });
+            conn = base.Owner;
+            SceneUnloadData sud = new SceneUnloadData(new string[] { currentSceneName, "Addictive" });
             
-            InstanceFinder.SceneManager.UnloadConnectionScenes(connections, sud);
+            InstanceFinder.SceneManager.UnloadConnectionScenes(conn, sud);
             Debug.Log($"[언로드] 클라이언트 {conn.ClientId}: {currentSceneName} → {newSceneName}");
         }
         else
@@ -297,19 +297,19 @@ public class SessionManager : NetworkBehaviour
         SceneLoadData sld = new SceneLoadData(lookup);
         sld.Options.AllowStacking = true;
         sld.Options.AutomaticallyUnload = false;
-        sld.ReplaceScenes = ReplaceOption.All;
+        sld.ReplaceScenes = ReplaceOption.None;
 
         pendingSceneLoads[conn] = sceneName;
 
         sld.Options.LocalPhysics = LocalPhysicsMode.Physics3D;
 
-        if (InstanceFinder.SceneManager != null)
-        {
-            // 기존 이벤트 구독 해제 후 다시 구독 (중복 방지)
-            InstanceFinder.SceneManager.OnLoadEnd -= OnSceneLoadEnd;
-            InstanceFinder.SceneManager.OnLoadEnd += OnSceneLoadEnd;
-            Debug.Log("✅ OnSceneLoadEnd 이벤트 재구독 완료");
-        }
+        //if (InstanceFinder.SceneManager != null)
+        //{
+        //    // 기존 이벤트 구독 해제 후 다시 구독 (중복 방지)
+        //    InstanceFinder.SceneManager.OnLoadEnd -= OnSceneLoadEnd;
+        //    InstanceFinder.SceneManager.OnLoadEnd += OnSceneLoadEnd;
+        //    Debug.Log("✅ OnSceneLoadEnd 이벤트 재구독 완료");
+        //}
         try
         {
             InstanceFinder.SceneManager.LoadConnectionScenes(connections, sld);
