@@ -276,10 +276,10 @@ public class SessionManager : NetworkBehaviour
         // 현재 씬과 새 씬이 다를 때만 언로드
         if (currentSceneName != newSceneName)
         {
-            conn = base.Owner;
+            //NetworkConnection conn = base.Owner;
             SceneUnloadData sud = new SceneUnloadData(new string[] { currentSceneName, "Addictive" });
             
-            InstanceFinder.SceneManager.UnloadConnectionScenes(conn, sud);
+            base.SceneManager.UnloadConnectionScenes(conn, sud);
             Debug.Log($"[언로드] 클라이언트 {conn.ClientId}: {currentSceneName} → {newSceneName}");
         }
         else
