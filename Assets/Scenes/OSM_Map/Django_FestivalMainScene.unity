@@ -6598,8 +6598,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\uC800\uC7A5 \uD6C4 \uB098\uAC00\uAE30"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 97d71e7940ed5bd489516197522e997e, type: 2}
-  m_sharedMaterial: {fileID: 4092710814923578033, guid: 97d71e7940ed5bd489516197522e997e, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -12053,7 +12053,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &839684717
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12089,8 +12089,9 @@ MonoBehaviour:
   objectCount: 50
   areaSize: 400
   minDistance: 5
-  groundCenter: {x: 100, y: 100}
-  avoidDistanceFromCenter: 100
+  extraMargin: 50
+  randomScaleMin: 0.5
+  randomScaleMax: 0.7
 --- !u!4 &839684718
 Transform:
   m_ObjectHideFlags: 0
@@ -12755,8 +12756,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\uCD95\uC81C\uB294 \uC990\uAC70\uC6CC\uC694~!"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 97d71e7940ed5bd489516197522e997e, type: 2}
-  m_sharedMaterial: {fileID: 4092710814923578033, guid: 97d71e7940ed5bd489516197522e997e, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -17457,10 +17458,29 @@ MonoBehaviour:
   parkPrefab: {fileID: 615213970761732689, guid: ff1be3c0eb195cb4490ab1f9817d732b, type: 3}
   busStopPrefab: {fileID: 5527567223351593485, guid: 0c49aefc561f531439742f08a2b7c89d, type: 3}
   statuePrefab: {fileID: 5633941920289125492, guid: d98e335321171a74a9ecb76ed9e9a0fc, type: 3}
+  treeScale: 1.8
+  buildingScale: 1.8
+  shopScale: 1.8
+  schoolScale: 1.8
+  policeScale: 1.8
+  hospitalScale: 1.8
+  parkScale: 1.8
+  busStopScale: 1.8
+  statueScale: 1.8
   roadMaterial: {fileID: 2100000, guid: 5f97e853c61944842b4e85ebaae6999c, type: 2}
   riverMaterial: {fileID: 2100000, guid: a7cf9101f70eb4b3ab0a00155d3af5e0, type: 2}
-  roadWidth: 3
-  riverWidth: 20
+  roadWidth: 8
+  riverWidth: 25
+  centerTransform: {fileID: 1666510625146277828}
+  center: {x: 0, y: 0, z: 0}
+  useCircleExclude: 0
+  excludeRadius: 30
+  useBoxExclude: 1
+  excludeBoxSize: {x: 220, y: 220}
+  baseLat: 36.43257
+  baseLon: 129.05411
+  scale: 300000
+  manualOffset: {x: 0, y: 0, z: 0}
   jsonFileName: CheongsongOsm.json
 --- !u!4 &1149156975
 Transform:
@@ -25100,8 +25120,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\uB545\uCF69\uC7BC"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 97d71e7940ed5bd489516197522e997e, type: 2}
-  m_sharedMaterial: {fileID: 4092710814923578033, guid: 97d71e7940ed5bd489516197522e997e, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -32776,6 +32796,15 @@ MonoBehaviour:
   slotParent: {fileID: 1163913460621702298}
   slotPrefab: {fileID: 8267972431301234475, guid: ce2260791769b0c42a3d1fc284e76908, type: 3}
   itemAttacher: {fileID: 86029956}
+  detailPanel: {fileID: 0}
+  detailImage: {fileID: 0}
+  detailItemImage: {fileID: 0}
+  detailName: {fileID: 0}
+  detailDescription: {fileID: 0}
+  putOnButton: {fileID: 0}
+  putOffButton: {fileID: 0}
+  infoGroup: {fileID: 0}
+  placeholderText: {fileID: 0}
 --- !u!4 &3129737127928786614
 Transform:
   m_ObjectHideFlags: 0
