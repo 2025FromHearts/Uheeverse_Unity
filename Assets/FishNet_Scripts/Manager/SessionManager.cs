@@ -243,7 +243,6 @@ public class SessionManager : NetworkBehaviour
 
         UnloadOldScenesForConnection(hostConn, sceneName);
         LoadSceneForConnection(hostConn, sceneName, session);
-        
 
         // 이전 씬 언로드 (해당 클라이언트만)
 
@@ -267,12 +266,6 @@ public class SessionManager : NetworkBehaviour
     private void UnloadOldScenesForConnection(NetworkConnection conn, string newSceneName)
     {
         Debug.Log("언로드 진입함");
-
-        foreach(var kvp in connectionCurrentScene)
-    {
-        Debug.Log($"   - ClientId {kvp.Key.ClientId}: {kvp.Value}");
-    }
-    
         string currentSceneName = null;
         if (!connectionCurrentScene.TryGetValue(conn, out currentSceneName))
         {
@@ -283,10 +276,10 @@ public class SessionManager : NetworkBehaviour
         // 현재 씬과 새 씬이 다를 때만 언로드
         if (currentSceneName != newSceneName)
         {
-            conn = base.Owner;
+            //NetworkConnection conn = base.Owner;
             SceneUnloadData sud = new SceneUnloadData(new string[] { currentSceneName, "Addictive" });
             
-            InstanceFinder.SceneManager.UnloadConnectionScenes(conn, sud);
+            base.SceneManager.UnloadConnectionScenes(conn, sud);
             Debug.Log($"[언로드] 클라이언트 {conn.ClientId}: {currentSceneName} → {newSceneName}");
         }
         else
@@ -310,13 +303,13 @@ public class SessionManager : NetworkBehaviour
 
         sld.Options.LocalPhysics = LocalPhysicsMode.Physics3D;
 
-        if (InstanceFinder.SceneManager != null)
-        {
-            // 기존 이벤트 구독 해제 후 다시 구독 (중복 방지)
-            InstanceFinder.SceneManager.OnLoadEnd -= OnSceneLoadEnd;
-            InstanceFinder.SceneManager.OnLoadEnd += OnSceneLoadEnd;
-            Debug.Log("✅ OnSceneLoadEnd 이벤트 재구독 완료");
-        }
+        //if (InstanceFinder.SceneManager != null)
+        //{
+        //    // 기존 이벤트 구독 해제 후 다시 구독 (중복 방지)
+        //    InstanceFinder.SceneManager.OnLoadEnd -= OnSceneLoadEnd;
+        //    InstanceFinder.SceneManager.OnLoadEnd += OnSceneLoadEnd;
+        //    Debug.Log("✅ OnSceneLoadEnd 이벤트 재구독 완료");
+        //}
         try
         {
             InstanceFinder.SceneManager.LoadConnectionScenes(connections, sld);
