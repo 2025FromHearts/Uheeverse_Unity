@@ -38,7 +38,7 @@ public class OsmLoader : MonoBehaviour
 
     [Header("Exclude Zone Center")]
     public Transform centerTransform;
-    public Vector3 center = new Vector3(0, 0, 0);
+    public Vector3 center = Vector3.zero;
 
     [Header("Exclude Settings")]
     public bool useCircleExclude = false;
@@ -51,6 +51,11 @@ public class OsmLoader : MonoBehaviour
     public float baseLon = 129.0541124f;
     public float scale = 300000f;
     public Vector3 manualOffset = Vector3.zero;
+
+    [Header("Road Prefab Mode")]
+    public bool useRoadPrefab = true;
+    public GameObject roadPrefab;
+    public float roadSegmentLength = 4f;
 
     public string jsonFileName = "CheongsongOsm.json";
 
@@ -75,7 +80,6 @@ public class OsmLoader : MonoBehaviour
         var osmData = JSON.Parse(jsonText);
         Debug.Log("OSM 요소 개수: " + osmData["elements"].Count);
 
-        // NODE 처리
         foreach (JSONNode element in osmData["elements"].AsArray)
         {
             if (element["type"] == "node")
@@ -89,8 +93,7 @@ public class OsmLoader : MonoBehaviour
                 if (element.HasKey("tags"))
                 {
                     var tags = element["tags"];
-                    if (IsInsideExcludeZone(position))
-                        continue;
+                    if (IsInsideExcludeZone(position)) continue;
 
                     GameObject go = null;
                     float scaleFactor = 1f;
@@ -143,13 +146,12 @@ public class OsmLoader : MonoBehaviour
                     if (go != null)
                     {
                         go.transform.localScale *= scaleFactor;
-                        go.tag = "GeneratedFromOSM"; // 일반 프리팹들은 이 태그
+                        go.tag = "GeneratedFromOSM";
                     }
                 }
             }
         }
 
-        // WAY 처리 (LineRenderer)
         foreach (JSONNode element in osmData["elements"].AsArray)
         {
             if (element["type"] == "way" && element.HasKey("tags"))
@@ -164,27 +166,55 @@ public class OsmLoader : MonoBehaviour
                     if (nodeLookup.ContainsKey(id))
                     {
                         Vector3 p = nodeLookup[id];
-                        p.y = 0.1f; // 살짝 띄워서 Z-fighting 방지
+                        p.y = 0.1f;
                         positions.Add(p);
                     }
                 }
 
                 if (positions.Count < 2) continue;
 
-                if (tags.HasKey("highway") && roadMaterial != null)
+                if (tags.HasKey("highway"))
                 {
-                    Debug.Log($"[로드] {tags["highway"]} 길 그리기, 노드 수: {positions.Count}");
-                    DrawLine(positions, roadMaterial, roadWidth, "Road", "GeneratedLine");
+                    Debug.Log($"[도로] {tags["highway"]} 노드 {positions.Count}개");
+                    if (useRoadPrefab && roadPrefab != null)
+                    {
+                        PlaceRoadPrefab(positions);
+                    }
+                    else if (roadMaterial != null)
+                    {
+                        DrawLine(positions, roadMaterial, roadWidth, "Road", "GeneratedLine");
+                    }
                 }
                 else if ((tags.HasKey("waterway") && tags["waterway"] == "river") ||
                          (tags.HasKey("natural") && tags["natural"] == "water"))
                 {
                     if (riverMaterial != null)
                     {
-                        Debug.Log($"[강] waterway/river 그리기, 노드 수: {positions.Count}");
+                        Debug.Log($"[강] waterway/river 노드 {positions.Count}개");
                         DrawLine(positions, riverMaterial, riverWidth, "River", "GeneratedLine");
                     }
                 }
+            }
+        }
+    }
+
+    void PlaceRoadPrefab(List<Vector3> path)
+    {
+        for (int i = 0; i < path.Count - 1; i++)
+        {
+            Vector3 start = path[i];
+            Vector3 end = path[i + 1];
+            Vector3 dir = end - start;
+            float dist = dir.magnitude;
+            Quaternion rot = Quaternion.LookRotation(dir.normalized);
+            int segmentCount = Mathf.CeilToInt(dist / roadSegmentLength);
+            Vector3 step = dir / segmentCount;
+
+            for (int j = 0; j < segmentCount; j++)
+            {
+                Vector3 pos = start + step * j;
+                GameObject road = Instantiate(roadPrefab, pos, rot, this.transform);
+                road.tag = "GeneratedFromOSM";
             }
         }
     }
@@ -220,7 +250,7 @@ public class OsmLoader : MonoBehaviour
     void DrawLine(List<Vector3> points, Material mat, float width, string name, string tag)
     {
         GameObject lineObj = new GameObject(name);
-        lineObj.tag = tag; // LineRenderer는 다른 태그
+        lineObj.tag = tag;
         LineRenderer line = lineObj.AddComponent<LineRenderer>();
         line.positionCount = points.Count;
         line.SetPositions(points.ToArray());
