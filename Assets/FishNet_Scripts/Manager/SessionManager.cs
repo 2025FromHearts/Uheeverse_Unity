@@ -293,15 +293,33 @@ public class SessionManager : NetworkBehaviour
         Debug.Log($"🚀 [씬 로드 시작] LoadSceneForConnection 호출됨 - 씬: {sceneName}");
         NetworkConnection[] connections = new NetworkConnection[] { conn };
 
-        SceneLookupData lookup = new SceneLookupData(sceneName);
-        SceneLoadData sld = new SceneLoadData(lookup);
-        sld.Options.AllowStacking = true;
-        sld.Options.AutomaticallyUnload = false;
-        sld.ReplaceScenes = ReplaceOption.None;
+        if (sceneName == "FestivalMainScene")
+        {
+            Debug.Log("페스티벌 로드");
+            SceneLookupData lookupFestival = new SceneLookupData(_stackedSceneHandle, sceneName);
+            SceneLoadData sldFestival = new SceneLoadData(lookupFestival);
 
-        pendingSceneLoads[conn] = sceneName;
+            sldFestival.Options.AllowStacking = true;
+            sldFestival.Options.AutomaticallyUnload = false;
+            sldFestival.ReplaceScenes = ReplaceOption.None;
 
-        sld.Options.LocalPhysics = LocalPhysicsMode.Physics3D;
+            pendingSceneLoads[conn] = sceneName;
+
+            sldFestival.Options.LocalPhysics = LocalPhysicsMode.Physics3D;
+        }
+        else {
+            Debug.Log("일반씬 로드");
+            SceneLookupData lookup = new SceneLookupData(sceneName);
+            SceneLoadData sld = new SceneLoadData(lookup);
+            sld.Options.AllowStacking = true;
+            sld.Options.AutomaticallyUnload = false;
+            sld.ReplaceScenes = ReplaceOption.None;
+
+            pendingSceneLoads[conn] = sceneName;
+
+            sld.Options.LocalPhysics = LocalPhysicsMode.Physics3D;
+        }
+            
 
         //if (InstanceFinder.SceneManager != null)
         //{
