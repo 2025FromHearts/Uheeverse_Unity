@@ -10,6 +10,7 @@ using FishNet.Transporting;
 using UnityEngine.SceneManagement;
 using FishNet.Component.Prediction;
 using System.Collections;
+using Unity.Mathematics;
 
 public enum SessionType
 {
@@ -292,6 +293,7 @@ public class SessionManager : NetworkBehaviour
     {
         Debug.Log($"🚀 [씬 로드 시작] LoadSceneForConnection 호출됨 - 씬: {sceneName}");
         NetworkConnection[] connections = new NetworkConnection[] { conn };
+        
 
         if (sceneName == "FestivalMainScene")
         {
@@ -306,6 +308,16 @@ public class SessionManager : NetworkBehaviour
             pendingSceneLoads[conn] = sceneName;
 
             sldFestival.Options.LocalPhysics = LocalPhysicsMode.Physics3D;
+
+            try
+            {
+                InstanceFinder.SceneManager.LoadConnectionScenes(connections, sldFestival);
+                Debug.Log($"✅ [씬 로드] LoadConnectionScenes 호출 완료 - 씬: {sceneName}");
+            }
+            catch (System.Exception ex)
+            {
+                Debug.Log("씬 로드 실패");
+            }
         }
         else {
             Debug.Log("일반씬 로드");
@@ -318,6 +330,16 @@ public class SessionManager : NetworkBehaviour
             pendingSceneLoads[conn] = sceneName;
 
             sld.Options.LocalPhysics = LocalPhysicsMode.Physics3D;
+
+            try
+            {
+                InstanceFinder.SceneManager.LoadConnectionScenes(connections, sld);
+                Debug.Log($"✅ [씬 로드] LoadConnectionScenes 호출 완료 - 씬: {sceneName}");
+            }
+            catch (System.Exception ex)
+            {
+                Debug.Log("씬 로드 실패");
+            }
         }
             
 
@@ -328,15 +350,7 @@ public class SessionManager : NetworkBehaviour
         //    InstanceFinder.SceneManager.OnLoadEnd += OnSceneLoadEnd;
         //    Debug.Log("✅ OnSceneLoadEnd 이벤트 재구독 완료");
         //}
-        try
-        {
-            InstanceFinder.SceneManager.LoadConnectionScenes(connections, sld);
-            Debug.Log($"✅ [씬 로드] LoadConnectionScenes 호출 완료 - 씬: {sceneName}");
-        }
-        catch (System.Exception ex)
-        {
-            Debug.Log("씬 로드 실패");
-        }
+        
         // 펜딩 씬 로드 추가
 
         
