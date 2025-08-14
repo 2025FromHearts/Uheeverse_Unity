@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+[RequireComponent(typeof(CharacterController))]
 public class PlayerInputController : MonoBehaviour
 {
     private InputActions controls;
@@ -9,6 +10,11 @@ public class PlayerInputController : MonoBehaviour
 
     public Transform cameraTransform; // 여기 연결 필요!
     private Animator animator; //animator 추가
+    private CharacterController controller;
+
+    private Vector3 velocity;                // 중력 벡터
+    public float gravity = -20f;            // 중력 가속도 (더 빠르게 떨어지게 설정)
+    public float groundCheckDistance = 0.2f; // 지면 감지 거리
 
     void Awake()
     {
@@ -17,6 +23,7 @@ public class PlayerInputController : MonoBehaviour
         controls.Player.Move.canceled += ctx => moveInput = Vector2.zero;
 
         animator = GetComponent<Animator>(); // Animator 컴포넌트 할당
+        controller = GetComponent<CharacterController>();
     }
 
     void OnEnable() => controls.Enable();
@@ -41,12 +48,31 @@ public class PlayerInputController : MonoBehaviour
         bool isMoving = inputDirection.sqrMagnitude > 0.01f;
         animator.SetBool("IsMove", isMoving);
 
-        if (inputDirection.sqrMagnitude > 0.01f)
+        if (isMoving)
         {
             Quaternion targetRotation = Quaternion.LookRotation(inputDirection);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 10f);
-
-            transform.position += inputDirection * moveSpeed * Time.deltaTime;
         }
+
+        // 지면 감지 → velocity.y 리셋 or 중력 적용
+        if (IsGrounded())
+        {
+            velocity.y = -1f; // 착지 후 약간의 음수값 유지 (바닥에 달라붙게)
+        }
+        else
+        {
+            velocity.y += gravity * Time.deltaTime;
+        }
+
+        // 이동 + 중력 반영
+        Vector3 finalMove = inputDirection * moveSpeed + velocity;
+        controller.Move(finalMove * Time.deltaTime);
+    }
+
+    // Raycast로 지면 감지
+    bool IsGrounded()
+    {
+        Vector3 rayOrigin = transform.position + Vector3.up * 0.1f;
+        return Physics.Raycast(rayOrigin, Vector3.down, groundCheckDistance + 0.1f);
     }
 }
