@@ -4,16 +4,16 @@ using UnityEngine;
 
 public class TrainLoader : MonoBehaviour
 {
-    private SessionManager sessionManager;
+    private SceneLoadingManager slm;
     void Awake()
     {
-        sessionManager = SessionManager.Instance;
+        slm = SceneLoadingManager.Instance;
         Debug.LogWarning("🔥 MyStationLoader.Awake() 호출됨!");
-        if (sessionManager != null)
+        if (slm != null)
         {
             Debug.Log("dd");
         }
-        if (sessionManager == null)
+        if (slm == null)
             Debug.Log("SessionManager 인스턴스를 찾을 수 없습니다!");
     }
     // public SessionManager sessionManager; // Inspector에서 할당
@@ -24,6 +24,6 @@ public class TrainLoader : MonoBehaviour
         // tag 예시: "Lobby", "Game"
         // sessionManager.CreateSessionFromTagServerRpc(tag);
         // NetworkConnection conn = InstanceFinder.ClientManager.Connection;
-        SessionManager.Instance.CreateSessionFromTagServerRpc(SessionType.Station);
+        slm.CreateSessionFromTagServerRpc(SceneType.Quiz, "MyStation");
     }
 }

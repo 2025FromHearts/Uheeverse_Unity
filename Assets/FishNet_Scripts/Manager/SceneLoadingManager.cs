@@ -63,6 +63,7 @@ public class SceneLoadingManager : NetworkBehaviour
     public override void OnStartClient()
     {
         base.OnStartClient();
+        Debug.Log($"SceneLoadingManager IsClientInitialized: {IsClientInitialized}");
         Debug.Log("클라이언트 시작됨");
     }
 
@@ -104,7 +105,7 @@ public class SceneLoadingManager : NetworkBehaviour
         }
     }
 
-    [Server(Logging = LoggingType.Off)]
+    // [ServerRpc(RequireOwnership = false)]
     internal void CreateSessionFromTagServerRpc(SceneType type, string currentScene)
     {
         if (!IsServer || !isServerInitialized)
@@ -159,7 +160,7 @@ public class SceneLoadingManager : NetworkBehaviour
         sld.Options.AutomaticallyUnload = false;
         sld.ReplaceScenes = ReplaceOption.None;
 
-        sld.Options.LocalPhysics = LocalPhysicsMode.Physics3D;
+        sld.Options.LocalPhysics = LocalPhysicsMode.Physics2D;
 
         NetworkConnection[] connections = new NetworkConnection[] { conn };
         InstanceFinder.SceneManager.LoadConnectionScenes(conn, sld);
