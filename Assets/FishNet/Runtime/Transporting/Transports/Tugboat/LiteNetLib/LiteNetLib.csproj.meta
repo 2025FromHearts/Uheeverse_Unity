@@ -5,6 +5,7 @@ DefaultImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
+<<<<<<< Updated upstream
 AssetOrigin:
   serializedVersion: 1
   productId: 207815
@@ -12,3 +13,5 @@ AssetOrigin:
   packageVersion: 4.6.12R
   assetPath: Assets/FishNet/Runtime/Transporting/Transports/Tugboat/LiteNetLib/LiteNetLib.csproj
   uploadId: 773595
+=======
+>>>>>>> Stashed changes
