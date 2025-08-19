@@ -14,7 +14,7 @@ using FishNet.Managing.Scened;
 
 public class LoginManager : MonoBehaviour
 {
-    private SessionManager sessionManager;
+    private SceneLoadingManager slm;
     public TMP_InputField usernameInput;
     public TMP_InputField passwordInput;
     private string accessToken;
@@ -103,83 +103,65 @@ public class LoginManager : MonoBehaviour
 
             Debug.Log("유저 받아오기");
 
-            sessionManager = SessionManager.Instance;
+            slm = SceneLoadingManager.Instance;
+            slm.CreateSessionFromTagServerRpc(SceneType.Station, "StartScene");
 
-            Debug.LogWarning("🔥 MyStationLoader.Awake() 호출됨!");
-            if (sessionManager != null)
-            {
-                Debug.Log("dd");
-                SessionManager.Instance.CreateSessionFromTagServerRpc(SessionType.Login);
-            }
-            if (sessionManager == null)
-                Debug.Log("SessionManager 인스턴스를 찾을 수 없습니다!");
+
         }
 
-    }
-
-    IEnumerator GetUserInfo()
-    {
-        string token = PlayerPrefs.GetString("access_token");
-        UnityWebRequest www = UnityWebRequest.Get(ServerConfig.baseUrl + "/users/get_user_info/");
-        www.SetRequestHeader("Authorization", "Bearer " + token);
-
-        yield return www.SendWebRequest();
-
-        if (www.result != UnityWebRequest.Result.Success)
+        IEnumerator GetUserInfo()
         {
-            Debug.LogError("User info request failed: " + www.error);
-        }
-        else
-        {
-            string json = www.downloadHandler.text;
-            Debug.Log("User info raw JSON: " + json);
+            string token = PlayerPrefs.GetString("access_token");
+            UnityWebRequest www = UnityWebRequest.Get(ServerConfig.baseUrl + "/users/get_user_info/");
+            www.SetRequestHeader("Authorization", "Bearer " + token);
 
-            try
+            yield return www.SendWebRequest();
+
+            if (www.result != UnityWebRequest.Result.Success)
             {
-                UserInfo userInfo = JsonConvert.DeserializeObject<UserInfo>(json);
-                characterId = userInfo.character_id;
-                Debug.Log("Parsed characterId: " + characterId);
-                PlayerPrefs.SetString("character_id", characterId);
+                Debug.LogError("User info request failed: " + www.error);
             }
-            catch (System.Exception e)
+            else
             {
-                Debug.LogError("Failed to parse user info: " + e.Message);
+                string json = www.downloadHandler.text;
+                Debug.Log("User info raw JSON: " + json);
+
+                try
+                {
+                    UserInfo userInfo = JsonConvert.DeserializeObject<UserInfo>(json);
+                    characterId = userInfo.character_id;
+                    Debug.Log("Parsed characterId: " + characterId);
+                    PlayerPrefs.SetString("character_id", characterId);
+                }
+                catch (System.Exception e)
+                {
+                    Debug.LogError("Failed to parse user info: " + e.Message);
+                }
             }
         }
-    }
 
-    IEnumerator CheckOrCreateInventory()
-    {
-        string url = ServerConfig.baseUrl + "/item/inventory/init/" + characterId + "/";
-        Debug.Log("Calling URL: " + url);
-
-        string token = PlayerPrefs.GetString("access_token");
-
-        UnityWebRequest www = UnityWebRequest.Get(url);
-        www.SetRequestHeader("Authorization", "Bearer " + token);
-
-        yield return www.SendWebRequest();
-
-        if (www.result != UnityWebRequest.Result.Success)
+        IEnumerator CheckOrCreateInventory()
         {
-            Debug.LogError("Inventory init failed: " + www.error);
+            string url = ServerConfig.baseUrl + "/item/inventory/init/" + characterId + "/";
+            Debug.Log("Calling URL: " + url);
+
+            string token = PlayerPrefs.GetString("access_token");
+
+            UnityWebRequest www = UnityWebRequest.Get(url);
+            www.SetRequestHeader("Authorization", "Bearer " + token);
+
+            yield return www.SendWebRequest();
+
+            if (www.result != UnityWebRequest.Result.Success)
+            {
+                Debug.LogError("Inventory init failed: " + www.error);
+            }
+            else
+            {
+                Debug.Log("Inventory checked or created: " + www.downloadHandler.text);
+            }
         }
-        else
-        {
-            Debug.Log("Inventory checked or created: " + www.downloadHandler.text);
-        }
-    }
-    
-        [ContextMenu("서버 상태 확인")]  
-    public void CheckServerStatus()
-    {
-        Debug.Log("=== 서버 측 상태 ===");
-        Debug.Log($"연결된 클라이언트 수: {InstanceFinder.ServerManager?.Clients.Count}");
-        
-        foreach (var client in InstanceFinder.ServerManager.Clients.Values)
-        {
-            Debug.Log($"클라이언트 {client.ClientId}: 활성 {client.IsActive}");
-        }
+
         
     }
 }

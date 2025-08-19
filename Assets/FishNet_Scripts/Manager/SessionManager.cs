@@ -89,21 +89,7 @@ public class SessionManager : NetworkBehaviour
         
         Debug.Log("[SessionManager] 서버 초기화 완료");
     }
-    
-//     IEnumerator PreloadAllScenesOnServer()
-// {
-//     string[] gameScenes = { "StartScene", "MyStation", "Train", "FestivalMainScene" };
-    
-//     foreach (var sceneName in gameScenes)
-//     {
-//         // FishNet 방식으로 서버에 씬 로드
-//         SceneLoadData sld = new SceneLoadData(sceneName);
-//         base.SceneManager.LoadConnectionScenes(sld);  // 매개변수 없음 = 서버만
-        
-//         yield return new WaitForSeconds(0.5f);  // 로드 대기
-//         Debug.Log($"[서버] {sceneName} 씬 사전 로드 완료");
-//     }
-// }
+
 
     public override void OnStopServer()
     {
@@ -130,6 +116,8 @@ public class SessionManager : NetworkBehaviour
     public override void OnStartClient()
     {
         base.OnStartClient();
+        InstanceFinder.SceneManager.OnLoadEnd += OnSceneLoadEnd;
+        Debug.Log("[SessionManager] 씬 로드 이벤트 클라이언트 시점 구독 완료");
         Debug.Log("[SessionManager] 클라이언트 시작됨");
     }
 
@@ -267,6 +255,8 @@ public class SessionManager : NetworkBehaviour
     {
         Debug.Log("언로드 진입함");
         string currentSceneName = null;
+        
+
         if (!connectionCurrentScene.TryGetValue(conn, out currentSceneName))
         {
             currentSceneName = "StartScene";
@@ -276,9 +266,10 @@ public class SessionManager : NetworkBehaviour
         // 현재 씬과 새 씬이 다를 때만 언로드
         if (currentSceneName != newSceneName)
         {
-            //NetworkConnection conn = base.Owner;
-            SceneUnloadData sud = new SceneUnloadData(new string[] { currentSceneName, "Addictive" });
             
+            SceneUnloadData sud = new SceneUnloadData(new string[] { (currentSceneName) });
+            
+            //NetworkConnection conn = base.Owner; 
             base.SceneManager.UnloadConnectionScenes(conn, sud);
             Debug.Log($"[언로드] 클라이언트 {conn.ClientId}: {currentSceneName} → {newSceneName}");
         }
@@ -287,6 +278,7 @@ public class SessionManager : NetworkBehaviour
             Debug.Log($"[언로드] 클라이언트 {conn.ClientId}: 동일한 씬이므로 언로드 스킵 ({currentSceneName})");
         }
     }
+
 
     private void LoadSceneForConnection(NetworkConnection conn, string sceneName, SessionData session)
     {
@@ -321,7 +313,7 @@ public class SessionManager : NetworkBehaviour
         }
         // 펜딩 씬 로드 추가
 
-        
+
         Debug.Log($"[씬 로드] 클라이언트 {conn.ClientId}에 씬 {sceneName} 로드 시작");
     }
 
@@ -373,6 +365,7 @@ public class SessionManager : NetworkBehaviour
         connectionCurrentScene[conn] = targetScene.name;
         
         Debug.Log($"[씬 로드 완료] 클라이언트 {conn.ClientId}를 씬 {targetScene.name}에 추가");
+        Debug.Log(connectionCurrentScene[conn]);
 
         // 플레이어 스폰
         SpawnPlayerInScene(conn, targetScene);
@@ -436,26 +429,26 @@ public class SessionManager : NetworkBehaviour
     }
 
     // 클라이언트용 씬 전환 요청
-    public void RequestSceneChange(SessionType type)
-    {
-        Debug.Log($"[요청] 씬 전환 요청: {type}");
+    // public void RequestSceneChange(SessionType type)
+    // {
+    //     Debug.Log($"[요청] 씬 전환 요청: {type}");
         
-        if (IsServer)
-        {
-            if (isServerInitialized)
-            {
-                CreateSession(base.LocalConnection, type);
-            }
-            else
-            {
-                Debug.LogWarning("[요청] 서버가 아직 초기화되지 않음");
-            }
-        }
-        else
-        {
-            CreateSessionFromTagServerRpc(type);
-        }
-    }
+    //     if (IsServer)
+    //     {
+    //         if (isServerInitialized)
+    //         {
+    //             CreateSession(base.LocalConnection, type);
+    //         }
+    //         else
+    //         {
+    //             Debug.LogWarning("[요청] 서버가 아직 초기화되지 않음");
+    //         }
+    //     }
+    //     else
+    //     {
+    //         CreateSessionFromTagServerRpc(type);
+    //     }
+    // }
 
     // 디버그용 메서드들
     [ContextMenu("Debug Sessions")]
