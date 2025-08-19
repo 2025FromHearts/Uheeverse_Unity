@@ -17,6 +17,17 @@ public class OsmLoader : MonoBehaviour
     public GameObject busStopPrefab;
     public GameObject statuePrefab;
 
+    [Header("Prefab Scales")]
+    public float treeScale = 1f;
+    public float buildingScale = 1f;
+    public float shopScale = 1f;
+    public float schoolScale = 1f;
+    public float policeScale = 1f;
+    public float hospitalScale = 1f;
+    public float parkScale = 1f;
+    public float busStopScale = 1f;
+    public float statueScale = 1f;
+
     [Header("Line Materials")]
     public Material roadMaterial;
     public Material riverMaterial;
@@ -25,11 +36,38 @@ public class OsmLoader : MonoBehaviour
     public float roadWidth = 3f;
     public float riverWidth = 5f;
 
+    [Header("Exclude Zone Center")]
+    public Transform centerTransform;
+    public Vector3 center = Vector3.zero;
+
+    [Header("Exclude Settings")]
+    public bool useCircleExclude = false;
+    public float excludeRadius = 50f;
+    public bool useBoxExclude = true;
+    public Vector2 excludeBoxSize = new Vector2(220, 220);
+
+    [Header("LatLon Mapping")]
+    public float baseLat = 36.4325726f;
+    public float baseLon = 129.0541124f;
+    public float scale = 300000f;
+    public Vector3 manualOffset = Vector3.zero;
+
+    [Header("Road Prefab Mode")]
+    public bool useRoadPrefab = true;
+    public GameObject roadPrefab;
+    public float roadSegmentLength = 4f;
+
     public string jsonFileName = "CheongsongOsm.json";
 
     private Dictionary<long, Vector3> nodeLookup = new Dictionary<long, Vector3>();
 
     void Start()
+    {
+        LoadOSMData();
+        CleanupCenterArea();
+    }
+
+    void LoadOSMData()
     {
         string filePath = Path.Combine(Application.streamingAssetsPath, jsonFileName);
         if (!File.Exists(filePath))
@@ -42,7 +80,6 @@ public class OsmLoader : MonoBehaviour
         var osmData = JSON.Parse(jsonText);
         Debug.Log("OSM 요소 개수: " + osmData["elements"].Count);
 
-        // 모든 노드 저장
         foreach (JSONNode element in osmData["elements"].AsArray)
         {
             if (element["type"] == "node")
@@ -56,46 +93,65 @@ public class OsmLoader : MonoBehaviour
                 if (element.HasKey("tags"))
                 {
                     var tags = element["tags"];
+                    if (IsInsideExcludeZone(position)) continue;
 
                     GameObject go = null;
+                    float scaleFactor = 1f;
 
                     if (tags.HasKey("natural") && tags["natural"] == "tree")
-                        go = Instantiate(treePrefab, position, Quaternion.identity);
+                    {
+                        go = Instantiate(treePrefab, position, Quaternion.identity, null);
+                        scaleFactor = treeScale;
+                    }
                     else if (tags.HasKey("building"))
-                        go = Instantiate(buildingPrefab, position, Quaternion.identity);
+                    {
+                        go = Instantiate(buildingPrefab, position, Quaternion.identity, null);
+                        scaleFactor = buildingScale;
+                    }
                     else if (tags.HasKey("shop"))
-                        go = Instantiate(shopPrefab, position, Quaternion.identity);
+                    {
+                        go = Instantiate(shopPrefab, position, Quaternion.identity, null);
+                        scaleFactor = shopScale;
+                    }
                     else if (tags.HasKey("amenity"))
                     {
                         string amenity = tags["amenity"];
                         if (amenity == "school" || amenity == "college" || amenity == "university")
-                            go = Instantiate(schoolPrefab, position, Quaternion.identity);
+                        {
+                            go = Instantiate(schoolPrefab, position, Quaternion.identity, null);
+                            scaleFactor = schoolScale;
+                        }
                         else if (amenity == "hospital" || amenity == "clinic")
-                            go = Instantiate(hospitalPrefab, position, Quaternion.identity);
+                        {
+                            go = Instantiate(hospitalPrefab, position, Quaternion.identity, null);
+                            scaleFactor = hospitalScale;
+                        }
                         else if (amenity == "police")
-                            go = Instantiate(policePrefab, position, Quaternion.identity);
+                        {
+                            go = Instantiate(policePrefab, position, Quaternion.identity, null);
+                            scaleFactor = policeScale;
+                        }
                         else if (amenity == "bus_station" || amenity == "bus_stop")
-                            go = Instantiate(busStopPrefab, position, Quaternion.identity);
-                        else if (amenity == "place_of_worship" || amenity == "statue")
-                            go = Instantiate(statuePrefab, position, Quaternion.identity);
+                        {
+                            go = Instantiate(busStopPrefab, position, Quaternion.identity, null);
+                            scaleFactor = busStopScale;
+                        }
                         else
-                            go = Instantiate(buildingPrefab, position, Quaternion.identity);
-                    }
-                    else if (tags.HasKey("man_made"))
-                    {
-                        string type = tags["man_made"];
-                        if (type == "statue" || type == "flower_pot")
-                            go = Instantiate(statuePrefab, position, Quaternion.identity);
+                        {
+                            go = Instantiate(buildingPrefab, position, Quaternion.identity, null);
+                            scaleFactor = buildingScale;
+                        }
                     }
 
-                    // 태그 설정
                     if (go != null)
-                        go.tag = "GeneratedFromOSM";                      
+                    {
+                        go.transform.localScale *= scaleFactor;
+                        go.tag = "GeneratedFromOSM";
+                    }
                 }
             }
         }
 
-        // 도로, 하천 등 way 처리
         foreach (JSONNode element in osmData["elements"].AsArray)
         {
             if (element["type"] == "way" && element.HasKey("tags"))
@@ -110,35 +166,93 @@ public class OsmLoader : MonoBehaviour
                     if (nodeLookup.ContainsKey(id))
                     {
                         Vector3 p = nodeLookup[id];
-                        p.y = 0f;
+                        p.y = 0.1f;
                         positions.Add(p);
                     }
                 }
 
                 if (positions.Count < 2) continue;
 
-                if (tags.HasKey("highway") && roadMaterial != null)
+                if (tags.HasKey("highway"))
                 {
-                    DrawLine(positions, roadMaterial, roadWidth, "Road");
+                    Debug.Log($"[도로] {tags["highway"]} 노드 {positions.Count}개");
+                    if (useRoadPrefab && roadPrefab != null)
+                    {
+                        PlaceRoadPrefab(positions);
+                    }
+                    else if (roadMaterial != null)
+                    {
+                        DrawLine(positions, roadMaterial, roadWidth, "Road", "GeneratedLine");
+                    }
                 }
-                else if ((tags.HasKey("waterway") || tags["natural"] == "water") && riverMaterial != null)
+                else if ((tags.HasKey("waterway") && tags["waterway"] == "river") ||
+                         (tags.HasKey("natural") && tags["natural"] == "water"))
                 {
-                    DrawLine(positions, riverMaterial, riverWidth, "River");
+                    if (riverMaterial != null)
+                    {
+                        Debug.Log($"[강] waterway/river 노드 {positions.Count}개");
+                        DrawLine(positions, riverMaterial, riverWidth, "River", "GeneratedLine");
+                    }
                 }
             }
         }
     }
 
-    void DrawLine(List<Vector3> points, Material mat, float width, string name)
+    void PlaceRoadPrefab(List<Vector3> path)
+    {
+        for (int i = 0; i < path.Count - 1; i++)
+        {
+            Vector3 start = path[i];
+            Vector3 end = path[i + 1];
+            Vector3 dir = end - start;
+            float dist = dir.magnitude;
+            Quaternion rot = Quaternion.LookRotation(dir.normalized);
+            int segmentCount = Mathf.CeilToInt(dist / roadSegmentLength);
+            Vector3 step = dir / segmentCount;
+
+            for (int j = 0; j < segmentCount; j++)
+            {
+                Vector3 pos = start + step * j;
+                GameObject road = Instantiate(roadPrefab, pos, rot, this.transform);
+                road.tag = "GeneratedFromOSM";
+            }
+        }
+    }
+
+    void CleanupCenterArea()
+    {
+        Vector3 centerPos = GetActualCenter();
+        foreach (GameObject obj in GameObject.FindGameObjectsWithTag("GeneratedFromOSM"))
+        {
+            if (IsInsideExcludeZone(obj.transform.position))
+            {
+                Destroy(obj);
+            }
+        }
+    }
+
+    bool IsInsideExcludeZone(Vector3 pos)
+    {
+        Vector3 actualCenter = GetActualCenter();
+        if (useCircleExclude)
+            return Vector3.Distance(pos, actualCenter) < excludeRadius;
+        else if (useBoxExclude)
+            return Mathf.Abs(pos.x - actualCenter.x) < excludeBoxSize.x / 2 &&
+                   Mathf.Abs(pos.z - actualCenter.z) < excludeBoxSize.y / 2;
+        return false;
+    }
+
+    Vector3 GetActualCenter()
+    {
+        return centerTransform != null ? centerTransform.position : center;
+    }
+
+    void DrawLine(List<Vector3> points, Material mat, float width, string name, string tag)
     {
         GameObject lineObj = new GameObject(name);
-        lineObj.tag = "GeneratedFromOSM"; // ← 태그 지정
+        lineObj.tag = tag;
         LineRenderer line = lineObj.AddComponent<LineRenderer>();
         line.positionCount = points.Count;
-
-        for (int i = 0; i < points.Count; i++)
-            points[i] = new Vector3(points[i].x, 0f, points[i].z);
-
         line.SetPositions(points.ToArray());
         line.startWidth = width;
         line.endWidth = width;
@@ -150,13 +264,8 @@ public class OsmLoader : MonoBehaviour
 
     Vector3 LatLonToUnity(float lat, float lon)
     {
-        float baseLat = 36.4325726f;
-        float baseLon = 129.0541124f;
-        float scale = 300000f;
-
         float x = (lon - baseLon) * scale;
         float z = (lat - baseLat) * scale;
-
-        return new Vector3(x, 0, z);
+        return new Vector3(x, 0, z) + manualOffset;
     }
 }
