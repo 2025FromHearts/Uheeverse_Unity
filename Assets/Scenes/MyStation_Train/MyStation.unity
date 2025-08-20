@@ -19796,7 +19796,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1062034529
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -41338,6 +41338,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 5
+  canMove: 1
   cameraTransform: {fileID: 891604515}
 --- !u!54 &5486139582103956950
 Rigidbody:
