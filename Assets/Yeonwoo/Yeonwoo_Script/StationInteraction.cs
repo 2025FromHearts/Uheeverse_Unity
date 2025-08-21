@@ -1,28 +1,51 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class StationInteraction : MonoBehaviour
 {
-    public GameObject uiPanel; // ÃàÁ¦ Áñ±â±â UI ÆĞ³Î
-    public LayerMask stationLayer; // ±âÂ÷¿ªÀÌ Æ÷ÇÔµÈ ·¹ÀÌ¾î
-
+    public GameObject uiPanel;
+    public LayerMask stationLayer;
     private GameObject currentHovered;
 
     void Update()
     {
+        // ì¹´ë©”ë¼ í™•ì¸
+        if (Camera.main == null)
+        {
+            Debug.LogError("Camera.mainì´ nullì…ë‹ˆë‹¤!");
+            return;
+        }
+
+        // ì”¬ê³¼ Physics Scene í™•ì¸
+        var currentScene = SceneManager.GetActiveScene();
+        var physicsScene = currentScene.GetPhysicsScene();
+        Debug.Log($"í˜„ì¬ ì”¬: {currentScene.name}, Physics Scene ìœ íš¨: {physicsScene.IsValid()}");
+
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
 
+        // ì „ì²´ ë ˆì´ì–´ì—ì„œ í…ŒìŠ¤íŠ¸
+        if (Physics.Raycast(ray, out hit, 100f))
+        {
+            Debug.Log($"ì „ì²´ Raycast Hit: {hit.collider.name}, Layer: {hit.collider.gameObject.layer}");
+        }
+        else
+        {
+            Debug.Log("ì „ì²´ Raycastì—ì„œ ì•„ë¬´ê²ƒë„ ê°ì§€ ì•ˆë¨");
+        }
+
+        // stationLayerì—ì„œ í…ŒìŠ¤íŠ¸
         if (Physics.Raycast(ray, out hit, 100f, stationLayer))
         {
+            Debug.Log($"Station Raycast Hit: {hit.collider.name}");
+            
             GameObject target = hit.collider.gameObject;
 
-            // È£¹ö ÁßÀÌ¸é ÇÏÀÌ¶óÀÌÆ®
             if (currentHovered != target)
             {
                 if (currentHovered != null)
                 {
-                    // È£¹ö ÇØÁ¦
                     Unhighlight(currentHovered);
                 }
 
@@ -30,7 +53,6 @@ public class StationInteraction : MonoBehaviour
                 Highlight(currentHovered);
             }
 
-            // Å¬¸¯ ½Ã UI È°¼ºÈ­
             if (Input.GetMouseButtonDown(0))
             {
                 ShowUIPanel();
@@ -38,6 +60,8 @@ public class StationInteraction : MonoBehaviour
         }
         else
         {
+            Debug.Log("Station Layer Raycastì—ì„œ ì•„ë¬´ê²ƒë„ ê°ì§€ ì•ˆë¨");
+            
             if (currentHovered != null)
             {
                 Unhighlight(currentHovered);
@@ -48,7 +72,6 @@ public class StationInteraction : MonoBehaviour
 
     void Highlight(GameObject obj)
     {
-        // ÇÏÀÌ¶óÀÌÆ® Ã³¸® (¿¹: Outline È¿°ú Ãß°¡, ¸ÓÆ¼¸®¾ó º¯°æ µî)
         Renderer rend = obj.GetComponent<Renderer>();
         if (rend != null)
             rend.material.color = Color.cyan;

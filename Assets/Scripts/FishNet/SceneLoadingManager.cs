@@ -160,7 +160,8 @@ public class SceneLoadingManager : NetworkBehaviour
         sld.Options.AutomaticallyUnload = false;
         sld.ReplaceScenes = ReplaceOption.None;
 
-        sld.Options.LocalPhysics = LocalPhysicsMode.Physics2D;
+        // sld.Options.LocalPhysics = LocalPhysicsMode.Physics2D;
+        sld.Options.LocalPhysics = LocalPhysicsMode.None;
 
         NetworkConnection[] connections = new NetworkConnection[] { conn };
         InstanceFinder.SceneManager.LoadConnectionScenes(conn, sld);
