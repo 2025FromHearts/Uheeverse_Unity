@@ -1670,7 +1670,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &86029954
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1683,11 +1683,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 89248b2fa87df1e4ab64064cefdf5d0a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hairChanger: {fileID: 868660359429016900}
-  eyeChanger: {fileID: 5373254748876767670}
-  cheekChanger: {fileID: 7851041692428915002}
-  lipChanger: {fileID: 7106323984063093257}
-  characterCreateSceneName: CreateCharacter
 --- !u!4 &86029955
 Transform:
   m_ObjectHideFlags: 0
