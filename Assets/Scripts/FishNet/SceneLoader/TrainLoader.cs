@@ -17,7 +17,7 @@ public class TrainLoader : MonoBehaviour
         if (slm != null)
         {
             Debug.Log("dd");
-            OnCreateSessionButton(nob);
+            // OnCreateSessionButton(nob);
 
         }
         if (slm == null)

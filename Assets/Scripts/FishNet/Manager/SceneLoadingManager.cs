@@ -98,20 +98,25 @@ public class SceneLoadingManager : MonoBehaviour
     {
         Debug.Log($"로딩 시작 {newScene}");
 
+        GameObject obj = GameObject.Find("CharacterRoot(Clone)");
+        NetworkObject nob = obj.GetComponent<NetworkObject>();
+
         SceneLookupData lookup = new SceneLookupData(newScene);
         SceneLoadData sld = new SceneLoadData(lookup);
         sld.Options.AllowStacking = true;
         sld.Options.AutomaticallyUnload = false;
         sld.ReplaceScenes = ReplaceOption.None;
+        sld.MovedNetworkObjects = new NetworkObject[] { nob };
 
-        sld.Options.LocalPhysics = LocalPhysicsMode.Physics2D;
-        //sld.Options.LocalPhysics = LocalPhysicsMode.None;
+        // sld.Options.LocalPhysics = LocalPhysicsMode.Physics2D;
+        sld.Options.LocalPhysics = LocalPhysicsMode.None;
 
         NetworkConnection[] connections = new NetworkConnection[] { conn };
-        InstanceFinder.SceneManager.LoadConnectionScenes(conn, sld);
+        
+        InstanceFinder.SceneManager.LoadConnectionScenes(nob.Owner, sld);
         Debug.Log($"✅ [씬 로드] LoadConnectionScenes 호출 완료 - 씬: {newScene}");
 
-        GameObject go = Instantiate(playerPrefab);
-        InstanceFinder.ServerManager.Spawn(go, conn);
+        // GameObject go = Instantiate(playerPrefab);
+        // InstanceFinder.ServerManager.Spawn(go, conn);
     }
 }

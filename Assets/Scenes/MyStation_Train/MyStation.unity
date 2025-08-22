@@ -581,6 +581,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 427409268}
     m_Modifications:
+    - target: {fileID: 2553665242300649016, guid: affb8f15cd852eb488101d67924b5adb, type: 3}
+      propertyPath: m_IsTrigger
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7392771986668161422, guid: affb8f15cd852eb488101d67924b5adb, type: 3}
       propertyPath: m_LocalScale.x
       value: 1
@@ -637,13 +641,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: land downtown
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 2553665242300649016, guid: affb8f15cd852eb488101d67924b5adb, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 7913869461715735348, guid: affb8f15cd852eb488101d67924b5adb, type: 3}
-      insertIndex: 3
-      addedObject: {fileID: 1476583278}
     - targetCorrespondingSourceObject: {fileID: 7913869461715735348, guid: affb8f15cd852eb488101d67924b5adb, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1476583277}
@@ -2292,13 +2294,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: land downtown (3)
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 2553665242300649016, guid: affb8f15cd852eb488101d67924b5adb, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 7913869461715735348, guid: affb8f15cd852eb488101d67924b5adb, type: 3}
-      insertIndex: 3
-      addedObject: {fileID: 91887626}
     - targetCorrespondingSourceObject: {fileID: 7913869461715735348, guid: affb8f15cd852eb488101d67924b5adb, type: 3}
       insertIndex: -1
       addedObject: {fileID: 91887625}
@@ -2335,26 +2335,6 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: -5494280163058066246, guid: 365e7230065e0df4f917ddf0b537da00, type: 3}
---- !u!154 &91887626
-TerrainCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 91887624}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_TerrainData: {fileID: 0}
-  m_EnableTreeColliders: 1
 --- !u!1001 &110973138
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5467,13 +5447,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: land downtown (5)
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 2553665242300649016, guid: affb8f15cd852eb488101d67924b5adb, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 7913869461715735348, guid: affb8f15cd852eb488101d67924b5adb, type: 3}
-      insertIndex: 3
-      addedObject: {fileID: 307759022}
     - targetCorrespondingSourceObject: {fileID: 7913869461715735348, guid: affb8f15cd852eb488101d67924b5adb, type: 3}
       insertIndex: -1
       addedObject: {fileID: 307759021}
@@ -5510,26 +5488,6 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: -5494280163058066246, guid: 365e7230065e0df4f917ddf0b537da00, type: 3}
---- !u!154 &307759022
-TerrainCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 307759020}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_TerrainData: {fileID: 0}
-  m_EnableTreeColliders: 1
 --- !u!1001 &309981566
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -10735,7 +10693,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &595896379
 Transform:
   m_ObjectHideFlags: 0
@@ -16418,7 +16376,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 891604512}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7be134cb08cac4733bccff6e0caaae15, type: 3}
   m_Name: 
@@ -26273,13 +26231,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: land downtown (4)
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 2553665242300649016, guid: affb8f15cd852eb488101d67924b5adb, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 7913869461715735348, guid: affb8f15cd852eb488101d67924b5adb, type: 3}
-      insertIndex: 3
-      addedObject: {fileID: 1345015354}
     - targetCorrespondingSourceObject: {fileID: 7913869461715735348, guid: affb8f15cd852eb488101d67924b5adb, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1345015353}
@@ -26316,26 +26272,6 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: -5494280163058066246, guid: 365e7230065e0df4f917ddf0b537da00, type: 3}
---- !u!154 &1345015354
-TerrainCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1345015352}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_TerrainData: {fileID: 0}
-  m_EnableTreeColliders: 1
 --- !u!1001 &1346972428
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -28441,13 +28377,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: land downtown (1)
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 2553665242300649016, guid: affb8f15cd852eb488101d67924b5adb, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 7913869461715735348, guid: affb8f15cd852eb488101d67924b5adb, type: 3}
-      insertIndex: 3
-      addedObject: {fileID: 1463341938}
     - targetCorrespondingSourceObject: {fileID: 7913869461715735348, guid: affb8f15cd852eb488101d67924b5adb, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1463341937}
@@ -28484,26 +28418,6 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: -5494280163058066246, guid: 365e7230065e0df4f917ddf0b537da00, type: 3}
---- !u!154 &1463341938
-TerrainCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1463341936}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_TerrainData: {fileID: 0}
-  m_EnableTreeColliders: 1
 --- !u!1 &1465048291
 GameObject:
   m_ObjectHideFlags: 0
@@ -28731,26 +28645,6 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: -5494280163058066246, guid: 365e7230065e0df4f917ddf0b537da00, type: 3}
---- !u!154 &1476583278
-TerrainCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1476583273}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_TerrainData: {fileID: 0}
-  m_EnableTreeColliders: 1
 --- !u!1001 &1478346578
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -37696,13 +37590,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: land downtown (6)
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 2553665242300649016, guid: affb8f15cd852eb488101d67924b5adb, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 7913869461715735348, guid: affb8f15cd852eb488101d67924b5adb, type: 3}
-      insertIndex: 3
-      addedObject: {fileID: 1933860843}
     - targetCorrespondingSourceObject: {fileID: 7913869461715735348, guid: affb8f15cd852eb488101d67924b5adb, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1933860842}
@@ -37739,26 +37631,6 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: -5494280163058066246, guid: 365e7230065e0df4f917ddf0b537da00, type: 3}
---- !u!154 &1933860843
-TerrainCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1933860841}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_TerrainData: {fileID: 0}
-  m_EnableTreeColliders: 1
 --- !u!1 &1934492107
 GameObject:
   m_ObjectHideFlags: 0
@@ -40755,7 +40627,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2434954243041425135, guid: 6e9469b3bc52ece41a8e27bae464a01a, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4252846830603493371, guid: 6e9469b3bc52ece41a8e27bae464a01a, type: 3}
       propertyPath: m_LocalPosition.x
