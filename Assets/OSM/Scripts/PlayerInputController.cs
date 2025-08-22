@@ -31,42 +31,49 @@ public class PlayerInputController : MonoBehaviour
 
     void Update()
     {
-        if (cameraTransform == null) return;
+        // 카메라 없어도 동작
+        Vector3 fwd = Vector3.forward, right = Vector3.right;
+        if (cameraTransform != null)
+        {
+            fwd = cameraTransform.forward; fwd.y = 0; fwd.Normalize();
+            right = cameraTransform.right; right.y = 0; right.Normalize();
+        }
 
-        // 카메라 기준 방향 설정
-        Vector3 forward = cameraTransform.forward;
-        Vector3 right = cameraTransform.right;
-        forward.y = 0f;
-        right.y = 0f;
-        forward.Normalize();
-        right.Normalize();
+        Vector3 inputDir = (fwd * moveInput.y + right * moveInput.x);
+        if (inputDir.sqrMagnitude > 1e-4f) inputDir.Normalize();
 
-        // 이동 방향 계산
-        Vector3 inputDirection = forward * moveInput.y + right * moveInput.x;
-
-        // 애니메이터에 파라미터 전달 (움직이는지 여부)
-        bool isMoving = inputDirection.sqrMagnitude > 0.01f;
+        bool isMoving = inputDir.sqrMagnitude > 0.01f;
         animator.SetBool("IsMove", isMoving);
-
         if (isMoving)
         {
-            Quaternion targetRotation = Quaternion.LookRotation(inputDirection);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 10f);
+            var targetRot = Quaternion.LookRotation(inputDir, Vector3.up);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.deltaTime * 10f);
         }
 
-        // 지면 감지 → velocity.y 리셋 or 중력 적용
-        if (IsGrounded())
-        {
-            velocity.y = -1f; // 착지 후 약간의 음수값 유지 (바닥에 달라붙게)
-        }
+        // ---- 지면 판정 개선 ----
+        bool grounded = controller.isGrounded || GroundCheckSphere();
+
+        if (grounded)
+            velocity.y = -2f;     // 살짝 더 강하게 바닥 스냅
         else
-        {
             velocity.y += gravity * Time.deltaTime;
-        }
 
-        // 이동 + 중력 반영
-        Vector3 finalMove = inputDirection * moveSpeed + velocity;
+        Vector3 finalMove = inputDir * moveSpeed + velocity;
         controller.Move(finalMove * Time.deltaTime);
+    }
+
+    // 발 위치에서 짧게 SphereCast (CharacterController 치수 기반)
+    bool GroundCheckSphere()
+    {
+        // CC 발 위치
+        float halfH = controller.height * 0.5f;
+        float feetOffset = halfH - controller.radius;
+        Vector3 feet = transform.position + controller.center + Vector3.down * feetOffset + Vector3.up * 0.05f;
+
+        return Physics.SphereCast(
+            feet, controller.radius * 0.95f, Vector3.down,
+            out _, 0.15f, ~0, QueryTriggerInteraction.Ignore
+        );
     }
 
     // Raycast로 지면 감지
