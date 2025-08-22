@@ -1,5 +1,4 @@
 public static class ServerConfig
 {
-    //public static string baseUrl = "https://970d-203-252-223-254.ngrok-free.app"; // ngrok аж╪р ©╘╠Б©║ ют╥б
-    public static string baseUrl = "https://c77d71444e12.ngrok-free.app";
+    public static string baseUrl = "https://uheeverse.ngrok.app"; // ngrok О©╫ж╪О©╫ О©╫О©╫О©╫Б©║ О©╫т╥О©╫
 }

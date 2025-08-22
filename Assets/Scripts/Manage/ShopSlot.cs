@@ -4,27 +4,38 @@ using TMPro;
 
 public class ShopSlot : MonoBehaviour
 {
-    public TextMeshProUGUI itemNameText;
-    public TextMeshProUGUI itemPriceText;
+    public TMP_Text itemNameText;
     public Image itemImage;
-    public Button buyButton;
+    public Button itemButton;
 
-    private ItemData currentItem;
+    private ShopUI.ItemDataDTO itemData;
+    private ShopUI shopUI;
 
-    public void SetItem(ItemData item)
+    // 슬롯에 데이터 설정
+    public void Set(ShopUI.ItemDataDTO item, ShopUI ui)
     {
-        currentItem = item;
-        itemNameText.text = item.item_name;
-        itemPriceText.text = item.item_price.ToString() + "코인";
-        // itemImage.sprite = ... 필요 시 Sprite 로딩
+        itemData = item;
+        shopUI = ui;
 
-        buyButton.onClick.RemoveAllListeners();
-        buyButton.onClick.AddListener(BuyItem);
-    }
+        // 이름 텍스트 설정
+        if (itemNameText != null)
+            itemNameText.text = item.item_name;
 
-    private void BuyItem()
-    {
-        Debug.Log("구매 시도: " + currentItem.item_name);
-        // 서버에 구매 요청 보내기 or 코인 차감 + 인벤토리 추가
+        // 아이콘 이미지 설정
+        if (itemImage != null && !string.IsNullOrEmpty(item.item_icon))
+        {
+            Sprite iconSprite = Resources.Load<Sprite>("Icons/" + item.item_icon);
+            if (iconSprite != null)
+                itemImage.sprite = iconSprite;
+            else
+                Debug.LogWarning("⚠️ 아이콘 로드 실패: " + item.item_icon);
+        }
+
+        // 버튼 클릭 시 상세 보기
+        if (itemButton != null)
+        {
+            itemButton.onClick.RemoveAllListeners();
+            itemButton.onClick.AddListener(() => shopUI.OnSlotClicked(itemData));
+        }
     }
 }
