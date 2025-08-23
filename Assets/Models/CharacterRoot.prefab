@@ -611,6 +611,7 @@ GameObject:
   - component: {fileID: -5228270734640543096}
   - component: {fileID: 5292981574715617425}
   - component: {fileID: -613484746000843659}
+  - component: {fileID: -6272960197353723243}
   m_Layer: 0
   m_Name: CharacterRoot
   m_TagString: Untagged
@@ -705,6 +706,8 @@ MonoBehaviour:
   <PredictedOwner>k__BackingField: {fileID: 0}
   NetworkBehaviours:
   - {fileID: -5228270734640543096}
+  - {fileID: 5292981574715617425}
+  - {fileID: -613484746000843659}
   InitializedParentNetworkBehaviour: {fileID: 0}
   InitializedNestedNetworkObjects: []
   RuntimeParentNetworkBehaviour: {fileID: 0}
@@ -765,9 +768,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 92df56c8aef2f40fcbaf356a8cf893be, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _componentIndexCache: 255
+  _componentIndexCache: 1
   _addedNetworkObject: {fileID: -2420700771839588131}
-  _networkObjectCache: {fileID: 0}
+  _networkObjectCache: {fileID: -2420700771839588131}
   walkingSpeed: 7.5
   runningSpeed: 11.5
   jumpSpeed: 8
@@ -788,9 +791,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2836e36774ca1c4bbbee976e17b649c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _componentIndexCache: 255
+  _componentIndexCache: 2
   _addedNetworkObject: {fileID: -2420700771839588131}
-  _networkObjectCache: {fileID: 0}
+  _networkObjectCache: {fileID: -2420700771839588131}
   _componentConfiguration: 0
   _synchronizeParent: 0
   _packing:
@@ -821,6 +824,27 @@ MonoBehaviour:
     X: 0
     Y: 0
     Z: 0
+--- !u!65 &-6272960197353723243
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3152944092378613979}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &3333104534235178493
 GameObject:
   m_ObjectHideFlags: 0
