@@ -73,7 +73,7 @@ public class BootstrapManager : NetworkBehaviour
             SceneLoadData sld = new SceneLoadData(lookup);
             sld.MovedNetworkObjects = new NetworkObject[] { nob };
             sld.ReplaceScenes = ReplaceOption.None;
-            sld.Options.LocalPhysics = LocalPhysicsMode.Physics3D;
+            sld.Options.LocalPhysics = LocalPhysicsMode.Physics2D;
             InstanceFinder.SceneManager.LoadConnectionScenes(nob.Owner, sld);
 
             Debug.Log($"✅ [씬 로드] LoadConnectionScenes 호출 완료 - 씬: {sceneName}");

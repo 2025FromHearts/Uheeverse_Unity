@@ -8,7 +8,7 @@ using UnityEngine.SceneManagement;
 
 public class TrainLoader : MonoBehaviour
 {
-    // public SceneLoadingManager slm;
+    public SceneLoadingManager slm;
 
     [Server]
     private void OnTriggerEnter(Collider other)
@@ -34,9 +34,9 @@ public class TrainLoader : MonoBehaviour
 
         Debug.Log("씬로딩 요청");
 
-        // slm = SceneLoadingManager.Instance;
+        slm = SceneLoadingManager.Instance;
 
-        // slm.CreateSessionFromTag(SceneType.Quiz, "MyStation", nob.Owner);
+        slm.CreateSessionFromTag(SceneType.Quiz, "MyStation", nob.Owner);
     }
     // public GameObject playerPrefab;
     // private SceneLoadingManager slm;
