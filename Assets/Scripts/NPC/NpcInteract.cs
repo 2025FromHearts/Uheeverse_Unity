@@ -1,13 +1,15 @@
-﻿using System.Net.Http;
-using TMPro;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.UI;
+using TMPro;
 
 public enum NpcType
 {
     Guide,
     Minigame,
-    Vendor
+    Vendor,
+    Photo
 }
 
 public class NpcInteract : MonoBehaviour
@@ -28,15 +30,19 @@ public class NpcInteract : MonoBehaviour
     [Tooltip("이 NPC가 사용할 NpcShopManager (Vendor 타입일 경우만 사용)")]
     public NpcShopManager npcShopManager;
 
+    //[Tooltip("이 NPC가 사용할 NpcPhotoManager (Photo 타입일 경우만 사용)")]
+    //public NpcPhotoManager npcPhotoManager;
+
     [Tooltip("상점 NPC가 표시할 안내 메시지")]
     public string responseMessage;
 
     [Header("NPC UI")]
-    public GameObject roleUI;  
+    public GameObject roleUI;
     public TMP_Text roleText;
 
     private Transform player;
     private string basePrompt;
+
     void Start()
     {
         player = GameObject.FindWithTag("Player")?.transform;
@@ -84,10 +90,30 @@ public class NpcInteract : MonoBehaviour
                 case NpcType.Vendor:
                     if (npcShopManager != null)
                     {
-                        npcShopManager.ShowShopDialogue(npcName);
+                        npcShopManager.ShowShopDialogue(npcName, this);
                         isTalking = true;
                     }
                     break;
+
+                //case NpcType.Photo:
+                //    {
+                //        if (npcPhotoManager == null)
+                //        {
+                //            npcPhotoManager = GetComponent<NpcPhotoManager>()
+                //                              ?? GetComponentInChildren<NpcPhotoManager>()
+                //                              ?? FindAnyObjectByType<NpcPhotoManager>();  // 최후의 수단
+
+                //            if (npcPhotoManager == null)
+                //            {
+                //                Debug.LogError($"❌ 사진가 NPC인데 NpcPhotoManager가 연결되지 않았습니다! → {npcName}");
+                //                break;
+                //            }
+                //        }
+
+                //        npcPhotoManager.ShowPhotoDialogue(npcName);
+                //        isTalking = true;
+                //        break;
+                //    }
             }
         }
     }
@@ -99,6 +125,7 @@ public class NpcInteract : MonoBehaviour
             case NpcType.Guide: return "안내 NPC";
             case NpcType.Minigame: return "미니게임 NPC";
             case NpcType.Vendor: return "상점 NPC";
+            case NpcType.Photo: return "사진가 NPC";
             default: return "NPC";
         }
     }
@@ -107,7 +134,6 @@ public class NpcInteract : MonoBehaviour
     {
         isTalking = false;
     }
-
 
     /// <summary>
     /// 외부 JSON 데이터를 기반으로 NPC 정보 설정
@@ -137,6 +163,11 @@ public class NpcInteract : MonoBehaviour
         else if (type == "vendor")
         {
             npcType = NpcType.Vendor;
+            minigameSceneName = "";
+        }
+        else if (type == "photo")
+        {
+            npcType = NpcType.Photo;
             minigameSceneName = "";
         }
         else

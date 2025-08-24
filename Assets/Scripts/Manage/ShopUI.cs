@@ -1,10 +1,10 @@
-﻿using UnityEngine;
-using UnityEngine.UI;
-using TMPro;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
 using UnityEngine.Networking;
-using NUnit.Framework.Interfaces;
 
 public class ShopUI : MonoBehaviour
 {
@@ -29,6 +29,9 @@ public class ShopUI : MonoBehaviour
     private string baseUrl;
     private string accessToken;
 
+    // 상점 닫힘
+    public event Action OnShopClosed;
+
     [System.Serializable]
     public class ItemDataDTO
     {
@@ -39,6 +42,17 @@ public class ShopUI : MonoBehaviour
         public int item_price;
         public string item_icon;
         public string map;
+    }
+
+    private void Start()
+    {
+        // 닫기 버튼 이벤트 등록
+        if (closeButtonObject != null)
+        {
+            Button btn = closeButtonObject.GetComponent<Button>();
+            if (btn != null)
+                btn.onClick.AddListener(CloseShop);
+        }
     }
 
     public void OnSlotClicked(ItemDataDTO item)
@@ -65,6 +79,9 @@ public class ShopUI : MonoBehaviour
 
         if (infoGroup != null) infoGroup.SetActive(false);
         if (placeholderText != null) placeholderText.SetActive(false);
+
+        // 외부에 알림 (NpcShopManager가 상태 초기화할 수 있음)
+        OnShopClosed?.Invoke();
     }
 
     IEnumerator LoadShopItems()
@@ -125,8 +142,6 @@ public class ShopUI : MonoBehaviour
             }
         }
     }
-
-
 
     void ShowDetail(ItemDataDTO item)
     {
@@ -198,5 +213,3 @@ public static class JsonUtilityWrapper
         public List<T> Items;
     }
 }
-
-

@@ -3,16 +3,17 @@ using UnityEngine.EventSystems;
 
 public class Store : MonoBehaviour
 {
-    [SerializeField] private GameObject uiPanel_Store;   // Canvas 밑 패널
+    [SerializeField] private GameObject Mystation_Store;   // Canvas 밑 패널
     [SerializeField] private LayerMask storeLayer;       // storeLayer 체크
     [SerializeField] private float maxDistance = 200f;
 
     Camera cam;
+    private StoreUI storeUI;
 
     void Awake()
     {
         cam = Camera.main; // MainCamera 태그 꼭!
-        if (uiPanel_Store != null) uiPanel_Store.SetActive(false);
+        if (Mystation_Store != null) Mystation_Store.SetActive(false);
     }
 
     void Update()
@@ -31,9 +32,9 @@ public class Store : MonoBehaviour
             // 맞은 콜라이더가 이 건물의 자식인가?
             if (hit.collider.transform.IsChildOf(transform))
             {
-                if (uiPanel_Store != null)
+                if (Mystation_Store != null)
                 {
-                    uiPanel_Store.SetActive(true);
+                    Mystation_Store.SetActive(true);
                     Debug.Log($"{name}: UI ON");
                 }
                 else Debug.LogWarning($"{name}: uiPanel_Store 미할당");

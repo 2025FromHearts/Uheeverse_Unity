@@ -1,7 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System;
 using UnityEngine;
-using UnityEngine.UI;
 using TMPro;
 
 public class NpcShopManager : MonoBehaviour
@@ -10,45 +8,64 @@ public class NpcShopManager : MonoBehaviour
     public TMP_Text npcNameText;
     public GameObject dialoguePanel;
     public ShopUI shopUI;
-
-    [Tooltip("상점 UI 오브젝트 (활성화/비활성화로 제어)")]
     public GameObject shopUIPanel;
 
     [Tooltip("상점 NPC가 처음 건네는 인사말")]
     public string responseMessage = "물건 구경하고 가세요!";
 
     private string currentNpcName;
+    private bool shopOpen = false;   // 재진입 제어
+    private NpcInteract currentNpc;  // ⭐ 말 걸었던 NPC 기억
 
-    public void ShowShopDialogue(string npcName)
+    private void Awake()
     {
-        currentNpcName = npcName;
-
-        Debug.Log($"[Shop] NPC 이름: {npcName}");
-        Debug.Log($"[Shop] 메시지: {responseMessage}");
-
-        dialoguePanel.SetActive(true);
-
-        if (npcNameText != null)
-            npcNameText.text = npcName;
-
-        if (dialogueText != null)
-            dialogueText.text = responseMessage;
-
-        // 1.5초 후 대화창 닫고 상점 열기
-        StartCoroutine(ShowShopAfterDelay(1.5f));
+        if (shopUI != null)
+            shopUI.OnShopClosed += HandleShopClosed; // 닫힘 콜백 등록
     }
 
-    private IEnumerator ShowShopAfterDelay(float delay)
+    private void OnDestroy()
+    {
+        if (shopUI != null)
+            shopUI.OnShopClosed -= HandleShopClosed;
+    }
+
+    // ⭐ 말 걸었던 NPC를 함께 넘기도록 수정
+    public void ShowShopDialogue(string npcName, NpcInteract npc)
+    {
+        // 이미 열려 있으면 무시 (대화 중/상점 중복 오픈 방지)
+        if (shopOpen) return;
+
+        currentNpc = npc;  // ⭐ 저장
+        currentNpcName = npcName;
+        shopOpen = true; // 열림 표시
+
+        dialoguePanel.SetActive(true);
+        if (npcNameText) npcNameText.text = npcName;
+        if (dialogueText) dialogueText.text = responseMessage;
+
+        StartCoroutine(ShowShopAfterDelay(1.2f));
+    }
+
+    private System.Collections.IEnumerator ShowShopAfterDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
-        dialoguePanel.SetActive(false);
+        if (dialoguePanel) dialoguePanel.SetActive(false);
 
-        if (shopUI != null)
+        if (shopUIPanel) shopUIPanel.SetActive(true);
+        if (shopUI) shopUI.OpenShop();  // 입력 잠금/커서 처리 등
+    }
+
+    // ShopUI에서 닫힐 때 호출
+    private void HandleShopClosed()
+    {
+        if (shopUIPanel) shopUIPanel.SetActive(false);
+        if (dialoguePanel) dialoguePanel.SetActive(false);
+        shopOpen = false;
+
+        if (currentNpc != null)
         {
-            if (shopUIPanel != null)
-                shopUIPanel.SetActive(true);
-
-            shopUI.OpenShop();
+            currentNpc.ResetTalkState();  // ⭐ 다시 말 걸 수 있게
+            currentNpc = null; // ⭐ 참조 해제
         }
     }
 }
