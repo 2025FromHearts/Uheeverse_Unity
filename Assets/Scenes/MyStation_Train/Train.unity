@@ -2578,6 +2578,10 @@ PrefabInstance:
       value: CharacterRoot
       objectReference: {fileID: 0}
     - target: {fileID: 2623574219304093531, guid: bfdf1771eef09034d85e642ad3901b9d, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2623574219304093531, guid: bfdf1771eef09034d85e642ad3901b9d, type: 3}
       propertyPath: m_TagString
       value: Player
       objectReference: {fileID: 0}

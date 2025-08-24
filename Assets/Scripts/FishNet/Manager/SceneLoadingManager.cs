@@ -46,8 +46,8 @@ public class SceneLoadingManager : MonoBehaviour
         }
     }
 
-    // [Server(Logging=LoggingType.Off)]
-    public void CreateSessionFromTag(SceneType type, string currentScene, NetworkConnection conn)
+    [Server]
+    public void CreateSessionFromTag(SceneType type, string currentScene, NetworkConnection conn = null)
     {
         if (!InstanceFinder.IsServer)
     {
@@ -96,27 +96,41 @@ public class SceneLoadingManager : MonoBehaviour
 
     public void newSceneLoading(NetworkConnection conn, string newScene)
     {
-        Debug.Log($"로딩 시작 {newScene}");
+        Debug.Log($"로딩 시작 {newScene} 로딩아이디 {conn.ClientId}");
 
-        GameObject obj = GameObject.Find("CharacterRoot(Clone)");
-        NetworkObject nob = obj.GetComponent<NetworkObject>();
+        // // GameObject obj = GameObject.Find("CharacterRoot(Clone)");
+        // // NetworkObject nob = obj.GetComponent<NetworkObject>();
 
-        SceneLookupData lookup = new SceneLookupData(newScene);
-        SceneLoadData sld = new SceneLoadData(lookup);
-        sld.Options.AllowStacking = true;
-        sld.Options.AutomaticallyUnload = false;
-        sld.ReplaceScenes = ReplaceOption.None;
-        sld.MovedNetworkObjects = new NetworkObject[] { nob };
+        // NetworkObject nob = conn.FirstObject;
 
-        // sld.Options.LocalPhysics = LocalPhysicsMode.Physics2D;
-        sld.Options.LocalPhysics = LocalPhysicsMode.None;
+        // SceneLookupData lookup = new SceneLookupData(newScene);
+        // SceneLoadData sld = new SceneLoadData(lookup);
+        // sld.MovedNetworkObjects = new NetworkObject[] { nob };
+        // sld.Options.AllowStacking = true;
+        // sld.Options.AutomaticallyUnload = false;
+        // sld.ReplaceScenes = ReplaceOption.None;
 
-        NetworkConnection[] connections = new NetworkConnection[] { conn };
+
+        // // sld.Options.LocalPhysics = LocalPhysicsMode.Physics2D;
+        // sld.Options.LocalPhysics = LocalPhysicsMode.None;
+
+        // NetworkConnection[] connections = new NetworkConnection[] { conn };
+
+        // InstanceFinder.SceneManager.LoadConnectionScenes(nob.Owner, sld);
+        // Debug.Log($"✅ [씬 로드] LoadConnectionScenes 호출 완료 - 씬: {newScene}");
+
+        // // GameObject go = Instantiate(playerPrefab);
+        // // InstanceFinder.ServerManager.Spawn(go, conn);
         
-        InstanceFinder.SceneManager.LoadConnectionScenes(nob.Owner, sld);
-        Debug.Log($"✅ [씬 로드] LoadConnectionScenes 호출 완료 - 씬: {newScene}");
 
-        // GameObject go = Instantiate(playerPrefab);
-        // InstanceFinder.ServerManager.Spawn(go, conn);
+        NetworkObject nob = conn.FirstObject;
+
+            SceneLookupData lookup = new SceneLookupData(newScene);
+            SceneLoadData sld = new SceneLoadData(lookup);
+            sld.MovedNetworkObjects = new NetworkObject[] { nob };
+            sld.ReplaceScenes = ReplaceOption.None;
+            sld.Options.AllowStacking = true;
+            sld.Options.LocalPhysics = LocalPhysicsMode.Physics2D;
+            InstanceFinder.SceneManager.LoadConnectionScenes(nob.Owner, sld);
     }
 }

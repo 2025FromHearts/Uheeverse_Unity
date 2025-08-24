@@ -93,4 +93,42 @@ public class PlayerController : NetworkBehaviour
             transform.rotation *= Quaternion.Euler(0, Input.GetAxis("Mouse X") * lookSpeed, 0);
         }
     }
+
+        public SceneLoadingManager slm;
+
+    
+    private void OnTriggerEnter(Collider other)
+    {
+        if (!IsServer)
+        {
+            Debug.Log("서버 꺼짐");
+            //return;
+        }
+        
+        Debug.Log("트리거감지");
+
+        if (other.CompareTag("TrainLoader"))
+        {
+            NetworkObject nob = GetComponent<NetworkObject>();
+            if (nob != null)
+                LoadScene(nob);
+            Debug.Log("씬로드 함수 호출");
+        }
+        
+    }
+
+    [ServerRpc]
+    private void LoadScene(NetworkObject nob)
+    {
+        if (!nob.Owner.IsActive)
+        {
+            return;
+        }
+
+        Debug.Log("씬로딩 요청");
+
+        slm = SceneLoadingManager.Instance;
+
+        slm.CreateSessionFromTag(SceneType.Quiz, "MyStation");
+    }
 }

@@ -12,6 +12,7 @@ TagManager:
   - Item
   - Door
   - GeneratedFromOSM
+  - TrainLoader
   layers:
   - Default
   - TransparentFX

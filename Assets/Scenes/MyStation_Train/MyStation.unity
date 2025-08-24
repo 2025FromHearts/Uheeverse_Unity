@@ -24638,6 +24638,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2cbf4c0bce2a34179b69644341dbf2db, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  slm: {fileID: 0}
 --- !u!4 &1264653833
 Transform:
   m_ObjectHideFlags: 0
@@ -27194,7 +27195,7 @@ GameObject:
   - component: {fileID: 1372590730}
   m_Layer: 0
   m_Name: TrainLoader
-  m_TagString: Untagged
+  m_TagString: TrainLoader
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -27295,11 +27296,12 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1372590725}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2cbf4c0bce2a34179b69644341dbf2db, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  slm: {fileID: 0}
 --- !u!1001 &1376758766
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -32083,6 +32085,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2cbf4c0bce2a34179b69644341dbf2db, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  slm: {fileID: 0}
 --- !u!65 &1634793427
 BoxCollider:
   m_ObjectHideFlags: 0

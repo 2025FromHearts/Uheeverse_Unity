@@ -41,6 +41,7 @@ public class BootstrapManager : NetworkBehaviour
 
     private void OnClientAuthenticated(NetworkConnection conn, bool authenticated)
     {
+        Debug.Log($"OnClientAuthenticated: ClientId={conn.ClientId}, authenticated={authenticated}");
         if (authenticated) // 인증 성공한 경우만
         {
             Debug.Log($"클라이언트 {conn.ClientId} 인증 완료 - 로그인 씬으로 이동 시작");
@@ -52,6 +53,7 @@ public class BootstrapManager : NetworkBehaviour
 
     private System.Collections.IEnumerator DelayedLoginSceneLoad(NetworkConnection conn)
     {
+        Debug.Log($"[Bootstrap] coroutine START for conn={conn?.ClientId}");
         yield return new WaitForSeconds(0.2f); // 짧은 지연
 
         if (conn != null && conn.IsActive)
@@ -62,17 +64,22 @@ public class BootstrapManager : NetworkBehaviour
                 yield break;
             }
 
+            while (conn.IsActive && conn.FirstObject == null)
+                yield return null;
+
             Debug.Log("startScene 로딩 시작");
 
             string sceneName = "MyStation";
 
-            GameObject obj = GameObject.Find("CharacterRoot(Clone)");
-            NetworkObject nob = obj.GetComponent<NetworkObject>();
+            // GameObject obj = GameObject.Find("CharacterRoot(Clone)");
+            // NetworkObject nob = obj.GetComponent<NetworkObject>();
+            NetworkObject nob = conn.FirstObject;
 
             SceneLookupData lookup = new SceneLookupData(sceneName);
             SceneLoadData sld = new SceneLoadData(lookup);
             sld.MovedNetworkObjects = new NetworkObject[] { nob };
             sld.ReplaceScenes = ReplaceOption.None;
+            sld.Options.AllowStacking = true;
             sld.Options.LocalPhysics = LocalPhysicsMode.Physics2D;
             InstanceFinder.SceneManager.LoadConnectionScenes(nob.Owner, sld);
 
