@@ -68,8 +68,9 @@ public class SceneLoadingManager : MonoBehaviour
     public void SceneLoading(NetworkConnection conn, SceneType type, string currentScene)
     {
         string newScene = GetSceneNameByType(type);
-        currentSceneUnloading(conn, currentScene);
+
         newSceneLoading(conn, newScene);
+        currentSceneUnloading(conn, currentScene);
         
     }
     

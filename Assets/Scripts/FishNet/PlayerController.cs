@@ -96,7 +96,7 @@ public class PlayerController : NetworkBehaviour
 
         public SceneLoadingManager slm;
 
-    
+
     private void OnTriggerEnter(Collider other)
     {
         if (!IsServer)
@@ -104,7 +104,7 @@ public class PlayerController : NetworkBehaviour
             Debug.Log("서버 꺼짐");
             //return;
         }
-        
+
         Debug.Log("트리거감지");
 
         if (other.CompareTag("TrainLoader"))
@@ -114,6 +114,7 @@ public class PlayerController : NetworkBehaviour
                 LoadScene(nob);
             Debug.Log("씬로드 함수 호출");
         }
+        
         
     }
 
