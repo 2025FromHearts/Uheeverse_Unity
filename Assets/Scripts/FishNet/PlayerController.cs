@@ -129,6 +129,6 @@ public class PlayerController : NetworkBehaviour
 
         slm = SceneLoadingManager.Instance;
 
-        slm.CreateSessionFromTag(SceneType.Quiz, "MyStation");
+        slm.CreateSessionFromTag(SceneType.Quiz, "MyStation", nob.Owner);
     }
 }

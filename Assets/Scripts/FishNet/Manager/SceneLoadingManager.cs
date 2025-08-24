@@ -47,7 +47,7 @@ public class SceneLoadingManager : MonoBehaviour
     }
 
     [Server]
-    public void CreateSessionFromTag(SceneType type, string currentScene, NetworkConnection conn = null)
+    public void CreateSessionFromTag(SceneType type, string currentScene, NetworkConnection conn)
     {
         if (!InstanceFinder.IsServer)
     {
