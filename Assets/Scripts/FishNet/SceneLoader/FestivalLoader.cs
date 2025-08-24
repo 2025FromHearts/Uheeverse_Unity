@@ -43,6 +43,6 @@ public class FestivalLoader : NetworkBehaviour
 
         slm = SceneLoadingManager.Instance;
 
-        slm.CreateSessionFromTag(SceneType.Festival, "Train", nob.Owner);
+        slm.LoadingFestival(SceneType.Festival, "Train", nob.Owner);
     }
 }
