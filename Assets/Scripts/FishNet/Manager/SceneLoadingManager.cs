@@ -68,6 +68,7 @@ public class SceneLoadingManager : MonoBehaviour
         // }
 
         Debug.Log($"[ServerRpc] caller: {conn.ClientId}");
+
         SceneLoading(conn, type, currentScene);
 
     }
@@ -169,6 +170,10 @@ public class SceneLoadingManager : MonoBehaviour
         sld.Options.AllowStacking = true;
         sld.Options.LocalPhysics = LocalPhysicsMode.Physics2D;
         InstanceFinder.SceneManager.LoadConnectionScenes(nob.Owner, sld);
+
+        currentSceneUnloading(conn, currentScene);
+
+
     }
 
     private void SceneManager_OnLoadEnd(SceneLoadEndEventArgs obj)

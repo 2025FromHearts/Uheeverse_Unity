@@ -472,7 +472,7 @@ GameObject:
   - component: {fileID: 203943660}
   m_Layer: 0
   m_Name: FestivalLoader
-  m_TagString: Untagged
+  m_TagString: FestivalLoader
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

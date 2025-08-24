@@ -227,7 +227,7 @@ MonoBehaviour:
   m_DisconnectTimeoutMS: 30000
   ConnectionData:
     Address: 127.0.0.1
-    Port: 8888
+    Port: 7777
     ServerListenAddress: 0.0.0.0
   DebugSimulator:
     PacketDelayMS: 0
@@ -264,6 +264,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerPrefab: {fileID: 3152944092378613979, guid: b4bea9674bc568040942d228948eb43c, type: 3}
+  _stackedSceneHandle: 0
 --- !u!4 &1099316478
 Transform:
   m_ObjectHideFlags: 0

@@ -13,6 +13,7 @@ TagManager:
   - Door
   - GeneratedFromOSM
   - TrainLoader
+  - FestivalLoader
   layers:
   - Default
   - TransparentFX
