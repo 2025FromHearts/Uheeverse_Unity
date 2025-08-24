@@ -140,7 +140,7 @@ public class SceneLoadingManager : MonoBehaviour
         sld.ReplaceScenes = ReplaceOption.None;
         sld.Options.AllowStacking = true;
         sld.Options.LocalPhysics = LocalPhysicsMode.Physics2D;
-        InstanceFinder.SceneManager.LoadConnectionScenes(nob.Owner, sld);
+        InstanceFinder.SceneManager.LoadConnectionScenes(conn, sld);
     }
 
     public void LoadingFestival(SceneType type, string currentScene, NetworkConnection conn)
@@ -161,15 +161,29 @@ public class SceneLoadingManager : MonoBehaviour
         Debug.Log($"[ServerRpc] caller: {conn.ClientId}");
 
         NetworkObject nob = conn.FirstObject;
-        string newScene = "Django_FestivalMainScene";
+        string newScene = "KartGame";
 
-        SceneLookupData lookup = new SceneLookupData(_stackedSceneHandle, newScene);
+        SceneLookupData lookup;
+        Debug.Log("Loading by handle?" + (_stackedSceneHandle != 0));
+
+        if (_stackedSceneHandle != 0)
+        {
+            lookup = new SceneLookupData(_stackedSceneHandle);
+        }
+        else {
+            lookup = new SceneLookupData(newScene);
+        }
+
         SceneLoadData sld = new SceneLoadData(lookup);
+
+            //SceneLoadData sld = new SceneLoadData(lookup);
         sld.MovedNetworkObjects = new NetworkObject[] { nob };
         sld.ReplaceScenes = ReplaceOption.None;
         sld.Options.AllowStacking = true;
         sld.Options.LocalPhysics = LocalPhysicsMode.Physics2D;
-        InstanceFinder.SceneManager.LoadConnectionScenes(nob.Owner, sld);
+        InstanceFinder.SceneManager.LoadConnectionScenes(conn, sld);
+
+        Debug.Log("로딩완료");
 
         currentSceneUnloading(conn, currentScene);
 
@@ -185,9 +199,21 @@ public class SceneLoadingManager : MonoBehaviour
             return;
         }
 
+        //if (obj.LoadedScenes.Length > 0)
+        //{
+        //    _stackedSceneHandle = obj.LoadedScenes[0].handle;
+        //}
         if (obj.LoadedScenes.Length > 0)
         {
-            _stackedSceneHandle = obj.LoadedScenes[0].handle;
+            foreach (var scene in obj.LoadedScenes)
+            {
+                if (scene.name == "KartGame")
+                {
+                    _stackedSceneHandle = scene.handle;
+                    Debug.Log($"Festival 씬 핸들 저장: {_stackedSceneHandle}");
+                    return;
+                }
+            }
         }
     }
 }
