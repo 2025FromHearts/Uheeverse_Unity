@@ -41338,6 +41338,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 5
+  canMove: 1
   cameraTransform: {fileID: 891604515}
 --- !u!54 &5486139582103956950
 Rigidbody:
