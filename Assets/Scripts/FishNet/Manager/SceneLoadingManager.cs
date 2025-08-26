@@ -28,6 +28,8 @@ public class SceneLoadingManager : MonoBehaviour
     // public static SceneLoadingManager slm{ get; private set; }
     public static SceneLoadingManager Instance { get; private set; }
 
+    public KartSpawner kart;
+
 
     private bool isServerInitialized = false;
 
@@ -136,7 +138,7 @@ public class SceneLoadingManager : MonoBehaviour
 
         SceneLookupData lookup = new SceneLookupData(newScene);
         SceneLoadData sld = new SceneLoadData(lookup);
-        sld.MovedNetworkObjects = new NetworkObject[] { nob };
+        //sld.MovedNetworkObjects = new NetworkObject[] { nob };
         sld.ReplaceScenes = ReplaceOption.None;
         sld.Options.AllowStacking = true;
         sld.Options.LocalPhysics = LocalPhysicsMode.Physics2D;
