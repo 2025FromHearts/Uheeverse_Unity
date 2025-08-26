@@ -8,7 +8,7 @@ using FishNet.Object;
 public class FestivalLoader : NetworkBehaviour
 {
 
-        public SceneLoadingManager slm;
+    public SceneLoadingManager slm;
 
     
     private void OnTriggerEnter(Collider other)

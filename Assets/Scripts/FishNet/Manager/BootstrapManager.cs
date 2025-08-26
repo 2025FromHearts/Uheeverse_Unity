@@ -11,6 +11,7 @@ using UnityEngine.SceneManagement;
 using FishNet.Component.Prediction;
 using System.Collections;
 using FishNet.Managing.Logging;
+using FishNet.Component.Spawning;
 
 public class BootstrapManager : NetworkBehaviour
 {
@@ -21,6 +22,8 @@ public class BootstrapManager : NetworkBehaviour
         base.OnStartServer();
         Debug.Log("서버 시작됨");
 
+       //NetworkManager.ServerManager.GetComponent<PlayerSpawner>().enabled = false;
+
         isServerInitialized = true;
 
         if (InstanceFinder.ServerManager != null)
@@ -30,6 +33,8 @@ public class BootstrapManager : NetworkBehaviour
             Debug.Log("이벤트 구독됨");
         }
 
+        
+
     }
 
     public override void OnStartClient()
@@ -37,6 +42,7 @@ public class BootstrapManager : NetworkBehaviour
         base.OnStartClient();
         Debug.Log($"SceneLoadingManager IsClientInitialized: {IsClientInitialized}");
         Debug.Log("클라이언트 시작됨");
+        NetworkManager.ServerManager.GetComponent<PlayerSpawner>().enabled = false;
     }
 
     private void OnClientAuthenticated(NetworkConnection conn, bool authenticated)
