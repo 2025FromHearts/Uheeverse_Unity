@@ -18,9 +18,9 @@ public class Store : MonoBehaviour
             Mystation_Store.SetActive(false);
             ShopUI = Mystation_Store.GetComponent<ShopUI>(); // Ä³½Ã
 
-            // ´ÝÀ» ¶§ ·çÆ®µµ ²¨ÁÜ (¼±ÅÃ)
-            if (ShopUI != null)
-                ShopUI.OnShopClosed += () => Mystation_Store.SetActive(false);
+            //// ´ÝÀ» ¶§ ·çÆ®µµ ²¨ÁÜ (¼±ÅÃ)
+            //if (ShopUI != null)
+            //    ShopUI.OnShopClosed += () => Mystation_Store.SetActive(false);
         }
     }
 
