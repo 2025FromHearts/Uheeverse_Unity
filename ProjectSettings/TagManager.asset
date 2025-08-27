@@ -12,6 +12,7 @@ TagManager:
   - Item
   - Door
   - GeneratedFromOSM
+  - Store
   layers:
   - Default
   - TransparentFX
@@ -20,12 +21,12 @@ TagManager:
   - Water
   - UI
   - stationLayer
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - myboothLayer
+  - myboothTomystationLayer
+  - storeLayer
+  - Ground
+  - Ghost
+  - PlaceItem
   - 
   - 
   - 

@@ -29,6 +29,26 @@ public class InventoryUI : MonoBehaviour
     private string characterId;
     private string accessToken;
 
+    // === 페이지네이션 설정 추가===
+    [SerializeField] int gridColumns = 5;
+    [SerializeField] int gridRows = 3;
+    int PageSize => gridColumns * gridRows;
+
+    [SerializeField] Button prevPageBtn;
+    [SerializeField] Button nextPageBtn;
+    [SerializeField] TMP_Text pageLabel;
+
+    // 전체 아이템 / 슬롯 풀
+    List<InventoryItem> _items = new List<InventoryItem>();
+    readonly List<GameObject> _slotPool = new List<GameObject>();
+    int _currentPage = 0;
+    void Awake()
+    {
+        if (prevPageBtn) prevPageBtn.onClick.AddListener(() => SetPage(_currentPage - 1));
+        if (nextPageBtn) nextPageBtn.onClick.AddListener(() => SetPage(_currentPage + 1));
+    }
+    //여기까지 추가됨
+
     [System.Serializable]
     public class ItemDataDTO
     {
@@ -131,7 +151,81 @@ public class InventoryUI : MonoBehaviour
                     });
                 }
             }
+            //추가됨
+            foreach (Transform child in slotParent)
+                Destroy(child.gameObject);               // 최초 1회 깔끔히 비움(원하면 유지해도 OK)
+
+            _items = (wrapper != null && wrapper.Items != null) ? wrapper.Items : new List<InventoryItem>();
+
+            BuildPoolIfNeeded();   // 페이지에 필요한 슬롯 개수만 생성
+            SetPage(0);            // 첫 페이지 표시
         }
+    }
+    void BuildPoolIfNeeded() //추가됨
+    {
+        if (slotPrefab == null || slotParent == null) return;
+
+        while (_slotPool.Count < PageSize)
+        {
+            var slot = Instantiate(slotPrefab, slotParent);
+            slot.SetActive(true); // 비활성 프리팹 방지
+            _slotPool.Add(slot);
+        }
+    }
+
+    void BindSlot(GameObject slot, InventoryItem inv) //추가됨
+    {
+        // 이름
+        var text = slot.transform.Find("Button/ItemName")?.GetComponent<TMP_Text>();
+        if (text) text.text = inv.item.item_name;
+
+        // 아이콘
+        var iconTr = slot.transform.Find("Button/ItemImage");
+        var iconImg = iconTr ? iconTr.GetComponent<Image>() : null;
+        var icon = Resources.Load<Sprite>("Icons/" + inv.item.item_icon);
+        if (iconImg && icon) iconImg.sprite = icon;
+
+        // 버튼
+        var btn = slot.transform.Find("Button")?.GetComponent<Button>();
+        if (btn)
+        {
+            btn.onClick.RemoveAllListeners();
+            var captured = inv.item;
+            btn.onClick.AddListener(() =>
+            {
+                currentSelectedItem = captured;
+                ShowDetail(captured);
+            });
+        }
+    }
+
+    void SetPage(int page) //추가됨
+    {
+        if (_items == null) return;
+
+        int totalPages = Mathf.Max(1, Mathf.CeilToInt((float)_items.Count / PageSize));
+        _currentPage = Mathf.Clamp(page, 0, totalPages - 1);
+
+        for (int i = 0; i < _slotPool.Count; i++)
+        {
+            int dataIndex = _currentPage * PageSize + i;
+            if (dataIndex < _items.Count)
+            {
+                _slotPool[i].SetActive(true);
+                BindSlot(_slotPool[i], _items[dataIndex]);
+            }
+            else
+            {
+                _slotPool[i].SetActive(false);
+            }
+        }
+
+        if (pageLabel) pageLabel.text = $"{_currentPage + 1} / {totalPages}";
+        if (prevPageBtn) prevPageBtn.interactable = _currentPage > 0;
+        if (nextPageBtn) nextPageBtn.interactable = _currentPage < totalPages - 1;
+
+        var rt = slotParent as RectTransform;
+        if (rt) UnityEngine.UI.LayoutRebuilder.ForceRebuildLayoutImmediate(rt);
     }
 
     void ShowDetail(ItemDataDTO item)
