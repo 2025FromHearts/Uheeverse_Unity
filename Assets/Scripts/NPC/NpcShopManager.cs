@@ -18,6 +18,7 @@ public class NpcShopManager : MonoBehaviour
     public string responseMessage = "물건 구경하고 가세요!";
 
     private string currentNpcName;
+    private string currentNpcId;
 
     public void ShowShopDialogue(string npcName)
     {
@@ -34,6 +35,17 @@ public class NpcShopManager : MonoBehaviour
         if (dialogueText != null)
             dialogueText.text = responseMessage;
 
+        // npcId 추출 (npcName 기준으로 탐색)
+        var foundNpc = GameObject.FindObjectsOfType<NpcInteract>();
+        foreach (var npc in foundNpc)
+        {
+            if (npc.npcName == npcName)
+            {
+                currentNpcId = npc.npcId;
+                break;
+            }
+        }
+
         // 1.5초 후 대화창 닫고 상점 열기
         StartCoroutine(ShowShopAfterDelay(1.5f));
     }
@@ -43,6 +55,9 @@ public class NpcShopManager : MonoBehaviour
         yield return new WaitForSeconds(delay);
         dialoguePanel.SetActive(false);
 
+        NpcTalkTracker.Instance?.MarkNpcAsTalked();
+
+        // 상점 UI 열기
         if (shopUI != null)
         {
             if (shopUIPanel != null)

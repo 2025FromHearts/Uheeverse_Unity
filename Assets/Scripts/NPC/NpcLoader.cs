@@ -24,21 +24,28 @@ public class NpcLoader : MonoBehaviour
     public string mapId;
     private string BASE_URL;
 
+    [Header("NPC Prefabs")]
     public GameObject guidePrefab;
     public GameObject minigamePrefab;
     public GameObject vendorPrefab;
+    public GameObject photoPrefab;
 
+    [Header("배치 위치")]
     public Transform[] spawnPoints;
+
     private NpcGameManager gameManager;
     private NpcShopManager shopManager;
+    private NpcPhotoManager photoManager;
 
     void Start()
     {
         gameManager = FindObjectOfType<NpcGameManager>();
         shopManager = FindObjectOfType<NpcShopManager>();
+        photoManager = FindObjectOfType<NpcPhotoManager>();
 
         StartCoroutine(LoadNpcs());
     }
+
     IEnumerator LoadNpcs()
     {
         BASE_URL = ServerConfig.baseUrl;
@@ -60,7 +67,7 @@ public class NpcLoader : MonoBehaviour
         {
             if (i >= spawnPoints.Length)
             {
-                Debug.LogWarning("⚠️ NPC의 개수가 spawnPoints 개수보다 더 많음. 배치에 오류 있음.");
+                Debug.LogWarning("⚠️ NPC의 개수가 spawnPoints 개수보다 많음. 배치에 오류 있음.");
                 break;
             }
 
@@ -78,17 +85,23 @@ public class NpcLoader : MonoBehaviour
             var interact = npcObj.GetComponent<NpcInteract>();
             if (interact != null)
             {
+                // 🔑 JSON 데이터로 NPC 세팅
                 interact.SetNpcData(npc);
 
-                // 🔽 매니저 직접 연결
+                // 매니저 연결
                 interact.npcGameManager = gameManager;
                 interact.npcShopManager = shopManager;
+                interact.npcPhotoManager = photoManager;
             }
             else
             {
-                Debug.LogWarning("⚠️ NpcInteract 컴포넌트가 프리팹에 없으니 확인.");
+                Debug.LogWarning("⚠️ NpcInteract 컴포넌트가 프리팹에 없음.");
             }
         }
+
+        int trackableCount = npcList.npcs.Count; // 전부 포함 (원하면 조건 넣기)
+        if (NpcTalkTracker.Instance != null)
+            NpcTalkTracker.Instance.SetRequiredCount(trackableCount);
     }
 
     GameObject GetPrefabByType(string type)
@@ -98,6 +111,7 @@ public class NpcLoader : MonoBehaviour
             case "guide": return guidePrefab;
             case "minigame": return minigamePrefab;
             case "vendor": return vendorPrefab;
+            case "photo": return photoPrefab;
             default: return null;
         }
     }
