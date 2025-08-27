@@ -138,7 +138,7 @@ public class SceneLoadingManager : MonoBehaviour
 
         SceneLookupData lookup = new SceneLookupData(newScene);
         SceneLoadData sld = new SceneLoadData(lookup);
-        //sld.MovedNetworkObjects = new NetworkObject[] { nob };
+        sld.MovedNetworkObjects = new NetworkObject[] { nob };
         sld.ReplaceScenes = ReplaceOption.None;
         sld.Options.AllowStacking = true;
         sld.Options.LocalPhysics = LocalPhysicsMode.Physics2D;
@@ -179,7 +179,7 @@ public class SceneLoadingManager : MonoBehaviour
         SceneLoadData sld = new SceneLoadData(lookup);
 
             //SceneLoadData sld = new SceneLoadData(lookup);
-        sld.MovedNetworkObjects = new NetworkObject[] { nob };
+        //sld.MovedNetworkObjects = new NetworkObject[] { nob };
         sld.ReplaceScenes = ReplaceOption.None;
         sld.Options.AllowStacking = true;
         sld.Options.LocalPhysics = LocalPhysicsMode.Physics2D;
