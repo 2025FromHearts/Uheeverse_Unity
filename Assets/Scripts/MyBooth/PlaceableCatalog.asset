@@ -16,7 +16,7 @@ MonoBehaviour:
   - key: Bed
     prefab: {fileID: 919132149155446097, guid: 02243848ead8fd7489b3f8fe1fac89dd, type: 3}
   - key: Book
-    prefab: {fileID: 919132149155446097, guid: d6f438aa7236a224dbe52174dbc9a591, type: 3}
+    prefab: {fileID: 919132149155446097, guid: e1caecafc0c0fb3479e6d99b1f55e9a4, type: 3}
   - key: Clock
     prefab: {fileID: 919132149155446097, guid: 147feaf725338744ba2a0260e5e3f18a, type: 3}
   - key: Frame01
@@ -28,8 +28,12 @@ MonoBehaviour:
   - key: Sofa
     prefab: {fileID: 919132149155446097, guid: 07326f12d7a2aa447a21eedde14a4027, type: 3}
   - key: Table
-    prefab: {fileID: 919132149155446097, guid: 404d4fc76085c7440ae5c9e6b7f7d36f, type: 3}
+    prefab: {fileID: 919132149155446097, guid: aaf21fff8265a624d9616ba71215715c, type: 3}
   - key: GoldenApple
     prefab: {fileID: 8775253757888717343, guid: fe02ef01e71395045b5d0e5f7535a166, type: 3}
+  - key: backpack_1
+    prefab: {fileID: 919132149155446097, guid: ba9bc33cc36deab4681c2e71bbe15c2e, type: 3}
+  - key: Apple_ACC01
+    prefab: {fileID: 919132149155446097, guid: e07a731542ed6fa439ee79de1f610692, type: 3}
   - key: backpack_1
     prefab: {fileID: 919132149155446097, guid: ba9bc33cc36deab4681c2e71bbe15c2e, type: 3}
