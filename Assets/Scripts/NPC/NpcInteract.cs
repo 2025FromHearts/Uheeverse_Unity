@@ -126,7 +126,11 @@ public class NpcInteract : MonoBehaviour
         if (roleText != null) roleText.text = npcName;
 
         string type = data.npc_type.ToLower();
-        if (type == "minigame") npcType = NpcType.Minigame;
+        if (type == "minigame")
+        {
+            npcType = NpcType.Minigame;
+            minigameSceneName = data.scene_name;
+        }
         else if (type == "guide") npcType = NpcType.Guide;
         else if (type == "vendor") npcType = NpcType.Vendor;
         else if (type == "photo") npcType = NpcType.Photo;

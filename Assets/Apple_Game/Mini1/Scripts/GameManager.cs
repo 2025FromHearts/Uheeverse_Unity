@@ -34,7 +34,7 @@ public class GameManager : MonoBehaviour
     private IEnumerator LoadGameConfigCoroutine()
     {
         //string gameId = "a62122b87d5d45cfa660dc75a30dfc28"; //
-        string apiUrl = $"http://localhost:8000/map/config/?game_id={_gameId}";
+        string apiUrl = $"https://uheeverse.ngrok.app/map/config/?game_id={_gameId}";
 
         using (UnityWebRequest request = UnityWebRequest.Get(apiUrl))
         {
