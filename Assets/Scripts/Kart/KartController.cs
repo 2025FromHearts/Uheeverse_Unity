@@ -1,9 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
+using FishNet.Connection;
+using FishNet.Managing;
+using FishNet.Object;
 using UnityEngine;
 
-public class KartController : MonoBehaviour
+public class KartController : NetworkBehaviour
 {
+    public override void OnStartClient()
+    {
+        base.OnStartClient();
+    }
     [Header("Wheel Colliders")]
     public WheelCollider frontLeft;
     public WheelCollider frontRight;
@@ -48,6 +55,7 @@ public class KartController : MonoBehaviour
     public ItemDisplayUI itemDisplayUI;
     void Update()
     {
+        if(!base.IsOwner)  { return; }
         // BananaPivot 회전
         if (orbitingBananas.Count > 0)
         {
