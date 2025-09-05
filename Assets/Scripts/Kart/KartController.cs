@@ -10,6 +10,19 @@ public class KartController : NetworkBehaviour
     public override void OnStartClient()
     {
         base.OnStartClient();
+        Camera myCamera = GetComponentInChildren<Camera>();
+        AudioListener audioListener = GetComponentInChildren<AudioListener>();
+
+        if (IsOwner) // 내 카트인 경우
+        {
+            myCamera.enabled = true;
+            audioListener.enabled = true;
+        }
+        else // 다른 플레이어 카트인 경우
+        {
+            myCamera.enabled = false;
+            audioListener.enabled = false;
+        }
     }
     [Header("Wheel Colliders")]
     public WheelCollider frontLeft;
@@ -84,6 +97,7 @@ public class KartController : NetworkBehaviour
     //바나나 회전
     void RotateBananasAroundKart()
     {
+        if (!base.IsOwner) { return; }
         float radius = 1.5f;
         float speed = 100f;
 
@@ -97,6 +111,7 @@ public class KartController : NetworkBehaviour
 
     void AdjustWheelFriction(WheelCollider wheel)
     {
+        if (!base.IsOwner) { return; }
         WheelFrictionCurve forwardFriction = wheel.forwardFriction;
         forwardFriction.extremumValue = 3f;
         forwardFriction.asymptoteValue = 2f;
@@ -115,6 +130,7 @@ public class KartController : NetworkBehaviour
     // KartController.cs 안의 AddOrbitingBananas 함수
     void AddOrbitingBananas(int count)
     {
+        if (!base.IsOwner) { return; }
         for (int i = 0; i < count; i++)
         {
             GameObject b = Instantiate(bananaPrefab, bananaPivot);
@@ -156,6 +172,7 @@ public class KartController : NetworkBehaviour
 
     void FixedUpdate()
     {
+        if (!base.IsOwner) { return; }
         if (rb.linearVelocity.magnitude > 50f)
         {
             rb.linearVelocity = rb.linearVelocity.normalized * 50f;
@@ -221,6 +238,7 @@ public class KartController : NetworkBehaviour
     //바퀴랑 본체 사이 멀어짐
     void UpdateWheelPose(WheelCollider collider, Transform mesh, string wheelName)
     {
+        if (!base.IsOwner) { return; }
         Vector3 pos;
         Quaternion quat;
         collider.GetWorldPose(out pos, out quat);
@@ -245,6 +263,7 @@ public class KartController : NetworkBehaviour
 
     void OnTriggerEnter(Collider other)
     {
+        if (!base.IsOwner) { return; }
         if (other.CompareTag("ItemBox"))
         {
             Debug.Log("아이템 박스 충돌!");
@@ -264,6 +283,7 @@ public class KartController : NetworkBehaviour
     // 아이템 효과 적용
     public void ApplyEffect(ItemEffectType effect)
     {
+        if (!base.IsOwner) { return; }
         itemDisplayUI.SetItemIcon(effect); // 아이템 효과 연결
 
         if (itemDisplayUI != null)
@@ -331,6 +351,7 @@ public class KartController : NetworkBehaviour
     //마지막에 카트 멈추기
     public void StopKartGradually()
     {
+        if (!base.IsOwner) { return; }
         StartCoroutine(GradualStop());
     }
 
@@ -350,7 +371,7 @@ public class KartController : NetworkBehaviour
 
         rb.linearVelocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
-        enabled = false; // 입력 비활성화
+        //enabled = false; // 입력 비활성화
     }
 
 }
