@@ -16,22 +16,19 @@ public class NpcInteract : MonoBehaviour
     public string talkKey;
 
     [Header("서버 데이터 (자동 세팅됨)")]
-    public string npcId;    // 서버에서 받은 원래 npc_id
-    public string npcName;  // 서버에서 받은 npc_name
+    public string npcId;
+    public string npcName;
     public NpcType npcType;
 
     [Header("설정")]
-    public float interactionRadius = 3f;
+    public float interactionRadius = 50f;
     public float nameShowDistance = 8f;
     public bool isTalking = false;
-
     [Tooltip("이 NPC가 실행할 미니게임 씬 이름 (Minigame 타입일 경우만 사용)")]
     public string minigameSceneName;
-
     public NpcGameManager npcGameManager;
     public NpcShopManager npcShopManager;
     public NpcPhotoManager npcPhotoManager;
-
     [Tooltip("상점 NPC가 표시할 안내 메시지")]
     public string responseMessage;
 
@@ -41,7 +38,6 @@ public class NpcInteract : MonoBehaviour
 
     [Header("참조")]
     public Transform player;
-
     private string basePrompt;
     private bool hasTalkedThisFrame = false;
 
@@ -52,7 +48,6 @@ public class NpcInteract : MonoBehaviour
             var go = GameObject.FindWithTag("Player");
             if (go != null) player = go.transform;
         }
-
         if (roleText != null && !string.IsNullOrEmpty(npcName))
             roleText.text = npcName;
     }
@@ -74,40 +69,52 @@ public class NpcInteract : MonoBehaviour
             if (roleUI.activeSelf != show) roleUI.SetActive(show);
         }
 
+        // 키보드 Space 입력
         if (dist <= interactionRadius && Input.GetKeyDown(KeyCode.Space))
         {
             if (hasTalkedThisFrame) return;
             hasTalkedThisFrame = true;
-
-            Debug.Log($"[{npcName}] Space pressed, npcType={npcType}");
-
-            switch (npcType)
-            {
-                case NpcType.Guide:
-                    var talkManager = FindAnyObjectByType<NpcTalkManager>();
-                    if (talkManager != null)
-                    {
-                        // 👉 이제 티켓 체크는 talkKey로 함
-                        talkManager.TalkToNpc(talkKey, npcName);
-                    }
-                    break;
-
-                case NpcType.Minigame:
-                    npcGameManager?.ShowMinigameDialogue(npcName, minigameSceneName);
-                    break;
-
-                case NpcType.Vendor:
-                    npcShopManager?.ShowShopDialogue(npcName);
-                    break;
-
-                case NpcType.Photo:
-                    npcPhotoManager?.ShowPhotoDialogue(npcName, this);
-                    break;
-            }
+            InteractWithNpc();
         }
         else
         {
             hasTalkedThisFrame = false;
+        }
+    }
+
+    // 조이패드 A 입력시 호출할 함수
+    public void InteractWithNpcByPad()
+    {
+        if (player == null) return;
+        float dist = Vector3.Distance(player.position, transform.position);
+        if (dist <= interactionRadius)
+        {
+            InteractWithNpc();
+        }
+    }
+
+    // 실제 NPC 대화/상호작용 처리
+    private void InteractWithNpc()
+    {
+        Debug.Log($"[{npcName}] Interact, npcType={npcType}");
+        switch (npcType)
+        {
+            case NpcType.Guide:
+                var talkManager = FindAnyObjectByType<NpcTalkManager>();
+                if (talkManager != null)
+                {
+                    talkManager.TalkToNpc(talkKey, npcName);
+                }
+                break;
+            case NpcType.Minigame:
+                npcGameManager?.ShowMinigameDialogue(npcName, minigameSceneName);
+                break;
+            case NpcType.Vendor:
+                npcShopManager?.ShowShopDialogue(npcName);
+                break;
+            case NpcType.Photo:
+                npcPhotoManager?.ShowPhotoDialogue(npcName, this);
+                break;
         }
     }
 
@@ -118,13 +125,10 @@ public class NpcInteract : MonoBehaviour
 
     public void SetNpcData(NpcData data)
     {
-        // 서버에서 온 데이터는 그대로 세팅
         npcId = data.npc_id;
         npcName = data.npc_name;
         basePrompt = data.base_prompt;
-
         if (roleText != null) roleText.text = npcName;
-
         string type = data.npc_type.ToLower();
         if (type == "minigame")
         {
