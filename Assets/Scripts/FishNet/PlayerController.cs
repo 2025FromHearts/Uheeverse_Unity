@@ -23,7 +23,7 @@ public class PlayerController : NetworkBehaviour
     public bool canMove = true;
 
     [SerializeField]
-    private float cameraYOffset = 0.4f;
+    private float cameraYOffset = 10f;
     private Camera playerCamera;
 
 
@@ -32,9 +32,16 @@ public class PlayerController : NetworkBehaviour
         base.OnStartClient();
         if (base.IsOwner)
         {
+            // playerCamera = Camera.main;
+            // playerCamera.transform.position = new Vector3(transform.position.x, transform.position.y + cameraYOffset, transform.position.z);
+            // playerCamera.transform.SetParent(transform);
+
             playerCamera = Camera.main;
-            playerCamera.transform.position = new Vector3(transform.position.x, transform.position.y + cameraYOffset, transform.position.z);
             playerCamera.transform.SetParent(transform);
+            
+            // 위에서 내려다보는 탑다운 뷰
+            playerCamera.transform.localPosition = new Vector3(0, 6f, -6f);  // Y값을 크게
+            playerCamera.transform.localRotation = Quaternion.Euler(90f, 0, 0); 
         }
         else
         {

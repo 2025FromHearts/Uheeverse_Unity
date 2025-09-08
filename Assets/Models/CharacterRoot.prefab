@@ -614,6 +614,7 @@ GameObject:
   - component: {fileID: -6272960197353723243}
   - component: {fileID: 1251232892435247223}
   - component: {fileID: -35380380435749852}
+  - component: {fileID: -6105937897385736359}
   m_Layer: 0
   m_Name: CharacterRoot
   m_TagString: Untagged
@@ -879,6 +880,21 @@ MonoBehaviour:
   _addedNetworkObject: {fileID: -2420700771839588131}
   _networkObjectCache: {fileID: 0}
   slm: {fileID: 0}
+--- !u!114 &-6105937897385736359
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3152944092378613979}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 556d5511cd0e441b1919fa0ba4ee1b4b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _componentIndexCache: 255
+  _addedNetworkObject: {fileID: -2420700771839588131}
+  _networkObjectCache: {fileID: 0}
 --- !u!1 &3333104534235178493
 GameObject:
   m_ObjectHideFlags: 0
