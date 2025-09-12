@@ -40,8 +40,8 @@ public class PlayerController : NetworkBehaviour
             playerCamera.transform.SetParent(transform);
             
             // 위에서 내려다보는 탑다운 뷰
-            playerCamera.transform.localPosition = new Vector3(0, 6f, -6f);  // Y값을 크게
-            playerCamera.transform.localRotation = Quaternion.Euler(90f, 0, 0); 
+            playerCamera.transform.localPosition = new Vector3(0, 4f, -6f);  // Y값을 크게
+            playerCamera.transform.localRotation = Quaternion.Euler(90f, 90f, 0); 
         }
         else
         {
@@ -55,7 +55,7 @@ public class PlayerController : NetworkBehaviour
 
         // Lock cursor
         Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        Cursor.visible = true;
     }
 
     void Update()

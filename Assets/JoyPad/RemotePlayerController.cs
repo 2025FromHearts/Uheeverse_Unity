@@ -8,6 +8,11 @@ public class RemotePlayerController : NetworkBehaviour
     [ServerRpc]
     public void SetMoveCommandServerRpc(string command)
     {
+
+        if (!base.IsOwner)
+        {
+            return;
+        }
         moveDirection = command.ToUpper() switch
         {
             "UP" => Vector3.forward,
