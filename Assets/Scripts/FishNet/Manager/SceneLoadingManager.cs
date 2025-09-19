@@ -34,6 +34,7 @@ public class SceneLoadingManager : MonoBehaviour
     private bool isServerInitialized = false;
 
     public int _stackedSceneHandle = 0;
+    public int _FestivalSceneHandle = 0;
 
     private void Start()
     {
@@ -109,30 +110,6 @@ public class SceneLoadingManager : MonoBehaviour
     {
         Debug.Log($"로딩 시작 {newScene} 로딩아이디 {conn.ClientId}");
 
-        // // GameObject obj = GameObject.Find("CharacterRoot(Clone)");
-        // // NetworkObject nob = obj.GetComponent<NetworkObject>();
-
-        // NetworkObject nob = conn.FirstObject;
-
-        // SceneLookupData lookup = new SceneLookupData(newScene);
-        // SceneLoadData sld = new SceneLoadData(lookup);
-        // sld.MovedNetworkObjects = new NetworkObject[] { nob };
-        // sld.Options.AllowStacking = true;
-        // sld.Options.AutomaticallyUnload = false;
-        // sld.ReplaceScenes = ReplaceOption.None;
-
-
-        // // sld.Options.LocalPhysics = LocalPhysicsMode.Physics2D;
-        // sld.Options.LocalPhysics = LocalPhysicsMode.None;
-
-        // NetworkConnection[] connections = new NetworkConnection[] { conn };
-
-        // InstanceFinder.SceneManager.LoadConnectionScenes(nob.Owner, sld);
-        // Debug.Log($"✅ [씬 로드] LoadConnectionScenes 호출 완료 - 씬: {newScene}");
-
-        // // GameObject go = Instantiate(playerPrefab);
-        // // InstanceFinder.ServerManager.Spawn(go, conn);
-
 
         NetworkObject nob = conn.FirstObject;
 
@@ -152,13 +129,44 @@ public class SceneLoadingManager : MonoBehaviour
             Debug.LogWarning("서버가 아님");
             return;
         }
-        // if (!InstanceFinder.IsServer || !isServerInitialized)
-        // {
-        //     Debug.LogWarning("서버 아님 - 씬 로딩 불가");
-        //     return;
-        // }
 
-        
+        Debug.Log($"[ServerRpc] caller: {conn.ClientId}");
+
+        NetworkObject nob = conn.FirstObject;
+        string newScene = "Django_FestivalMainScene";
+
+        SceneLookupData lookup;
+        Debug.Log("Loading by handle?" + (_FestivalSceneHandle != 0));
+
+        if (_FestivalSceneHandle != 0)
+        {
+            lookup = new SceneLookupData(_FestivalSceneHandle);
+        }
+        else {
+            lookup = new SceneLookupData(newScene);
+        }
+
+        SceneLoadData sld = new SceneLoadData(lookup);
+
+        sld.ReplaceScenes = ReplaceOption.None;
+        sld.Options.AllowStacking = true;
+        sld.Options.LocalPhysics = LocalPhysicsMode.Physics2D;
+        InstanceFinder.SceneManager.LoadConnectionScenes(conn, sld);
+
+        Debug.Log("로딩완료");
+
+        currentSceneUnloading(conn, currentScene);
+
+
+    }
+
+    public void LoadingKartGame(SceneType type, string currentScene, NetworkConnection conn)
+    {
+        if (!InstanceFinder.IsServer)
+        {
+            Debug.LogWarning("서버가 아님");
+            return;
+        }
 
         Debug.Log($"[ServerRpc] caller: {conn.ClientId}");
 
@@ -178,8 +186,6 @@ public class SceneLoadingManager : MonoBehaviour
 
         SceneLoadData sld = new SceneLoadData(lookup);
 
-            //SceneLoadData sld = new SceneLoadData(lookup);
-        //sld.MovedNetworkObjects = new NetworkObject[] { nob };
         sld.ReplaceScenes = ReplaceOption.None;
         sld.Options.AllowStacking = true;
         sld.Options.LocalPhysics = LocalPhysicsMode.Physics2D;
@@ -200,15 +206,16 @@ public class SceneLoadingManager : MonoBehaviour
         {
             return;
         }
-
-        //if (obj.LoadedScenes.Length > 0)
-        //{
-        //    _stackedSceneHandle = obj.LoadedScenes[0].handle;
-        //}
         if (obj.LoadedScenes.Length > 0)
         {
             foreach (var scene in obj.LoadedScenes)
             {
+                if (scene.name == "Django_FestivalMainScene")
+                {
+                    _FestivalSceneHandle = scene.handle;
+                    Debug.Log($"Festival씬 핸들 저장");
+                    return;
+                }
                 if (scene.name == "KartGame")
                 {
                     _stackedSceneHandle = scene.handle;

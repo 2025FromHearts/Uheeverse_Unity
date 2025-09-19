@@ -75,18 +75,18 @@ public class UDPCharacterReceiver : MonoBehaviour
         {
             try
             {
-                // UDP 패킷 받기
+                
                 byte[] data = udpClient.Receive(ref endPoint);
                 string command = Encoding.UTF8.GetString(data);
                 
-                // 메인 스레드에서 처리하도록 예약
+                
                 UnityMainThreadDispatcher.Enqueue(() => {
                     ProcessUDPCommand(command);
                 });
             }
             catch (System.Exception e)
             {
-                if (shouldReceive) // 정상 종료가 아닌 경우만 에러 출력
+                if (shouldReceive) 
                 {
                     Debug.LogError($"UDP 수신 에러: {e.Message}");
                 }
@@ -132,24 +132,16 @@ public class UDPCharacterReceiver : MonoBehaviour
 
         movedirection = (forward * z) + (right * x);
 
-        // movedirection = new Vector3(x, 0, z);
-
         control.Move(movedirection * speed * Time.deltaTime);
 
-        // moveVec = new Vector3(x, 0, z) * speed * Time.fixedDeltaTime;
-        // rigid.MovePosition(rigid.position + moveVec);
 
         if (movedirection.magnitude > 0.1f)
         {
-            Quaternion targetRotation = Quaternion.LookRotation(movedirection); // 이 줄 추가
+            Quaternion targetRotation = Quaternion.LookRotation(movedirection);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 1.5f * Time.deltaTime);
         }
     
         moveVec = movedirection;
-
-        // Quaternion dirQuat = Quaternion.LookRotation(moveVec);
-        // Quaternion moveQuat = Quaternion.Slerp(rigid.rotation, dirQuat, 0.3f);
-        // rigid.MoveRotation(moveQuat);
     }
 
 
