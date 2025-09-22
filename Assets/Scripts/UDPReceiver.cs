@@ -39,7 +39,7 @@ public class UDPReceiver : MonoBehaviour
                         var player = conn.FirstObject.GetComponent<PlayerInputController>();
                         if (player != null)
                         {
-                            player.SetJoypadInput(command);
+                            //player.SetJoypadInput(command);
                         }
                     }
                 }
