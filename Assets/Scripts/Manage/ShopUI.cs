@@ -14,6 +14,7 @@ public class ShopUI : MonoBehaviour
     public Transform slotParent;
     public GameObject slotPrefab;
     public string mapId;
+    public CanvasGroup shopCanvasGroup;
 
     [Header("상세 정보 패널")]
     public GameObject detailPanel;
@@ -49,6 +50,12 @@ public class ShopUI : MonoBehaviour
 
     public void OpenShop()
     {
+        if (shopCanvasGroup != null)
+        {
+            shopCanvasGroup.alpha = 1f;              // 보이기
+            shopCanvasGroup.interactable = true;     // 클릭 가능
+            shopCanvasGroup.blocksRaycasts = true;   // 이벤트 차단 O
+        }
         shopPanel.SetActive(true);
         detailPanel.SetActive(true);
 
@@ -60,8 +67,17 @@ public class ShopUI : MonoBehaviour
 
     public void CloseShop()
     {
-        shopPanel.SetActive(false);
-        detailPanel.SetActive(false);
+        if (shopCanvasGroup != null)
+        {
+            shopCanvasGroup.alpha = 0f;              // 안 보이기
+            shopCanvasGroup.interactable = false;    // 클릭 불가
+            shopCanvasGroup.blocksRaycasts = false;  // 이벤트 차단 X
+        }
+        else
+        {
+            shopPanel.SetActive(false);
+            detailPanel.SetActive(false);
+        }
 
         if (infoGroup != null) infoGroup.SetActive(false);
         if (placeholderText != null) placeholderText.SetActive(false);

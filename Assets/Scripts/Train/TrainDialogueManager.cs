@@ -4,7 +4,6 @@ using UnityEngine.UI;
 using UnityEngine.Networking;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine.EventSystems;
 
 public class TrainDialogueManager : MonoBehaviour
 {
@@ -26,25 +25,6 @@ public class TrainDialogueManager : MonoBehaviour
 
     private int currentLineIndex = 0;
     private bool isReadyToStartQuiz = false;
-
-        void Update()
-    {
-        // 대화 UI가 켜져 있을 때만 처리
-        if (dialogueCanvas == null || !dialogueCanvas.activeInHierarchy) return;
-
-        // 인풋필드에 포커스가 있으면 엔터 입력 무시 (채팅/입력 보호)
-        if (EventSystem.current != null &&
-            EventSystem.current.currentSelectedGameObject != null &&
-            EventSystem.current.currentSelectedGameObject.GetComponent<TMP_InputField>() != null)
-            return;
-
-        if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
-        {
-            if (nextButton == null || !nextButton.interactable) return;
-            OnClickNext();
-        }
-    }
-
 
     void Start()
     {
