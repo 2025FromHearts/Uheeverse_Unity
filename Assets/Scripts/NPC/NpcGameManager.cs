@@ -27,7 +27,6 @@ public class NpcGameManager : MonoBehaviour
     public string exitMessage = "괜찮아요. 다음에 또 도전해주세요!";
 
     private string currentNpcName;
-    private string currentNpcId;
 
     void Awake()
     {
@@ -52,26 +51,13 @@ public class NpcGameManager : MonoBehaviour
             string selectedPrompt = promptMessages[Random.Range(0, promptMessages.Length)];
             dialogueText.text = selectedPrompt;
         }
-
-        // npcId 추출 (Find로 해당 NPC 검색)
-        var foundNpc = GameObject.FindObjectsOfType<NpcInteract>();
-        foreach (var npc in foundNpc)
-        {
-            if (npc.npcName == npcName)
-            {
-                currentNpcId = npc.npcId;
-                break;
-            }
-        }
     }
 
     private void OnYes()
     {
         Debug.Log($"✅ {currentNpcName} 미니게임 참여");
 
-        NpcTalkTracker.Instance?.MarkNpcAsTalked();
-
-        // 현재 플레이어 위치 저장
+        // ✅ 현재 플레이어 위치 저장
         GameObject player = GameObject.FindWithTag("Player");
         if (player != null)
         {
@@ -91,7 +77,7 @@ public class NpcGameManager : MonoBehaviour
             Debug.LogWarning("❌ 'Player' 태그가 있는 오브젝트를 찾지 못했습니다.");
         }
 
-        // 미니게임 씬으로 이동
+        // ✅ 미니게임 씬으로 이동
         if (!string.IsNullOrEmpty(minigameSceneName))
         {
             SceneManager.LoadScene(minigameSceneName);
@@ -117,4 +103,6 @@ public class NpcGameManager : MonoBehaviour
         yield return new WaitForSeconds(delay);
         dialoguePanel.SetActive(false);
     }
+
+
 }
