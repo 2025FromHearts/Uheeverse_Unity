@@ -144,14 +144,34 @@ public class PhotoModeController : MonoBehaviour
 
     private void TakeShot()
     {
+        StartCoroutine(CaptureWithoutUI());
+    }
+
+    private System.Collections.IEnumerator CaptureWithoutUI()
+    {
+        // 1️⃣ 모든 Canvas 비활성화
+        Canvas[] canvases = FindObjectsOfType<Canvas>();
+        foreach (Canvas c in canvases)
+            c.enabled = false;
+
+        yield return new WaitForEndOfFrame(); // UI 꺼진 프레임 반영
+
+        // 2️⃣ 캡처
         string file = $"photo_{DateTime.Now:yyyyMMdd_HHmmss}.png";
         string path = Path.Combine(Application.persistentDataPath, file);
 
-        ScreenCapture.CaptureScreenshot(path); // 전체 화면 캡처 (UI 포함)
-        if (flash != null) StartCoroutine(FlashRoutine());
+        ScreenCapture.CaptureScreenshot(path);
+        Debug.Log($"📸 Saved (UI 제외): {path}");
 
-        Debug.Log($"📸 Saved: {path}");
+        if (flash != null)
+            StartCoroutine(FlashRoutine());
+
+        // 3️⃣ 잠시 대기 후 UI 다시 켜기
+        yield return new WaitForSecondsRealtime(0.3f);
+        foreach (Canvas c in canvases)
+            c.enabled = true;
     }
+
 
     private System.Collections.IEnumerator FlashRoutine()
     {
