@@ -8,6 +8,8 @@ using System.Globalization;
 public class U_ProfileUI : MonoBehaviour
 {
     [Header("UI Reference")]
+    public TMP_Text nameText;
+    public TMP_Text introText;
     public TMP_Text lastLoginText;
     public TMP_Text itemCountText;
 
@@ -27,11 +29,11 @@ public class U_ProfileUI : MonoBehaviour
     IEnumerator GetUserInfo()
     {
         string token = PlayerPrefs.GetString("access_token", "");
-        Debug.Log("👉 불러온 access_token: " + token);
+        Debug.Log("불러온 access_token: " + token);
 
         if (string.IsNullOrEmpty(token))
         {
-            Debug.LogError("❌ access_token이 비어 있음. 로그인 단계에서 저장됐는지 확인 필요");
+            Debug.LogError("❌ access_token이 비어 있음, 로그인 요망.");
             yield break;
         }
 
@@ -41,8 +43,6 @@ public class U_ProfileUI : MonoBehaviour
         yield return www.SendWebRequest();
 
         Debug.Log("📡 UserInfo Raw Response: " + www.downloadHandler.text);
-        Debug.Log("📡 lastLoginText 연결됨?: " + (lastLoginText != null));
-        Debug.Log("📡 itemCountText 연결됨?: " + (itemCountText != null));
 
         if (www.result != UnityWebRequest.Result.Success)
         {
@@ -53,6 +53,10 @@ public class U_ProfileUI : MonoBehaviour
             try
             {
                 UserInfoResponse data = JsonUtility.FromJson<UserInfoResponse>(www.downloadHandler.text);
+
+
+                nameText.text = data.character_name + " 님";
+                introText.text = data.character_intro;
 
                 // 최근 접속 날짜 갱신
                 string formattedDate = FormatDate(data.last_login);
@@ -128,6 +132,7 @@ public class U_ProfileUI : MonoBehaviour
     public class UserInfoResponse
     {
         public string character_id;
+        public string character_intro;
         public string character_name;
         public string last_login;
     }
