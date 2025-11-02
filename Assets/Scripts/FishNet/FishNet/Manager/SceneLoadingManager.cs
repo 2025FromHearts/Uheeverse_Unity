@@ -1,0 +1,228 @@
+using FishNet.Object;
+using FishNet.Connection;
+using FishNet.Managing.Scened;
+using System.Collections.Generic;
+using UnityEngine;
+using FishNet;
+using System;
+using Unity.VisualScripting;
+using FishNet.Transporting;
+using UnityEngine.SceneManagement;
+using FishNet.Component.Prediction;
+using System.Collections;
+using FishNet.Managing.Logging;
+
+public enum SceneType
+{
+    Login,
+    Station,
+    Quiz,
+    Festival,
+    Game
+}
+
+public class SceneLoadingManager : MonoBehaviour
+{
+    public GameObject playerPrefab;
+
+    // public static SceneLoadingManager slm{ get; private set; }
+    public static SceneLoadingManager Instance { get; private set; }
+
+    public KartSpawner kart;
+
+
+    private bool isServerInitialized = false;
+
+    public int _stackedSceneHandle = 0;
+    public int _FestivalSceneHandle = 0;
+
+    private void Start()
+    {
+        InstanceFinder.SceneManager.OnLoadEnd += SceneManager_OnLoadEnd;
+    }
+
+    void Awake()
+    {
+
+        if (Instance == null)
+        {
+            Instance = this; // 씬 전환 시에도 유지
+            Debug.Log("SceneLoadingManager 인스턴스화 완료");
+        }
+        else
+        {
+            Destroy(gameObject);
+            return;
+        }
+    }
+
+    [Server]
+    public void CreateSessionFromTag(SceneType type, string currentScene, NetworkConnection conn)
+    {
+        if (!InstanceFinder.IsServer)
+        {
+            Debug.LogWarning("서버가 아님");
+            return;
+        }
+        // if (!InstanceFinder.IsServer || !isServerInitialized)
+        // {
+        //     Debug.LogWarning("서버 아님 - 씬 로딩 불가");
+        //     return;
+        // }
+
+        Debug.Log($"[ServerRpc] caller: {conn.ClientId}");
+
+        SceneLoading(conn, type, currentScene);
+
+    }
+
+    public void SceneLoading(NetworkConnection conn, SceneType type, string currentScene)
+    {
+        string newScene = GetSceneNameByType(type);
+
+        newSceneLoading(conn, newScene);
+        currentSceneUnloading(conn, currentScene);
+
+    }
+
+    private string GetSceneNameByType(SceneType type)
+    {
+        switch (type)
+        {
+            case SceneType.Login: return "StartScene";
+            case SceneType.Station: return "MyStation";
+            case SceneType.Quiz: return "Train";
+            case SceneType.Festival: return "Django_FestivalMainScene";
+            case SceneType.Game: return "InGame";
+            default: return "StartScene";
+        }
+    }
+
+    public void currentSceneUnloading(NetworkConnection conn, string currentScene)
+    {
+        Debug.Log("언로드 진입");
+        SceneUnloadData sud = new SceneUnloadData(new string[] { (currentScene) });
+        InstanceFinder.SceneManager.UnloadConnectionScenes(conn, sud);
+        Debug.Log($"언로드 완료 {conn.ClientId} : {currentScene}");
+    }
+
+    public void newSceneLoading(NetworkConnection conn, string newScene)
+    {
+        Debug.Log($"로딩 시작 {newScene} 로딩아이디 {conn.ClientId}");
+
+
+        NetworkObject nob = conn.FirstObject;
+
+        SceneLookupData lookup = new SceneLookupData(newScene);
+        SceneLoadData sld = new SceneLoadData(lookup);
+        sld.MovedNetworkObjects = new NetworkObject[] { nob };
+        sld.ReplaceScenes = ReplaceOption.None;
+        sld.Options.AllowStacking = true;
+        sld.Options.LocalPhysics = LocalPhysicsMode.Physics2D;
+        InstanceFinder.SceneManager.LoadConnectionScenes(conn, sld);
+    }
+
+    public void LoadingFestival(SceneType type, string currentScene, NetworkConnection conn)
+    {
+        if (!InstanceFinder.IsServer)
+        {
+            Debug.LogWarning("서버가 아님");
+            return;
+        }
+
+        Debug.Log($"[ServerRpc] caller: {conn.ClientId}");
+
+        NetworkObject nob = conn.FirstObject;
+        string newScene = "Django_FestivalMainScene";
+
+        SceneLookupData lookup;
+        Debug.Log("Loading by handle?" + (_FestivalSceneHandle != 0));
+
+        if (_FestivalSceneHandle != 0)
+        {
+            lookup = new SceneLookupData(_FestivalSceneHandle);
+        }
+        else {
+            lookup = new SceneLookupData(newScene);
+        }
+
+        SceneLoadData sld = new SceneLoadData(lookup);
+
+        sld.ReplaceScenes = ReplaceOption.None;
+        sld.Options.AllowStacking = true;
+        sld.Options.LocalPhysics = LocalPhysicsMode.Physics2D;
+        InstanceFinder.SceneManager.LoadConnectionScenes(conn, sld);
+
+        Debug.Log("로딩완료");
+
+        currentSceneUnloading(conn, currentScene);
+
+
+    }
+
+    public void LoadingKartGame(SceneType type, string currentScene, NetworkConnection conn)
+    {
+        if (!InstanceFinder.IsServer)
+        {
+            Debug.LogWarning("서버가 아님");
+            return;
+        }
+
+        Debug.Log($"[ServerRpc] caller: {conn.ClientId}");
+
+        NetworkObject nob = conn.FirstObject;
+        string newScene = "KartGame";
+
+        SceneLookupData lookup;
+        Debug.Log("Loading by handle?" + (_stackedSceneHandle != 0));
+
+        if (_stackedSceneHandle != 0)
+        {
+            lookup = new SceneLookupData(_stackedSceneHandle);
+        }
+        else {
+            lookup = new SceneLookupData(newScene);
+        }
+
+        SceneLoadData sld = new SceneLoadData(lookup);
+
+        sld.ReplaceScenes = ReplaceOption.None;
+        sld.Options.AllowStacking = true;
+        sld.Options.LocalPhysics = LocalPhysicsMode.Physics2D;
+        InstanceFinder.SceneManager.LoadConnectionScenes(conn, sld);
+
+        Debug.Log("로딩완료");
+
+        currentSceneUnloading(conn, currentScene);
+
+
+    }
+
+    private void SceneManager_OnLoadEnd(SceneLoadEndEventArgs obj)
+    {
+        if (!obj.QueueData.AsServer)
+            return;
+        if (_stackedSceneHandle != 0)
+        {
+            return;
+        }
+        if (obj.LoadedScenes.Length > 0)
+        {
+            foreach (var scene in obj.LoadedScenes)
+            {
+                if (scene.name == "Django_FestivalMainScene")
+                {
+                    _FestivalSceneHandle = scene.handle;
+                    Debug.Log($"Festival씬 핸들 저장");
+                    return;
+                }
+                if (scene.name == "KartGame")
+                {
+                    _stackedSceneHandle = scene.handle;
+                    Debug.Log($"Festival 씬 핸들 저장: {_stackedSceneHandle}");
+                    return;
+                }
+            }
+        }
+    }
+}
