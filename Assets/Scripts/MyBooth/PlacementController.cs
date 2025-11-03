@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using System;
 
 public class PlacementController : MonoBehaviour
@@ -29,7 +29,16 @@ public class PlacementController : MonoBehaviour
     float rotY;
     bool canPlace;
 
-    public struct PlacementResult { public string key; public Vector3 position; public float rotY; }
+    // âœ… ìˆ˜ì •: scale í•„ë“œ ì¶”ê°€
+    public struct PlacementResult
+    {
+        public string key;
+        public Vector3 position;
+        public float rotY;
+        public Vector3 scale;
+        public GameObject placedObject;
+    }
+
     public event Action<PlacementResult> OnPlaced;
     public event Action OnPreviewCanceled;
 
@@ -37,19 +46,19 @@ public class PlacementController : MonoBehaviour
 
     public System.Action onPlacementComplete;
 
-    // BeginPreview - ¾ÆÀÌÅÛ Å° + À§Ä¡ ¿ÀÇÁ¼Â¿ë ¸Þ¼­µå
+    // =========================================================
+    // ðŸ”¹ ë¯¸ë¦¬ë³´ê¸° ì‹œìž‘
+    // =========================================================
     public void BeginPreview(string itemKey, Vector3 positionOffset)
     {
         BeginPreviewInternal(itemKey, Vector3.zero, positionOffset);
     }
 
-    // BeginPreview - À§Ä¡ °íÁ¤ + ¿ÀÇÁ¼Â¿ë ¸Þ¼­µå (ÇÊ¿ä ½Ã »ç¿ë)
     public void BeginPreview(string itemKey, Vector3 fixedPos, Vector3 positionOffset)
     {
         BeginPreviewInternal(itemKey, fixedPos, positionOffset);
     }
 
-    // ½ÇÁ¦ ³»ºÎ ±¸Çö (°øÅë)
     private void BeginPreviewInternal(string itemKey, Vector3 fixedPos, Vector3 positionOffset)
     {
         CancelPreview();
@@ -86,6 +95,9 @@ public class PlacementController : MonoBehaviour
         rotY = 0f;
     }
 
+    // =========================================================
+    // ðŸ”¹ ë¯¸ë¦¬ë³´ê¸° ì·¨ì†Œ
+    // =========================================================
     public void CancelPreview()
     {
         if (ghost) Destroy(ghost);
@@ -94,6 +106,9 @@ public class PlacementController : MonoBehaviour
         OnPreviewCanceled?.Invoke();
     }
 
+    // =========================================================
+    // ðŸ”¹ ë¯¸ë¦¬ë³´ê¸° ê°±ì‹  ë° ë°°ì¹˜
+    // =========================================================
     void Update()
     {
         if (!ghost) return;
@@ -124,6 +139,9 @@ public class PlacementController : MonoBehaviour
         if (Input.GetKeyDown(cancelKey)) CancelPreview();
     }
 
+    // =========================================================
+    // ðŸ”¹ ì‹¤ì œ ë°°ì¹˜ (OnPlaced ì´ë²¤íŠ¸ í˜¸ì¶œ)
+    // =========================================================
     void Place()
     {
         var go = Instantiate(current.prefab, ghost.transform.position, ghost.transform.rotation);
@@ -132,17 +150,23 @@ public class PlacementController : MonoBehaviour
         int placedLayer = LayerMask.NameToLayer(placedLayerName);
         if (placedLayer >= 0) SetLayerRecursively(go, placedLayer);
 
+        // âœ… ìŠ¤ì¼€ì¼ ì •ë³´ë„ ê°™ì´ ë„˜ê²¨ì¤Œ
         OnPlaced?.Invoke(new PlacementResult
         {
             key = current.key,
             position = go.transform.position,
-            rotY = go.transform.eulerAngles.y
+            rotY = go.transform.eulerAngles.y,
+            scale = go.transform.localScale,
+            placedObject = go
         });
 
         onPlacementComplete?.Invoke();
         CancelPreview();
     }
 
+    // =========================================================
+    // ðŸ”¹ í—¬í¼ í•¨ìˆ˜
+    // =========================================================
     static Vector3 SnapXZ(Vector3 p, float cell)
     {
         return new Vector3(
@@ -172,7 +196,6 @@ public class PlacementController : MonoBehaviour
     }
 
     Vector3 GetBoundsCenter(GameObject g) => GetWorldBounds(g).center;
-
     Vector3 GetBoundsExtents(GameObject g) => GetWorldBounds(g).extents * 0.98f;
 
     void ApplyGhostMaterial(Material mat)
@@ -189,6 +212,7 @@ public class PlacementController : MonoBehaviour
     void SetLayerRecursively(GameObject obj, int layer)
     {
         obj.layer = layer;
-        foreach (Transform t in obj.transform) SetLayerRecursively(t.gameObject, layer);
+        foreach (Transform t in obj.transform)
+            SetLayerRecursively(t.gameObject, layer);
     }
 }

@@ -7,6 +7,7 @@ public class ProfileUI : MonoBehaviour
 {
     public TMP_Text nicknameText;
     public TMP_Text coinText;
+    public TMP_Text introText;
     private string baseUrl;
     private string accessToken;
     private Coroutine coinRefreshCoroutine;
@@ -15,7 +16,6 @@ public class ProfileUI : MonoBehaviour
     {
         baseUrl = ServerConfig.baseUrl;
         accessToken = PlayerPrefs.GetString("access_token", "");
-        // 5초마다 코인 정보를 계속 갱신
         coinRefreshCoroutine = StartCoroutine(PeriodicCharacterInfoRefresh());
     }
 
@@ -25,7 +25,7 @@ public class ProfileUI : MonoBehaviour
         while (true)
         {
             yield return LoadCharacterInfo();
-            yield return new WaitForSeconds(2f); // 주기 (원하면 수정)
+            yield return new WaitForSeconds(2f);
         }
     }
 
@@ -44,6 +44,7 @@ public class ProfileUI : MonoBehaviour
 
         CharacterInfo info = JsonUtility.FromJson<CharacterInfo>(www.downloadHandler.text);
         nicknameText.text = info.character_name;
+        introText.text = info.character_intro;
         coinText.text = info.character_coin.ToString();
     }
 
@@ -51,6 +52,7 @@ public class ProfileUI : MonoBehaviour
     public class CharacterInfo
     {
         public string character_name;
+        public string character_intro;
         public int character_coin;
     }
 
