@@ -130,20 +130,19 @@ public class InventoryUI : MonoBehaviour
             InventoryWrapper wrapper = JsonUtility.FromJson<InventoryWrapper>(json);
             currentItemList = wrapper.Items;
 
-            // --- 중복 아이템 합치기 ---
+            // 중복 아이템 합치기
             var mergedDict = new Dictionary<string, InventoryItem>();
             foreach (var inv in wrapper.Items)
             {
                 if (inv == null || inv.item == null) continue;
 
-                // key는 item_id 우선, 없으면 item_name 사용
                 string key = !string.IsNullOrEmpty(inv.item.item_id)
                     ? inv.item.item_id
                     : inv.item.item_name;
 
                 if (string.IsNullOrEmpty(key))
                 {
-                    Debug.LogWarning("⚠️ 인벤토리 아이템 key 없음 (item_id, item_name 둘 다 null)");
+                    Debug.LogWarning("인벤토리 아이템 key 확인 요망 (item_id, item_name null)");
                     continue;
                 }
 
@@ -163,6 +162,7 @@ public class InventoryUI : MonoBehaviour
             foreach (Transform child in slotParent)
                 Destroy(child.gameObject);
 
+            _slotPool.Clear();
             BuildPoolIfNeeded();
             SetPage(0);
         }
