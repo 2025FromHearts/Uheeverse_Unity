@@ -46,7 +46,7 @@ public class BoothManager : MonoBehaviour
             var entry = catalog.Find(item.item);
             if (entry == null || entry.prefab == null)
             {
-                Debug.LogWarning($"⚠️ '{item.item}'을(를) Catalog에서 찾을 수 없습니다.");
+                Debug.LogWarning($"⚠️ '{item.item}'을(를) 찾을 수 없습니다.");
                 continue;
             }
 
@@ -76,7 +76,7 @@ public class BoothManager : MonoBehaviour
                 go.transform.localScale = Vector3.Scale(go.transform.localScale, factor);
 
                 Debug.Log(
-                    $"📐 '{item.item}' 월드 스케일 보정 | parent={go.transform.parent.lossyScale:F2} | " +
+                    $"'{item.item}' 월드 스케일 보정 | parent={go.transform.parent.lossyScale:F2} | " +
                     $"saved={savedScale} | before={currentWorld} | after={go.transform.lossyScale}"
                 );
             }
@@ -85,9 +85,7 @@ public class BoothManager : MonoBehaviour
                 go.transform.localScale = Vector3.one;
             }
 
-            Debug.Log($"🧱 아이템 로드됨: {item.item} @ {pos}");
-
-            // 기존 서버 데이터도 placedItems에 포함시켜 저장 대상에 유지
+            // 기존 서버 데이터도 placedItems에 포함 -> 저장 대상으로 유지
             BoothItemData loaded = new BoothItemData
             {
                 booth_item_id = item.booth_item_id,

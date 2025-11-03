@@ -4,8 +4,7 @@ using System;
 public class PlacementController : MonoBehaviour
 {
     [Header("Refs")]
-    public Camera cam;
-    public PlaceableCatalog catalog;
+    public Camera cam; // 메인 카메라 지정
 
     [Header("Layers & Masks")]
     public LayerMask groundMask;
@@ -24,12 +23,14 @@ public class PlacementController : MonoBehaviour
     public Material ghostValidMat;
     public Material ghostInvalidMat;
 
-    GameObject ghost;
-    PlaceableEntry current;
-    float rotY;
-    bool canPlace;
+    private GameObject ghost;
+    private GameObject currentPrefab;
+    private float rotY;
+    private bool canPlace;
 
-    // ✅ 수정: scale 필드 추가
+    public Action onPlacementComplete;
+
+    // 배치 결과 데이터 구조
     public struct PlacementResult
     {
         public string key;
@@ -42,73 +43,52 @@ public class PlacementController : MonoBehaviour
     public event Action<PlacementResult> OnPlaced;
     public event Action OnPreviewCanceled;
 
-    void Reset() { cam = Camera.main; }
-
-    public System.Action onPlacementComplete;
-
-    // =========================================================
-    // 🔹 미리보기 시작
-    // =========================================================
-    public void BeginPreview(string itemKey, Vector3 positionOffset)
+    void Reset()
     {
-        BeginPreviewInternal(itemKey, Vector3.zero, positionOffset);
+        cam = Camera.main;
     }
 
-    public void BeginPreview(string itemKey, Vector3 fixedPos, Vector3 positionOffset)
-    {
-        BeginPreviewInternal(itemKey, fixedPos, positionOffset);
-    }
-
-    private void BeginPreviewInternal(string itemKey, Vector3 fixedPos, Vector3 positionOffset)
+    // 미리보기 시작 (카탈로그 없이 Resources 폴더에서 직접 로드)
+    public void BeginPreview(string prefabName, Vector3 fixedPos, Vector3 offset)
     {
         CancelPreview();
 
-        if (!catalog)
+        // ItemModels 폴더 기준으로 프리팹 찾기
+        var prefab = Resources.Load<GameObject>("ItemModels/" + prefabName);
+        if (prefab == null)
         {
-            Debug.LogError("[Placement] Catalog not set");
+            Debug.LogError($"[Placement] Prefab not found in Resources/ItemModels: {prefabName}");
             return;
         }
 
-        current = catalog.Find(itemKey);
-        if (current == null || current.prefab == null)
-        {
-            Debug.LogError("[Placement] Prefab not found for key: " + itemKey);
-            return;
-        }
+        currentPrefab = prefab;
+        ghost = Instantiate(prefab);
 
-        ghost = Instantiate(current.prefab);
+        // 콜라이더 비활성화 (고스트는 충돌 안 함)
         foreach (var c in ghost.GetComponentsInChildren<Collider>())
-        {
             c.enabled = false;
-        }
 
-        Vector3 basePos = fixedPos + positionOffset;
-        ghost.transform.position = basePos;
+        ghost.transform.position = fixedPos + offset;
+        ghost.transform.rotation = Quaternion.identity;
 
         int ghostLayer = LayerMask.NameToLayer(ghostLayerName);
         if (ghostLayer >= 0)
-        {
             SetLayerRecursively(ghost, ghostLayer);
-        }
 
         ApplyGhostMaterial(ghostInvalidMat);
         rotY = 0f;
     }
 
-    // =========================================================
-    // 🔹 미리보기 취소
-    // =========================================================
+    // 미리보기 취소
     public void CancelPreview()
     {
         if (ghost) Destroy(ghost);
         ghost = null;
-        current = null;
+        currentPrefab = null;
         OnPreviewCanceled?.Invoke();
     }
 
-    // =========================================================
-    // 🔹 미리보기 갱신 및 배치
-    // =========================================================
+    // 배치 갱신 루프
     void Update()
     {
         if (!ghost) return;
@@ -122,8 +102,12 @@ public class PlacementController : MonoBehaviour
             ghost.transform.SetPositionAndRotation(pos, Quaternion.Euler(0f, rotY, 0f));
 
             canPlace = !enableOverlapCheck || !Physics.CheckBox(
-                GetBoundsCenter(ghost), GetBoundsExtents(ghost),
-                ghost.transform.rotation, overlapMask, QueryTriggerInteraction.Ignore);
+                GetBoundsCenter(ghost),
+                GetBoundsExtents(ghost),
+                ghost.transform.rotation,
+                overlapMask,
+                QueryTriggerInteraction.Ignore
+            );
 
             ApplyGhostMaterial(canPlace ? ghostValidMat : ghostInvalidMat);
 
@@ -136,24 +120,27 @@ public class PlacementController : MonoBehaviour
             rotY = Mathf.Repeat(rotY + rotationStep, 360f);
             ghost.transform.rotation = Quaternion.Euler(0f, rotY, 0f);
         }
-        if (Input.GetKeyDown(cancelKey)) CancelPreview();
+
+        if (Input.GetKeyDown(cancelKey))
+            CancelPreview();
     }
 
-    // =========================================================
-    // 🔹 실제 배치 (OnPlaced 이벤트 호출)
-    // =========================================================
+    // 실제 배치
     void Place()
     {
-        var go = Instantiate(current.prefab, ghost.transform.position, ghost.transform.rotation);
-        foreach (var c in go.GetComponentsInChildren<Collider>()) c.enabled = true;
+        if (currentPrefab == null) return;
+
+        var go = Instantiate(currentPrefab, ghost.transform.position, ghost.transform.rotation);
+        foreach (var c in go.GetComponentsInChildren<Collider>())
+            c.enabled = true;
 
         int placedLayer = LayerMask.NameToLayer(placedLayerName);
-        if (placedLayer >= 0) SetLayerRecursively(go, placedLayer);
+        if (placedLayer >= 0)
+            SetLayerRecursively(go, placedLayer);
 
-        // ✅ 스케일 정보도 같이 넘겨줌
         OnPlaced?.Invoke(new PlacementResult
         {
-            key = current.key,
+            key = currentPrefab.name,
             position = go.transform.position,
             rotY = go.transform.eulerAngles.y,
             scale = go.transform.localScale,
@@ -164,9 +151,7 @@ public class PlacementController : MonoBehaviour
         CancelPreview();
     }
 
-    // =========================================================
-    // 🔹 헬퍼 함수
-    // =========================================================
+    // 유틸리티
     static Vector3 SnapXZ(Vector3 p, float cell)
     {
         return new Vector3(
@@ -178,20 +163,22 @@ public class PlacementController : MonoBehaviour
 
     Bounds GetWorldBounds(GameObject g)
     {
-        var rs = g.GetComponentsInChildren<Renderer>();
-        if (rs.Length > 0)
+        var renderers = g.GetComponentsInChildren<Renderer>();
+        if (renderers.Length > 0)
         {
-            var b = rs[0].bounds;
-            for (int i = 1; i < rs.Length; i++) b.Encapsulate(rs[i].bounds);
+            var b = renderers[0].bounds;
+            for (int i = 1; i < renderers.Length; i++) b.Encapsulate(renderers[i].bounds);
             return b;
         }
-        var cs = g.GetComponentsInChildren<Collider>();
-        if (cs.Length > 0)
+
+        var colliders = g.GetComponentsInChildren<Collider>();
+        if (colliders.Length > 0)
         {
-            var b = cs[0].bounds;
-            for (int i = 1; i < cs.Length; i++) b.Encapsulate(cs[i].bounds);
+            var b = colliders[0].bounds;
+            for (int i = 1; i < colliders.Length; i++) b.Encapsulate(colliders[i].bounds);
             return b;
         }
+
         return new Bounds(g.transform.position, Vector3.one * 0.5f);
     }
 
@@ -204,7 +191,8 @@ public class PlacementController : MonoBehaviour
         foreach (var r in ghost.GetComponentsInChildren<Renderer>())
         {
             var mats = r.sharedMaterials;
-            for (int i = 0; i < mats.Length; i++) mats[i] = mat;
+            for (int i = 0; i < mats.Length; i++)
+                mats[i] = mat;
             r.sharedMaterials = mats;
         }
     }
