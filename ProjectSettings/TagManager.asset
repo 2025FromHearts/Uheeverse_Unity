@@ -13,6 +13,7 @@ TagManager:
   - Door
   - GeneratedFromOSM
   - Store
+  - Train
   layers:
   - Default
   - TransparentFX

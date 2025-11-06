@@ -76,7 +76,7 @@ public class LoginManager : MonoBehaviour
             yield return StartCoroutine(GetUserInfo());
             yield return StartCoroutine(CheckOrCreateInventory());
 
-            UnityEngine.SceneManagement.SceneManager.LoadScene("MyStation");
+            //UnityEngine.SceneManagement.SceneManager.LoadScene("MyStation");
         }
     }
 
