@@ -7,17 +7,15 @@ public class CharacterCustomizer : MonoBehaviour
 {
     [Header("UI 설정")]
     public TMP_InputField nameInput;
-    public int selectedHairIndex;
-    public ColorChanger hairColorChanger;
-    public ColorChanger eyeColorChanger;
-    public ColorChanger cheekColorChanger;
-    public ColorChanger lipColorChanger;
+
+    [Header("캐릭터 스타일 (4가지 중 선택)")]
+    private string selectedStyle = "";
 
     [Header("서버 설정")]
-    public string saveCharacterUrl = "http://localhost:8000/users/save_character/";
-    public string nextSceneName = "MyStationScene"; // 저장 성공 후 이동할 씬 이름
+    public string nextSceneName = "MyStation"; // 저장 성공 후 이동할 씬 이름
 
     private string accessToken;
+    private string baseUrl;
 
     void Start()
     {
@@ -26,13 +24,20 @@ public class CharacterCustomizer : MonoBehaviour
         if (string.IsNullOrEmpty(accessToken))
         {
             Debug.LogError("⚠️ 토큰이 없습니다. 로그인 필요");
-            // 씬 이동도 SceneLoader로!
             var loader = FindAnyObjectByType<SceneLoader>();
             if (loader != null)
                 loader.LoadSceneByName("StartScene");
         }
     }
 
+    // 스타일 선택 버튼이 눌렸을 때 호출
+    public void OnSelectStyle(string characterStyle)
+    {
+        selectedStyle = characterStyle;
+        Debug.Log($"🎨 선택된 스타일: " + selectedStyle);
+    }
+
+    // 저장 버튼 클릭 시 호출
     public void OnSaveButtonClick()
     {
         if (string.IsNullOrWhiteSpace(nameInput.text))
@@ -41,52 +46,58 @@ public class CharacterCustomizer : MonoBehaviour
             return;
         }
 
+        if (selectedStyle == "")
+        {
+            Debug.LogWarning("❗ 캐릭터 스타일을 선택하세요!");
+            return;
+        }
+
         CharacterStatus status = new CharacterStatus()
         {
             characterName = nameInput.text.Trim(),
-            hairStyle = selectedHairIndex,
-            hairColor = string.IsNullOrEmpty(hairColorChanger.selectedHexColor) ? "#FFFFFFFF" : hairColorChanger.selectedHexColor,
-            eyeColor = string.IsNullOrEmpty(eyeColorChanger.selectedHexColor) ? "#FFFFFFFF" : eyeColorChanger.selectedHexColor,
-            cheekColor = string.IsNullOrEmpty(cheekColorChanger.selectedHexColor) ? "#FFFFFFFF" : cheekColorChanger.selectedHexColor,
-            lipColor = string.IsNullOrEmpty(lipColorChanger.selectedHexColor) ? "#FFFFFFFF" : lipColorChanger.selectedHexColor
+            characterStyle = selectedStyle
         };
 
         string jsonBody = JsonUtility.ToJson(status);
+        Debug.Log("📦 전송 JSON: " + jsonBody);
+
         StartCoroutine(SaveCharacter(jsonBody));
     }
 
     IEnumerator SaveCharacter(string jsonBody)
     {
-        using (UnityWebRequest request = new UnityWebRequest(saveCharacterUrl, "POST"))
+        baseUrl = ServerConfig.baseUrl;
+        accessToken = PlayerPrefs.GetString("access_token", "");
+
+        string url = baseUrl + "/users/save_character/";
+        UnityWebRequest request = new UnityWebRequest(url, "POST");
+
+        byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonBody);
+        request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+        request.downloadHandler = new DownloadHandlerBuffer();
+        request.SetRequestHeader("Content-Type", "application/json");
+        request.SetRequestHeader("Authorization", "Bearer " + accessToken);
+
+        yield return request.SendWebRequest();
+
+        if (request.result == UnityWebRequest.Result.Success)
         {
-            byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonBody);
-            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
-            request.downloadHandler = new DownloadHandlerBuffer();
-            request.SetRequestHeader("Content-Type", "application/json");
-            request.SetRequestHeader("Authorization", "Bearer " + accessToken);
-
-            yield return request.SendWebRequest();
-
-            if (request.result == UnityWebRequest.Result.Success)
+            Debug.Log("✅ 캐릭터 저장 성공: " + request.downloadHandler.text);
+            var loader = FindAnyObjectByType<SceneLoader>();
+            if (loader != null)
+                loader.LoadSceneByName(nextSceneName);
+            else
+                Debug.LogError("SceneLoader를 찾을 수 없습니다!");
+        }
+        else
+        {
+            Debug.LogError($"❌ 저장 실패: {request.error}\n응답: {request.downloadHandler.text}");
+            if (request.responseCode == 401)
             {
-                Debug.Log("✅ 캐릭터 저장 성공: " + request.downloadHandler.text);
-                // SceneLoader를 통해 씬 이동
+                PlayerPrefs.DeleteKey("access_token");
                 var loader = FindAnyObjectByType<SceneLoader>();
                 if (loader != null)
-                    loader.LoadSceneByName(nextSceneName);
-                else
-                    Debug.LogError("SceneLoader를 찾을 수 없습니다!");
-            }
-            else
-            {
-                Debug.LogError($"❌ 저장 실패: {request.error}\n응답: {request.downloadHandler.text}");
-                if (request.responseCode == 401)
-                {
-                    PlayerPrefs.DeleteKey("access_token");
-                    var loader = FindAnyObjectByType<SceneLoader>();
-                    if (loader != null)
-                        loader.LoadSceneByName("StartScene");
-                }
+                    loader.LoadSceneByName("StartScene");
             }
         }
     }
@@ -95,10 +106,6 @@ public class CharacterCustomizer : MonoBehaviour
     public class CharacterStatus
     {
         public string characterName;
-        public int hairStyle;
-        public string hairColor;
-        public string eyeColor;
-        public string cheekColor;
-        public string lipColor;
+        public string characterStyle;
     }
 }

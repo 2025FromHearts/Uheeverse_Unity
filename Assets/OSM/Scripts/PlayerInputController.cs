@@ -61,7 +61,7 @@ public class PlayerInputController : MonoBehaviour
 
         // 이동 여부 확인
         bool isMoving = inputDir.sqrMagnitude > 0.01f;
-        animator.SetBool("IsMove", isMoving);
+        animator.SetBool("isMove", isMoving);
 
         // 캐릭터 회전
         if (isMoving)
