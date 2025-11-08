@@ -3,6 +3,11 @@ using UnityEngine.Networking;
 using System.Collections;
 using TMPro;
 using Newtonsoft.Json;
+using FishNet;
+using FishNet.Managing;
+using FishNet.Managing.Scened;
+using UnityEngine.SceneManagement;
+using SceneManager = UnityEngine.SceneManagement.SceneManager;
 
 public class LoginManager : MonoBehaviour
 {
@@ -77,6 +82,7 @@ public class LoginManager : MonoBehaviour
             yield return StartCoroutine(CheckOrCreateInventory());
 
             //UnityEngine.SceneManagement.SceneManager.LoadScene("MyStation");
+            startClientMode();
         }
     }
 
@@ -128,5 +134,26 @@ public class LoginManager : MonoBehaviour
         {
             Debug.Log("Inventory checked or created: " + www.downloadHandler.text);
         }
+    }
+
+    void startClientMode()
+    {
+        NetworkManager networkManager = InstanceFinder.NetworkManager;
+
+        if (networkManager == null)
+        {
+            Debug.LogError("NetworkManager not found!");
+            return;
+        }
+
+
+        networkManager.ClientManager.StartConnection();
+
+        unloadLogin();
+    }
+
+    public void unloadLogin()
+    {
+        SceneManager.UnloadSceneAsync("StartScene");
     }
 }

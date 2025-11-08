@@ -4,13 +4,11 @@ using UnityEngine;
 using FishNet.Connection;
 using FishNet.Object;
 
-//This is made by Bobsi Unity - Youtube
 public class FestivalLoader : NetworkBehaviour
 {
-
     public SceneLoadingManager slm;
 
-    
+
     private void OnTriggerEnter(Collider other)
     {
         if (!IsServer)
@@ -18,7 +16,7 @@ public class FestivalLoader : NetworkBehaviour
             Debug.Log("서버 꺼짐");
             //return;
         }
-        
+
         Debug.Log("트리거감지");
 
         if (other.CompareTag("FestivalLoader"))
@@ -28,6 +26,7 @@ public class FestivalLoader : NetworkBehaviour
                 LoadScene(nob);
             Debug.Log("씬로드 함수 호출");
         }
+        
         
     }
 
@@ -43,6 +42,6 @@ public class FestivalLoader : NetworkBehaviour
 
         slm = SceneLoadingManager.Instance;
 
-        slm.LoadingFestival(SceneType.Festival, "Train", nob.Owner);
+        slm.CreateSessionFromTag(SceneType.Festival, "Train", nob.Owner);
     }
 }

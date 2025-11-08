@@ -614,6 +614,7 @@ GameObject:
   - component: {fileID: -6477780975373972403}
   - component: {fileID: 1009351977011928558}
   - component: {fileID: 2957839109159063799}
+  - component: {fileID: 6438393972505969704}
   m_Layer: 0
   m_Name: CharacterRoot
   m_TagString: Untagged
@@ -654,7 +655,7 @@ Animator:
   m_Controller: {fileID: 9100000, guid: 2aa2d6e40672804479b6350b66be31ff, type: 2}
   m_CullingMode: 1
   m_UpdateMode: 0
-  m_ApplyRootMotion: 0
+  m_ApplyRootMotion: 1
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
   m_AnimatePhysics: 0
@@ -777,6 +778,7 @@ MonoBehaviour:
   NetworkBehaviours:
   - {fileID: 6050041096116007341}
   - {fileID: -6477780975373972403}
+  - {fileID: 6438393972505969704}
   InitializedParentNetworkBehaviour: {fileID: 0}
   InitializedNestedNetworkObjects: []
   RuntimeParentNetworkBehaviour: {fileID: 0}
@@ -892,6 +894,22 @@ MonoBehaviour:
   speed: 5
   udpInput: {x: 0, y: 0}
   isReceiving: 0
+--- !u!114 &6438393972505969704
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3152944092378613979}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ae7b54b272fb14c889482602dc1afd90, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _componentIndexCache: 2
+  _addedNetworkObject: {fileID: -4692530341085556468}
+  _networkObjectCache: {fileID: -4692530341085556468}
+  slm: {fileID: 0}
 --- !u!1 &3333104534235178493
 GameObject:
   m_ObjectHideFlags: 0
