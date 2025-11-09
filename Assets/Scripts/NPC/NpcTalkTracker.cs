@@ -38,25 +38,12 @@ public class NpcTalkTracker : MonoBehaviour
 
         if (IsAllTalked())
         {
-            Debug.Log("🎟️ 모든 NPC와 대화를 완료했습니다! 티켓 발급 가능합니다.");
-            ShowTicket();
+            Debug.Log("🎟️ 모든 NPC와 대화를 완료했습니다! 티켓이 발급되었으니 U폰에서 확인해보세요.");
         }
     }
 
     public bool IsAllTalked()
     {
         return requiredCount > 0 && talkedCount >= requiredCount;
-    }
-
-    void ShowTicket()
-    {
-        if (ticketCanvas != null)
-        {
-            ticketCanvas.SetActive(true); // 캔버스 켜기
-            if (ticketReveal != null)
-            {
-                ticketReveal.Reveal();    // 서서히 나오는 애니메이션 실행
-            }
-        }
     }
 }

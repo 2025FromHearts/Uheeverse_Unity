@@ -1,11 +1,10 @@
-using UnityEngine;
+Ôªøusing UnityEngine;
 using System;
 
 public class PlacementController : MonoBehaviour
 {
     [Header("Refs")]
-    public Camera cam;
-    public PlaceableCatalog catalog;
+    public Camera cam; // Î©îÏù∏ Ïπ¥Î©îÎùº ÏßÄÏ†ï
 
     [Header("Layers & Masks")]
     public LayerMask groundMask;
@@ -24,76 +23,72 @@ public class PlacementController : MonoBehaviour
     public Material ghostValidMat;
     public Material ghostInvalidMat;
 
-    GameObject ghost;
-    PlaceableEntry current;
-    float rotY;
-    bool canPlace;
+    private GameObject ghost;
+    private GameObject currentPrefab;
+    private float rotY;
+    private bool canPlace;
 
-    public struct PlacementResult { public string key; public Vector3 position; public float rotY; }
+    public Action onPlacementComplete;
+
+    // Î∞∞Ïπò Í≤∞Í≥º Îç∞Ïù¥ÌÑ∞ Íµ¨Ï°∞
+    public struct PlacementResult
+    {
+        public string key;
+        public Vector3 position;
+        public float rotY;
+        public Vector3 scale;
+        public GameObject placedObject;
+    }
+
     public event Action<PlacementResult> OnPlaced;
     public event Action OnPreviewCanceled;
 
-    void Reset() { cam = Camera.main; }
-
-    public System.Action onPlacementComplete;
-
-    // BeginPreview - æ∆¿Ã≈€ ≈∞ + ¿ßƒ° ø¿«¡º¬øÎ ∏ﬁº≠µÂ
-    public void BeginPreview(string itemKey, Vector3 positionOffset)
+    void Reset()
     {
-        BeginPreviewInternal(itemKey, Vector3.zero, positionOffset);
+        cam = Camera.main;
     }
 
-    // BeginPreview - ¿ßƒ° ∞Ì¡§ + ø¿«¡º¬øÎ ∏ﬁº≠µÂ (« ø‰ Ω√ ªÁøÎ)
-    public void BeginPreview(string itemKey, Vector3 fixedPos, Vector3 positionOffset)
-    {
-        BeginPreviewInternal(itemKey, fixedPos, positionOffset);
-    }
-
-    // Ω«¡¶ ≥ª∫Œ ±∏«ˆ (∞¯≈Î)
-    private void BeginPreviewInternal(string itemKey, Vector3 fixedPos, Vector3 positionOffset)
+    // ÎØ∏Î¶¨Î≥¥Í∏∞ ÏãúÏûë (Ïπ¥ÌÉàÎ°úÍ∑∏ ÏóÜÏù¥ Resources Ìè¥ÎçîÏóêÏÑú ÏßÅÏ†ë Î°úÎìú)
+    public void BeginPreview(string prefabName, Vector3 fixedPos, Vector3 offset)
     {
         CancelPreview();
 
-        if (!catalog)
+        // ItemModels Ìè¥Îçî Í∏∞Ï§ÄÏúºÎ°ú ÌîÑÎ¶¨Ìåπ Ï∞æÍ∏∞
+        var prefab = Resources.Load<GameObject>("ItemModels/" + prefabName);
+        if (prefab == null)
         {
-            Debug.LogError("[Placement] Catalog not set");
+            Debug.LogError($"[Placement] Prefab not found in Resources/ItemModels: {prefabName}");
             return;
         }
 
-        current = catalog.Find(itemKey);
-        if (current == null || current.prefab == null)
-        {
-            Debug.LogError("[Placement] Prefab not found for key: " + itemKey);
-            return;
-        }
+        currentPrefab = prefab;
+        ghost = Instantiate(prefab);
 
-        ghost = Instantiate(current.prefab);
+        // ÏΩúÎùºÏù¥Îçî ÎπÑÌôúÏÑ±Ìôî (Í≥†Ïä§Ìä∏Îäî Ï∂©Îèå Ïïà Ìï®)
         foreach (var c in ghost.GetComponentsInChildren<Collider>())
-        {
             c.enabled = false;
-        }
 
-        Vector3 basePos = fixedPos + positionOffset;
-        ghost.transform.position = basePos;
+        ghost.transform.position = fixedPos + offset;
+        ghost.transform.rotation = Quaternion.identity;
 
         int ghostLayer = LayerMask.NameToLayer(ghostLayerName);
         if (ghostLayer >= 0)
-        {
             SetLayerRecursively(ghost, ghostLayer);
-        }
 
         ApplyGhostMaterial(ghostInvalidMat);
         rotY = 0f;
     }
 
+    // ÎØ∏Î¶¨Î≥¥Í∏∞ Ï∑®ÏÜå
     public void CancelPreview()
     {
         if (ghost) Destroy(ghost);
         ghost = null;
-        current = null;
+        currentPrefab = null;
         OnPreviewCanceled?.Invoke();
     }
 
+    // Î∞∞Ïπò Í∞±Ïã† Î£®ÌîÑ
     void Update()
     {
         if (!ghost) return;
@@ -107,8 +102,12 @@ public class PlacementController : MonoBehaviour
             ghost.transform.SetPositionAndRotation(pos, Quaternion.Euler(0f, rotY, 0f));
 
             canPlace = !enableOverlapCheck || !Physics.CheckBox(
-                GetBoundsCenter(ghost), GetBoundsExtents(ghost),
-                ghost.transform.rotation, overlapMask, QueryTriggerInteraction.Ignore);
+                GetBoundsCenter(ghost),
+                GetBoundsExtents(ghost),
+                ghost.transform.rotation,
+                overlapMask,
+                QueryTriggerInteraction.Ignore
+            );
 
             ApplyGhostMaterial(canPlace ? ghostValidMat : ghostInvalidMat);
 
@@ -121,28 +120,38 @@ public class PlacementController : MonoBehaviour
             rotY = Mathf.Repeat(rotY + rotationStep, 360f);
             ghost.transform.rotation = Quaternion.Euler(0f, rotY, 0f);
         }
-        if (Input.GetKeyDown(cancelKey)) CancelPreview();
+
+        if (Input.GetKeyDown(cancelKey))
+            CancelPreview();
     }
 
+    // Ïã§Ï†ú Î∞∞Ïπò
     void Place()
     {
-        var go = Instantiate(current.prefab, ghost.transform.position, ghost.transform.rotation);
-        foreach (var c in go.GetComponentsInChildren<Collider>()) c.enabled = true;
+        if (currentPrefab == null) return;
+
+        var go = Instantiate(currentPrefab, ghost.transform.position, ghost.transform.rotation);
+        foreach (var c in go.GetComponentsInChildren<Collider>())
+            c.enabled = true;
 
         int placedLayer = LayerMask.NameToLayer(placedLayerName);
-        if (placedLayer >= 0) SetLayerRecursively(go, placedLayer);
+        if (placedLayer >= 0)
+            SetLayerRecursively(go, placedLayer);
 
         OnPlaced?.Invoke(new PlacementResult
         {
-            key = current.key,
+            key = currentPrefab.name,
             position = go.transform.position,
-            rotY = go.transform.eulerAngles.y
+            rotY = go.transform.eulerAngles.y,
+            scale = go.transform.localScale,
+            placedObject = go
         });
 
         onPlacementComplete?.Invoke();
         CancelPreview();
     }
 
+    // Ïú†Ìã∏Î¶¨Ìã∞
     static Vector3 SnapXZ(Vector3 p, float cell)
     {
         return new Vector3(
@@ -154,25 +163,26 @@ public class PlacementController : MonoBehaviour
 
     Bounds GetWorldBounds(GameObject g)
     {
-        var rs = g.GetComponentsInChildren<Renderer>();
-        if (rs.Length > 0)
+        var renderers = g.GetComponentsInChildren<Renderer>();
+        if (renderers.Length > 0)
         {
-            var b = rs[0].bounds;
-            for (int i = 1; i < rs.Length; i++) b.Encapsulate(rs[i].bounds);
+            var b = renderers[0].bounds;
+            for (int i = 1; i < renderers.Length; i++) b.Encapsulate(renderers[i].bounds);
             return b;
         }
-        var cs = g.GetComponentsInChildren<Collider>();
-        if (cs.Length > 0)
+
+        var colliders = g.GetComponentsInChildren<Collider>();
+        if (colliders.Length > 0)
         {
-            var b = cs[0].bounds;
-            for (int i = 1; i < cs.Length; i++) b.Encapsulate(cs[i].bounds);
+            var b = colliders[0].bounds;
+            for (int i = 1; i < colliders.Length; i++) b.Encapsulate(colliders[i].bounds);
             return b;
         }
+
         return new Bounds(g.transform.position, Vector3.one * 0.5f);
     }
 
     Vector3 GetBoundsCenter(GameObject g) => GetWorldBounds(g).center;
-
     Vector3 GetBoundsExtents(GameObject g) => GetWorldBounds(g).extents * 0.98f;
 
     void ApplyGhostMaterial(Material mat)
@@ -181,7 +191,8 @@ public class PlacementController : MonoBehaviour
         foreach (var r in ghost.GetComponentsInChildren<Renderer>())
         {
             var mats = r.sharedMaterials;
-            for (int i = 0; i < mats.Length; i++) mats[i] = mat;
+            for (int i = 0; i < mats.Length; i++)
+                mats[i] = mat;
             r.sharedMaterials = mats;
         }
     }
@@ -189,6 +200,7 @@ public class PlacementController : MonoBehaviour
     void SetLayerRecursively(GameObject obj, int layer)
     {
         obj.layer = layer;
-        foreach (Transform t in obj.transform) SetLayerRecursively(t.gameObject, layer);
+        foreach (Transform t in obj.transform)
+            SetLayerRecursively(t.gameObject, layer);
     }
 }

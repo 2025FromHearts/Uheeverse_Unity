@@ -9,13 +9,13 @@ public class PlayerInputController : MonoBehaviour
     public float moveSpeed = 5f;
     public bool canMove = true;
 
-    public Transform cameraTransform; // 여기 연결 필요!
-    private Animator animator; //animator 추가
+    public Transform cameraTransform; // 카메라 방향 따라 이동
+    private Animator animator;
     private CharacterController controller;
 
-    private Vector3 velocity;                // 중력 벡터
-    public float gravity = -20f;            // 중력 가속도 (더 빠르게 떨어지게 설정)
-    public float groundCheckDistance = 0.2f; // 지면 감지 거리
+    private Vector3 velocity;
+    public float gravity = -20f;
+    public float groundCheckDistance = 0.2f;
 
     void Awake()
     {
@@ -23,7 +23,7 @@ public class PlayerInputController : MonoBehaviour
         controls.Player.Move.performed += ctx => moveInput = ctx.ReadValue<Vector2>();
         controls.Player.Move.canceled += ctx => moveInput = Vector2.zero;
 
-        animator = GetComponent<Animator>(); // Animator 컴포넌트 할당
+        animator = GetComponent<Animator>();
         controller = GetComponent<CharacterController>();
     }
 
@@ -32,41 +32,60 @@ public class PlayerInputController : MonoBehaviour
 
     void Update()
     {
-        // 카메라 없어도 동작
-        Vector3 fwd = Vector3.forward, right = Vector3.right;
-        if (cameraTransform != null)
+        // ✅ 채팅창 입력 중 or 대화 중일 때 이동 금지
+        if (!canMove)
         {
-            fwd = cameraTransform.forward; fwd.y = 0; fwd.Normalize();
-            right = cameraTransform.right; right.y = 0; right.Normalize();
+            animator.SetBool("IsMove", false);
+            return;
         }
 
-        Vector3 inputDir = (fwd * moveInput.y + right * moveInput.x);
-        if (inputDir.sqrMagnitude > 1e-4f) inputDir.Normalize();
+        // 카메라 기준 전후좌우 방향 계산
+        Vector3 fwd = Vector3.forward;
+        Vector3 right = Vector3.right;
 
+        if (cameraTransform != null)
+        {
+            fwd = cameraTransform.forward;
+            fwd.y = 0;
+            fwd.Normalize();
+
+            right = cameraTransform.right;
+            right.y = 0;
+            right.Normalize();
+        }
+
+        // 입력 방향 벡터 계산
+        Vector3 inputDir = (fwd * moveInput.y + right * moveInput.x);
+        if (inputDir.sqrMagnitude > 1e-4f)
+            inputDir.Normalize();
+
+        // 이동 여부 확인
         bool isMoving = inputDir.sqrMagnitude > 0.01f;
         animator.SetBool("IsMove", isMoving);
+
+        // 캐릭터 회전
         if (isMoving)
         {
             var targetRot = Quaternion.LookRotation(inputDir, Vector3.up);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.deltaTime * 10f);
         }
 
-        // ---- 지면 판정 개선 ----
+        // 지면 감지 및 중력 처리
         bool grounded = controller.isGrounded || GroundCheckSphere();
 
         if (grounded)
-            velocity.y = -2f;     // 살짝 더 강하게 바닥 스냅
+            velocity.y = -2f; // 바닥 스냅
         else
             velocity.y += gravity * Time.deltaTime;
 
+        // 최종 이동 벡터
         Vector3 finalMove = inputDir * moveSpeed + velocity;
         controller.Move(finalMove * Time.deltaTime);
     }
 
-    // 발 위치에서 짧게 SphereCast (CharacterController 치수 기반)
+    // ✅ 발 밑에 SphereCast로 지면 판정
     bool GroundCheckSphere()
     {
-        // CC 발 위치
         float halfH = controller.height * 0.5f;
         float feetOffset = halfH - controller.radius;
         Vector3 feet = transform.position + controller.center + Vector3.down * feetOffset + Vector3.up * 0.05f;
@@ -77,7 +96,7 @@ public class PlayerInputController : MonoBehaviour
         );
     }
 
-    // Raycast로 지면 감지
+    // ✅ Raycast 예비용 (필요 시 사용 가능)
     bool IsGrounded()
     {
         Vector3 rayOrigin = transform.position + Vector3.up * 0.1f;
