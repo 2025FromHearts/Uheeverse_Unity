@@ -15,6 +15,7 @@ public class PlayerController : NetworkBehaviour
     public float lookSpeed = 2.0f;
     public float lookXLimit = 45.0f;
 
+    [SerializeField]
     private Animator animator;
 
     CharacterController characterController;
@@ -27,6 +28,7 @@ public class PlayerController : NetworkBehaviour
     [SerializeField]
     private float cameraYOffset = 10f;
     private Camera playerCamera;
+
 
 
     public override void OnStartClient()
@@ -104,6 +106,7 @@ public class PlayerController : NetworkBehaviour
         }
 
         animator.SetFloat("Velocity", moveDirection.magnitude);
+        Debug.Log("moveDirection: " + moveDirection.magnitude);
 
     }
 
