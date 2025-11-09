@@ -19,6 +19,7 @@ TagManager:
   - ItemBox
   - TrainLoader
   - FestivalLoader
+  - KartGameLoader
   layers:
   - Default
   - TransparentFX
