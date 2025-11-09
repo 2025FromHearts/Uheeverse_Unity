@@ -15,6 +15,8 @@ public class PlayerController : NetworkBehaviour
     public float lookSpeed = 2.0f;
     public float lookXLimit = 45.0f;
 
+    private Animator animator;
+
     CharacterController characterController;
     Vector3 moveDirection = Vector3.zero;
     float rotationX = 0;
@@ -51,6 +53,7 @@ public class PlayerController : NetworkBehaviour
 
     void Start()
     {
+        animator = GetComponent<Animator>();
         characterController = GetComponent<CharacterController>();
 
         // Lock cursor
@@ -99,6 +102,9 @@ public class PlayerController : NetworkBehaviour
             playerCamera.transform.localRotation = Quaternion.Euler(rotationX, 0, 0);
             transform.rotation *= Quaternion.Euler(0, Input.GetAxis("Mouse X") * lookSpeed, 0);
         }
+
+        animator.SetFloat("Velocity", moveDirection.magnitude);
+
     }
 
         public SceneLoadingManager slm;
