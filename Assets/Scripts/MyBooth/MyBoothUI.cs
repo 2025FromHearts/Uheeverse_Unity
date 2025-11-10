@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Collections;
@@ -49,7 +49,7 @@ public class MyBoothUI : MonoBehaviour
         public string map;
         public string item_rotation;
 
-        public Vector3 positionOffset;  // À§Ä¡ º¸Á¤¿ë º¯¼ö Ãß°¡
+        public Vector3 positionOffset;  // ìœ„ì¹˜ ë³´ì •ìš© ë³€ìˆ˜ ì¶”ê°€
     }
 
     [System.Serializable]
@@ -58,6 +58,7 @@ public class MyBoothUI : MonoBehaviour
         public string inventory_id;
         public ItemDataDTO item;
         public int slot_location;
+        public int count = 1; // ë™ì¼ ì•„ì´í…œ ìˆ˜ëŸ‰ í‘œì‹œìš©
     }
 
     [System.Serializable]
@@ -119,20 +120,58 @@ public class MyBoothUI : MonoBehaviour
         }
 
         var wrapper = JsonUtility.FromJson<InventoryWrapper>("{\"Items\":" + www.downloadHandler.text + "}");
+        var rawItems = wrapper?.Items ?? new List<InventoryItem>();
 
-        foreach (Transform c in slotParent) Destroy(c.gameObject);
+        // ë™ì¼í•œ ì•„ì´í…œ ë³‘í•© (item_icon or item_id ê¸°ì¤€)
+        var mergedDict = new Dictionary<string, InventoryItem>();
+        foreach (var inv in rawItems)
+        {
+            if (inv == null || inv.item == null)
+                continue;
+
+            string key = !string.IsNullOrEmpty(inv.item.item_id)
+                ? inv.item.item_id
+                : inv.item.item_icon;
+
+            if (string.IsNullOrEmpty(key))
+                continue;
+
+            if (mergedDict.ContainsKey(key))
+            {
+                mergedDict[key].count += 1;
+            }
+            else
+            {
+                mergedDict[key] = inv;
+                mergedDict[key].count = 1;
+            }
+        }
+
+        _items = new List<InventoryItem>(mergedDict.Values);
+
+        // ìŠ¬ë¡¯ ì´ˆê¸°í™” ë° í˜ì´ì§€ í‘œì‹œ
+        foreach (Transform c in slotParent)
+            Destroy(c.gameObject);
+
         _slotPool.Clear();
-        _items = wrapper?.Items ?? new List<InventoryItem>();
 
-        // ¾ÆÀÌÅÛº° À§Ä¡ ¿ÀÇÁ¼Â ÇÒ´ç (ÇÊ¿ä ½Ã Á¶Á¤)
+        // ìœ„ì¹˜ ë³´ì •ê°’ ì„¤ì • (í•„ìš” ì‹œ ì¡°ì •)
         foreach (var invItem in _items)
         {
-            if (invItem.item.item_name == "Sofa")
-                invItem.item.positionOffset = new Vector3(0f, 0.4f, 0f);
-            else if (invItem.item.item_name == "Table")
-                invItem.item.positionOffset = new Vector3(0f, 0.2f, 0f);
-            else
-                invItem.item.positionOffset = Vector3.zero;
+            if (invItem.item == null) continue;
+
+            switch (invItem.item.item_name)
+            {
+                case "Sofa":
+                    invItem.item.positionOffset = new Vector3(0f, 0.4f, 0f);
+                    break;
+                case "Table":
+                    invItem.item.positionOffset = new Vector3(0f, 0.2f, 0f);
+                    break;
+                default:
+                    invItem.item.positionOffset = Vector3.zero;
+                    break;
+            }
         }
 
         BuildPoolIfNeeded();
@@ -151,8 +190,14 @@ public class MyBoothUI : MonoBehaviour
 
     void BindSlot(GameObject slot, InventoryItem inv)
     {
+        // ì•„ì´í…œ ì´ë¦„ + ìˆ˜ëŸ‰ í‘œì‹œ
         var itemNameTxt = slot.transform.Find("Button/ItemName")?.GetComponent<TMP_Text>();
-        if (itemNameTxt) itemNameTxt.text = inv.item.item_name;
+        if (itemNameTxt)
+        {
+            itemNameTxt.text = inv.count > 1
+                ? $"{inv.item.item_name} x{inv.count}"
+                : inv.item.item_name;
+        }
 
         var iconImg = slot.transform.Find("Button/ItemImage")?.GetComponent<Image>();
         var icon = Resources.Load<Sprite>("Icons/" + inv.item.item_icon);
@@ -213,12 +258,12 @@ public class MyBoothUI : MonoBehaviour
         }
 
         putOnButton.onClick.RemoveAllListeners();
-        putOnButton.GetComponentInChildren<TMP_Text>().text = "¹èÄ¡ÇÏ±â";
+        putOnButton.GetComponentInChildren<TMP_Text>().text = "ë°°ì¹˜í•˜ê¸°";
         putOnButton.onClick.AddListener(() => BeginPlacement(item));
     }
 
-    // ¿øÇÏ´Â À§Ä¡
-    Vector3 fixedPosition = new Vector3(-465f, 127f, 0f);  // ¿øÇÏ´Â ¿ùµå ÁÂÇ¥
+    // ì›í•˜ëŠ” ìœ„ì¹˜
+    Vector3 fixedPosition = new Vector3(-465f, 127f, 0f);
     void BeginPlacement(ItemDataDTO item)
     {
         if (isPlacing) return;
@@ -227,14 +272,14 @@ public class MyBoothUI : MonoBehaviour
 
         if (!placement)
         {
-            Debug.LogWarning("PlacementController ¾øÀ½");
+            Debug.LogWarning("PlacementController ì—†ìŒ");
             isPlacing = false;
             return;
         }
 
         placement.rotateKey = rotateKey;
 
-        // À§Ä¡ º¸Á¤°ªÀ» ³Ñ°ÜÁÖ±â À§ÇØ BeginPreview ¿À¹ö·Îµå Ãß°¡ °¡Á¤
+        // ì¹´íƒˆë¡œê·¸ ì—†ì´ Resources í´ë”ì—ì„œ ì§ì ‘ ë¡œë“œ
         placement.BeginPreview(item.item_icon, fixedPosition, item.positionOffset);
     }
 }
