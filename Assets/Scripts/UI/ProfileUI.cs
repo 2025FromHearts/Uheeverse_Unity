@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 
+//U_Profile과 다름, U_Profile은 UPhone 안의 프로필 스크립트
 public class ProfileUI : MonoBehaviour
 {
     [Header("UI 요소")]
@@ -102,7 +103,7 @@ public class ProfileUI : MonoBehaviour
         }
     }
 
-    // ✅ 서버 응답 구조에 맞게 수정된 클래스
+    // 서버 응답 구조에 맞게 수정된 클래스
     [System.Serializable]
     public class CharacterInfo
     {
@@ -119,7 +120,7 @@ public class ProfileUI : MonoBehaviour
         public string characterStyle;
     }
 
-    // ✅ 수동 새로고침 버튼
+    // 수동 새로고침 버튼
     public void OnRefreshButtonClicked()
     {
         StopAllCoroutines();

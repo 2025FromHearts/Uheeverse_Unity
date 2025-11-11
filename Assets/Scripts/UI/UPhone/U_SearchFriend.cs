@@ -10,7 +10,7 @@ public class U_SearchFriend : MonoBehaviour
 {
     [Header("UI")]
     public TMP_InputField searchInput;      // 닉네임 입력칸
-    public Transform resultsParent;         // 결과 패널 (Vertical Layout Group 붙은 Content)
+    public Transform resultsParent;         // 결과 패널 (Vertical Layout Group)
     public GameObject resultPrefab;         // 결과 프리팹 (FriendResultUI 붙어있음)
 
     private string baseUrl = ServerConfig.baseUrl;
@@ -19,13 +19,13 @@ public class U_SearchFriend : MonoBehaviour
     [System.Serializable]
     public class CharacterResult
     {
-        public string character_id;     // ✅ UI에는 안 쓰지만, DB 저장에 필요
-        public string character_name;   // ✅ 닉네임만 UI에 표시
+        public string character_id;     // 서버 DB의 캐릭터 ID
+        public string character_name;   // 캐릭터 닉네임
+        public string character_style;  // 캐릭터 스타일명
     }
 
     void Start()
     {
-        // 글자 입력할 때마다 검색 실행 (디바운스 방식)
         searchInput.onValueChanged.AddListener(OnSearchInputChanged);
     }
 
@@ -34,7 +34,6 @@ public class U_SearchFriend : MonoBehaviour
         if (searchCoroutine != null)
             StopCoroutine(searchCoroutine);
 
-        // 입력 멈춘 후 0.3초 뒤 검색 실행
         searchCoroutine = StartCoroutine(DebouncedSearch(query));
     }
 
@@ -48,7 +47,7 @@ public class U_SearchFriend : MonoBehaviour
 
     IEnumerator SearchFriends(string query)
     {
-        string token = PlayerPrefs.GetString("access_token");
+        string token = PlayerPrefs.GetString("access_token", "");
 
         if (string.IsNullOrEmpty(token))
         {
@@ -70,18 +69,19 @@ public class U_SearchFriend : MonoBehaviour
 
         // 기존 결과 삭제
         foreach (Transform child in resultsParent)
-        {
             Destroy(child.gameObject);
-        }
 
-        // 응답 파싱
+        // JSON 파싱
         List<CharacterResult> results = JsonConvert.DeserializeObject<List<CharacterResult>>(www.downloadHandler.text);
 
         foreach (var c in results)
         {
             GameObject obj = Instantiate(resultPrefab, resultsParent);
             FriendResultUI ui = obj.GetComponent<FriendResultUI>();
-            if (ui) ui.SetData(c, this);  // ✅ this(U_SearchFriend)도 같이 넘겨줌
+            if (ui)
+            {
+                ui.SetData(c, this);
+            }
         }
     }
 
