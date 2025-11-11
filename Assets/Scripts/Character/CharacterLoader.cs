@@ -1,83 +1,51 @@
 ﻿using UnityEngine;
-using UnityEngine.Networking;
-using UnityEngine.SceneManagement;
 using System.Collections;
 
 public class CharacterLoader : MonoBehaviour
 {
-    public ColorChanger hairChanger, eyeChanger, cheekChanger, lipChanger;
-    public string characterCreateSceneName = "CreateCharacter"; // 씬 이름 확인 필수
+    [Header("CharacterRoot 하위에 등록된 캐릭터 프리팹들")]
+    public GameObject[] characterPrefabs;
 
-    void Start()
+    IEnumerator Start()
     {
-        string token = PlayerPrefs.GetString("access_token", "");
-        if (!string.IsNullOrEmpty(token))
+        yield return null;
+
+        // PlayerPrefs에서 서버에서 저장된 캐릭터 스타일 이름 불러오기
+        string savedStyle = PlayerPrefs.GetString("character_style", "");
+        Debug.Log($"🎨 저장된 캐릭터 스타일: {savedStyle}");
+
+        PlayerInputController inputController = GetComponent<PlayerInputController>();
+        GameObject activeCharacter = null;
+
+        // 모든 캐릭터 프리팹 비활성화
+        foreach (var prefab in characterPrefabs)
+            prefab.SetActive(false);
+
+        // 저장된 스타일 이름과 일치하는 프리팹만 활성화
+        foreach (var prefab in characterPrefabs)
         {
-            StartCoroutine(LoadCharacter(token));
+            if (prefab.name.Equals(savedStyle, System.StringComparison.OrdinalIgnoreCase))
+            {
+                prefab.SetActive(true);
+                activeCharacter = prefab;
+                Debug.Log($"✅ '{prefab.name}' 프리팹 활성화 (PlayerPrefs 기준)");
+                break;
+            }
         }
-        else
+
+        // PlayerPrefs 값이 비었거나 매칭 안 됐을 경우 기본값 사용
+        if (activeCharacter == null && characterPrefabs.Length > 0)
         {
-            Debug.LogWarning("❌ 토큰 없음: 로그인 필요");
+            activeCharacter = characterPrefabs[0];
+            activeCharacter.SetActive(true);
+            Debug.LogWarning($"⚠️ '{savedStyle}' 프리팹을 찾지 못해 기본값 '{activeCharacter.name}' 사용");
         }
-    }
 
-    IEnumerator LoadCharacter(string token)
-    {
-        using (UnityWebRequest request = UnityWebRequest.Get(ServerConfig.baseUrl + "/users/get_my_character/"))
+        // PlayerInputController 연결
+        if (inputController != null && activeCharacter != null)
         {
-            request.SetRequestHeader("Authorization", "Bearer " + token);
-
-            yield return request.SendWebRequest();
-
-            // 1. 네트워크 오류 처리 (404 포함)
-            if (request.result != UnityWebRequest.Result.Success)
-            {
-                Debug.LogError($"❌ 오류: {request.error} (Status: {request.responseCode})");
-
-                // 404인 경우 캐릭터 생성 씬으로 이동
-                if (request.responseCode == 404)
-                {
-                    Debug.Log("캐릭터 없음 → 생성 씬 이동");
-                    SceneManager.LoadScene(characterCreateSceneName);
-                }
-                yield break;
-            }
-
-            // 2. JSON 파싱
-            string json = request.downloadHandler.text;
-            Debug.Log("Raw JSON: " + json);
-            CharacterWrapper data = JsonUtility.FromJson<CharacterWrapper>(json);
-
-            // 3. 데이터 유효성 검사
-            if (data == null || string.IsNullOrEmpty(data.character_id))
-            {
-                Debug.Log("캐릭터 없음 → 생성 씬 이동");
-                SceneManager.LoadScene(characterCreateSceneName);
-                yield break;
-            }
-
-            // 4. 정상 데이터 처리
-            if (CharacterManager.Instance == null)
-            {
-                new GameObject("CharacterManager").AddComponent<CharacterManager>();
-            }
-
-            CharacterManager.Instance.characterStatus = data.character_status;
-            CharacterManager.Instance.character_id = data.character_id;
-
-            // 5. UI 업데이트
-            if (hairChanger != null) hairChanger.SetColorFromHex(data.character_status.hairColor);
-            if (eyeChanger != null) eyeChanger.SetColorFromHex(data.character_status.eyeColor);
-            if (cheekChanger != null) cheekChanger.SetColorFromHex(data.character_status.cheekColor);
-            if (lipChanger != null) lipChanger.SetColorFromHex(data.character_status.lipColor);
+            inputController.SetActiveCharacter(activeCharacter);
+            Debug.Log($"🎬 PlayerInputController에 '{activeCharacter.name}' AnimHandler 연결 완료");
         }
-    }
-
-    // 서버 응답 구조
-    [System.Serializable]
-    public class CharacterWrapper
-    {
-        public string character_id;
-        public CharacterStatus character_status;
     }
 }

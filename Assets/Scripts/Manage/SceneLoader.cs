@@ -1,11 +1,10 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Networking;
 using System.Collections;
 
 public class SceneLoader : MonoBehaviour
 {
-    // ±âÁ¸ ¸Ş¼­µåµé
     public void LoadSceneByName(string sceneName)
     {
         SceneManager.LoadScene(sceneName);
@@ -24,13 +23,12 @@ public class SceneLoader : MonoBehaviour
     public void QuitGame()
     {
         Application.Quit();
-        Debug.Log("°ÔÀÓ Á¾·á");
+        Debug.Log("ê²Œì„ ì¢…ë£Œ");
     }
 
-    // Ãß°¡: Ä³¸¯ÅÍ À¯¹«¿¡ µû¶ó ºĞ±â ÀÌµ¿
-    public string getCharacterUrl = ServerConfig.baseUrl + "/users/get_my_character/";
-    public string characterCreateSceneName = "CreateCharacter"; // ½ÇÁ¦ ¾À ÀÌ¸§¿¡ ¸Â°Ô ¼öÁ¤
-    public string myStationSceneName = "MyStation";             // ½ÇÁ¦ ¾À ÀÌ¸§¿¡ ¸Â°Ô ¼öÁ¤
+    private string getCharacterUrl;
+    private string characterCreateSceneName = "CreateCharacter"; 
+    private string myStationSceneName = "MyStation";  
 
     public void LoadSceneByCharacterCheck()
     {
@@ -40,6 +38,8 @@ public class SceneLoader : MonoBehaviour
     private IEnumerator CheckCharacterAndLoadScene()
     {
         string token = PlayerPrefs.GetString("access_token", "");
+        getCharacterUrl = ServerConfig.baseUrl + "/users/get_my_character/";
+
         UnityWebRequest request = UnityWebRequest.Get(getCharacterUrl);
         request.SetRequestHeader("Authorization", "Bearer " + token);
 
@@ -47,24 +47,29 @@ public class SceneLoader : MonoBehaviour
 
         if (request.result == UnityWebRequest.Result.Success)
         {
-            Debug.Log("Ä³¸¯ÅÍ Á¶È¸ ÀÀ´ä: " + request.downloadHandler.text);
+            Debug.Log("âœ… ìºë¦­í„° ì¡°íšŒ ê²°ê³¼: " + request.downloadHandler.text);
+
             CharacterResponse res = JsonUtility.FromJson<CharacterResponse>(request.downloadHandler.text);
 
-            if (string.IsNullOrEmpty(res.character_id))
+            if (res == null || string.IsNullOrEmpty(res.character_id))
             {
-                // Ä³¸¯ÅÍ ¾øÀ½ ¡æ Ä³¸¯ÅÍ »ı¼º ¾ÀÀ¸·Î
-                SceneManager.LoadScene(characterCreateSceneName);
+                // ìºë¦­í„° ì—†ìŒ â†’ ìºë¦­í„° ìƒì„± ì”¬ìœ¼ë¡œ ì´ë™
+                LoadSceneByName(characterCreateSceneName);
             }
             else
             {
-                // Ä³¸¯ÅÍ ÀÖÀ½ ¡æ MyStation ¾ÀÀ¸·Î
-                SceneManager.LoadScene(myStationSceneName);
+                // ìºë¦­í„° ìˆìŒ â†’ ì •ë³´ ì €ì¥ í›„ MyStationìœ¼ë¡œ ì´ë™
+                PlayerPrefs.SetString("character_id", res.character_id);
+                PlayerPrefs.SetString("character_name", res.characterName);
+                PlayerPrefs.SetString("character_style", res.characterStyle);
+                PlayerPrefs.Save();
+
+                LoadSceneByName(myStationSceneName);
             }
         }
         else
         {
-            Debug.LogError("Ä³¸¯ÅÍ Á¤º¸ Á¶È¸ ½ÇÆĞ: " + request.error);
-            // ÇÊ¿äÇÏ´Ù¸é ¿¡·¯ ¾È³» UI µî Ã³¸®
+            Debug.LogError($"âŒ ìºë¦­í„° ì •ë³´ ì¡°íšŒ ì‹¤íŒ¨: {request.error}\nì‘ë‹µ: {request.downloadHandler.text}");
         }
     }
 
@@ -72,6 +77,7 @@ public class SceneLoader : MonoBehaviour
     public class CharacterResponse
     {
         public string character_id;
-        // ÇÊ¿äÇÏ´Ù¸é Ãß°¡ ÇÊµå ¼±¾ğ
+        public string characterName;
+        public string characterStyle;
     }
 }

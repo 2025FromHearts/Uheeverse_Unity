@@ -1,4 +1,6 @@
 ﻿using UnityEngine;
+using TMPro;
+using System.Collections;
 
 public class NpcTalkTracker : MonoBehaviour
 {
@@ -7,9 +9,10 @@ public class NpcTalkTracker : MonoBehaviour
     private int talkedCount = 0;
     public int requiredCount = 0;
 
-    [Header("티켓 관련")]
-    public GameObject ticketCanvas;       // 티켓 담는 캔버스 (Inspector 연결)
-    public TicketReveal ticketReveal;     // 애니메이션 스크립트
+    [Header("UI 연결")]
+    public GameObject notificationObject;      // 알림 텍스트 오브젝트
+    public TextMeshProUGUI notificationText;   // 실제 텍스트 컴포넌트
+    public float messageDuration = 3f;         // 몇 초 동안 보일지
 
     void Awake()
     {
@@ -23,8 +26,10 @@ public class NpcTalkTracker : MonoBehaviour
             Destroy(gameObject);
         }
 
-        if (ticketCanvas != null) ticketCanvas.SetActive(false); // 처음엔 꺼둠
+        if (notificationObject != null)
+            notificationObject.SetActive(false);
     }
+
     public void SetRequiredCount(int count)
     {
         requiredCount = count;
@@ -39,11 +44,31 @@ public class NpcTalkTracker : MonoBehaviour
         if (IsAllTalked())
         {
             Debug.Log("🎟️ 모든 NPC와 대화를 완료했습니다! 티켓이 발급되었으니 U폰에서 확인해보세요.");
+            ShowNotification("축제 체험을 완료했습니다! 티켓이 발급되었으니 U폰에서 확인해보세요.");
         }
     }
 
     public bool IsAllTalked()
     {
         return requiredCount > 0 && talkedCount >= requiredCount;
+    }
+
+    private void ShowNotification(string message)
+    {
+        if (notificationText == null || notificationObject == null)
+        {
+            Debug.LogWarning("⚠️ 알림 UI가 연결되지 않았습니다.");
+            return;
+        }
+
+        notificationText.text = message;
+        notificationObject.SetActive(true);
+        StartCoroutine(HideAfterDelay());
+    }
+
+    private IEnumerator HideAfterDelay()
+    {
+        yield return new WaitForSeconds(messageDuration);
+        notificationObject.SetActive(false);
     }
 }
