@@ -15,7 +15,7 @@ public class CountdownUI : MonoBehaviour
     IEnumerator CountdownRoutine()
     {
         KartController kartController = FindAnyObjectByType<KartController>();
-        kartController.enabled = false;
+        //kartController.enabled = false;
 
         string[] countdowns = { "3", "2", "1", "Go!" };
 

@@ -25,10 +25,18 @@ public class ScenePlayerSpawner : NetworkBehaviour
 
         if (KartList.Count == 0)
         {
-            NetworkObject obj = NetworkManager.GetPooledInstantiated(playerPrefab, asServer: true);
+            Vector3 spawnPos = new Vector3(7.8f, 15f, -45f);
+            //NetworkObject obj = NetworkManager.GetPooledInstantiated(playerPrefab, asServer: true);
+            NetworkObject obj = Instantiate(playerPrefab, spawnPos, Quaternion.identity);
             Spawn(obj, connection, gameObject.scene);
         }
-        
+        else if (KartList.Count == 1)
+        {
+            Vector3 spawnPos = new Vector3(3f, 15f, -45f);
+            //NetworkObject obj = NetworkManager.GetPooledInstantiated(playerPrefab, asServer: true);
+            NetworkObject obj = Instantiate(playerPrefab, spawnPos, Quaternion.identity);
+            Spawn(obj, connection, gameObject.scene);
+        }
 
         KartController kartController = FindAnyObjectByType<KartController>();
         kartController.enabled = false;
