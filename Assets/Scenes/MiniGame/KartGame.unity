@@ -2653,6 +2653,52 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 327579302}
   m_CullTransparentMesh: 1
+--- !u!1 &358871272
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 358871274}
+  - component: {fileID: 358871273}
+  m_Layer: 0
+  m_Name: UIStarter
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &358871273
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 358871272}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b55bad5017d7147c7bb973a196367637, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  kmg: {fileID: 0}
+  uiroot: {fileID: 1680860412}
+--- !u!4 &358871274
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 358871272}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.33165032, y: 10.629169, z: -6.154149}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &397035452 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 969946965949871908, guid: 32d5690c9db90e740bddd052e48efc2e, type: 3}
@@ -8432,7 +8478,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1375141005
 RectTransform:
   m_ObjectHideFlags: 0
@@ -10813,7 +10859,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1680860413
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12579,6 +12625,7 @@ MonoBehaviour:
   _addedNetworkObject: {fileID: 1974815564}
   _networkObjectCache: {fileID: 0}
   playerPrefab: {fileID: -2104458409001886395, guid: 68c90efe7ca748d48a44a1c56e8319ae, type: 3}
+  kmg: {fileID: 0}
 --- !u!4 &1974815566
 Transform:
   m_ObjectHideFlags: 0
@@ -14777,3 +14824,4 @@ SceneRoots:
   - {fileID: 1148214273}
   - {fileID: 715424478}
   - {fileID: 1974815566}
+  - {fileID: 358871274}

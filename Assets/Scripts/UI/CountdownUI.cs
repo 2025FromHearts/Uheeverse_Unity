@@ -5,7 +5,7 @@ using UnityEngine;
 public class CountdownUI : MonoBehaviour
 {
     public TextMeshProUGUI countdownText;
-    public KartController kartController; // ÂüÁ¶ ¿¬°á ÇÊ¿ä
+    public KartController kartController; // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ê¿ï¿½
 
     private void Start()
     {
@@ -14,6 +14,7 @@ public class CountdownUI : MonoBehaviour
 
     IEnumerator CountdownRoutine()
     {
+        KartController kartController = FindAnyObjectByType<KartController>();
         kartController.enabled = false;
 
         string[] countdowns = { "3", "2", "1", "Go!" };

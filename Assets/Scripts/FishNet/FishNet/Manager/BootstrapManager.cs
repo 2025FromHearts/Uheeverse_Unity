@@ -50,7 +50,7 @@ public class BootstrapManager : NetworkBehaviour
         Debug.Log($"OnClientAuthenticated: ClientId={conn.ClientId}, authenticated={authenticated}");
         if (authenticated) // 인증 성공한 경우만
         {
-            Debug.Log($"클라이언트 {conn.ClientId} 인증 완료 - 로그인 씬으로 이동 시작");
+            Debug.Log($"클라이언트 {conn.ClientId} 인증 완료 - 마이스테이션으로 이동 시작");
 
             // 잠시 지연 후 로그인 씬으로 이동
             StartCoroutine(DelayedLoginSceneLoad(conn));

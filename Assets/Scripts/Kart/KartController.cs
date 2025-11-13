@@ -7,6 +7,7 @@ using UnityEngine;
 
 public class KartController : NetworkBehaviour
 {
+    public KartGameManager kgm;
     public override void OnStartClient()
     {
         base.OnStartClient();
@@ -218,7 +219,7 @@ public class KartController : NetworkBehaviour
             rb.MoveRotation(rb.rotation * turnOffset);
         }
 
-        Debug.Log($"[Kart] motor: {motor}, speedMultiplier: {speedMultiplier}, velocity: {rb.linearVelocity.magnitude}");
+        //Debug.Log($"[Kart] motor: {motor}, speedMultiplier: {speedMultiplier}, velocity: {rb.linearVelocity.magnitude}");
 
         // 바퀴 메쉬 회전 적용
         UpdateWheelPose(frontLeft, meshFL, "FL");

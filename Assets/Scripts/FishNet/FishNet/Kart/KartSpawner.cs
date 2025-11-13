@@ -9,13 +9,15 @@ public class KartSpawner : NetworkBehaviour
 
     public static KartSpawner Instance { get; private set; }
 
-        void Awake()
+    public KartGameManager kmg;
+
+    void Awake()
     {
 
         if (Instance == null)
         {
-            Instance = this; // ¾À ÀüÈ¯ ½Ã¿¡µµ À¯Áö
-            Debug.Log("KartSpawner ÀÎ½ºÅÏ½ºÈ­ ¿Ï·á");
+            Instance = this;
+            Debug.Log("KartSpawner ï¿½Î½ï¿½ï¿½Ï½ï¿½È­ ï¿½Ï·ï¿½");
         }
         else
         {
@@ -23,6 +25,8 @@ public class KartSpawner : NetworkBehaviour
             return;
         }
     }
+    
+    
 
     // The Server attribute here prevents this method from being called except on the server.
     [Server]
@@ -50,6 +54,9 @@ public class KartSpawner : NetworkBehaviour
 
             NetworkObject obj = NetworkManager.GetPooledInstantiated(playerPrefab, asServer: true);
             Spawn(obj, client, gameObject.scene);
+
+            kmg.Client_add(Owner.ClientId);
+            Debug.Log("í´ë¼ì´ì–¸íŠ¸ ì¶”ê°€ ì‹¤í–‰");
         }
     }
 }

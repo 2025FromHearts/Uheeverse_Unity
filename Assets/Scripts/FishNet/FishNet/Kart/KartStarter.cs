@@ -7,7 +7,8 @@ public class KartStarter : MonoBehaviour
     void Awake() 
     {
 
-        Debug.Log("Ä«Æ® ½ºÅ¸ÅÍ ½ÃÀÛ");
+        Debug.Log("ì¹´íŠ¸ ìŠ¤í° ì‹œì‘");
+        Debug.Log($"ì˜¤ë¸Œì íŠ¸ëª…: {gameObject.name}");
         ks = KartSpawner.Instance;
 
         ks.SpawnPlayers();

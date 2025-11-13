@@ -106,7 +106,7 @@ public class PlayerController : NetworkBehaviour
         }
 
         animator.SetFloat("Velocity", moveDirection.magnitude);
-        Debug.Log("moveDirection: " + moveDirection.magnitude);
+        //Debug.Log("moveDirection: " + moveDirection.magnitude);
 
     }
 
