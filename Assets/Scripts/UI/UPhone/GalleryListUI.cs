@@ -16,7 +16,7 @@ public class GalleryListUI : MonoBehaviour
 
     private Texture2D loadedTexture;
     private string photoUrl;
-    private string galleryId; // ✅ 추가
+    private string galleryId; 
 
     private void Awake()
     {
@@ -25,13 +25,11 @@ public class GalleryListUI : MonoBehaviour
             galleryViewer = FindObjectOfType<U_GalleryViewer>(true);
     }
 
-    /// <summary>
     /// 갤러리 리스트 항목에 데이터 설정
-    /// </summary>
     public void SetData(string imageUrl, string uploadedAt, string id)
     {
         photoUrl = imageUrl;
-        galleryId = id; // ✅ 저장
+        galleryId = id;
         dateText.text = FormatDate(uploadedAt);
 
         // 클릭 이벤트 등록
@@ -42,13 +40,10 @@ public class GalleryListUI : MonoBehaviour
             btn.onClick.AddListener(OnPhotoClick);
         }
 
-        // ✅ 바로 이미지 로드 시작
         StartCoroutine(LoadImage(photoUrl));
     }
 
-    /// <summary>
     /// ISO 날짜 문자열을 yyyy.MM.dd 형식으로 변환
-    /// </summary>
     private string FormatDate(string isoDate)
     {
         if (DateTime.TryParse(isoDate, out DateTime parsed))
@@ -56,9 +51,7 @@ public class GalleryListUI : MonoBehaviour
         return "-";
     }
 
-    /// <summary>
     /// 이미지 로드
-    /// </summary>
     private IEnumerator LoadImage(string url)
     {
         if (string.IsNullOrEmpty(url))
@@ -84,9 +77,7 @@ public class GalleryListUI : MonoBehaviour
         }
     }
 
-    /// <summary>
     /// 썸네일 클릭 시 전체 보기 호출
-    /// </summary>
     private void OnPhotoClick()
     {
         if (galleryViewer == null)
@@ -101,7 +92,7 @@ public class GalleryListUI : MonoBehaviour
             return;
         }
 
-        // ✅ galleryId 포함해서 전달
+        // galleryId 포함해서 전달
         galleryViewer.ShowPhoto(
             loadedTexture,
             dateText != null ? dateText.text : "",
