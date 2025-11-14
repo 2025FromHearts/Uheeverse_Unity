@@ -38,8 +38,8 @@ public class ScenePlayerSpawner : NetworkBehaviour
             Spawn(obj, connection, gameObject.scene);
         }
 
-        KartController kartController = FindAnyObjectByType<KartController>();
-        kartController.enabled = false;
+        // KartController kartController = FindAnyObjectByType<KartController>();
+        // kartController.enabled = false;
 
         kmg = KartGameManager.Instance;
         kmg.Client_add(connection.ClientId);
