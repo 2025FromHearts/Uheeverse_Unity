@@ -42,6 +42,7 @@ public class ScenePlayerSpawner : NetworkBehaviour
         // kartController.enabled = false;
 
         kmg = KartGameManager.Instance;
+        kmg.rpcKartDisable();
         kmg.Client_add(connection.ClientId);
         Debug.Log("클라이언트 추가 실행");
     }

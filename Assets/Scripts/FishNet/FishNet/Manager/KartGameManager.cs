@@ -66,7 +66,7 @@ public class KartGameManager : NetworkBehaviour
     }
 
 
-    [ObserversRpc]
+    [ObserversRpc(ExcludeServer = false)]
     public void RpcCountdownStart()
     {
         Debug.Log("rpc 실행됨");
@@ -88,5 +88,19 @@ public class KartGameManager : NetworkBehaviour
 
         //countdownUI.gameObject.SetActive(true);
         //kartSpawner.gameObject.SetActive(true);
+    }
+
+    [ObserversRpc(ExcludeServer = false)]
+    public void rpcKartEnable()
+    {
+        KartController kartController = FindAnyObjectByType<KartController>();
+        kartController.enabled = true;
+    }
+
+    [ObserversRpc(ExcludeServer = false)]
+    public void rpcKartDisable()
+    {
+        KartController kartController = FindAnyObjectByType<KartController>();
+        kartController.enabled = false;
     }
 }

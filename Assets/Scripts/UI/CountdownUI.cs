@@ -7,6 +7,8 @@ public class CountdownUI : MonoBehaviour
     public TextMeshProUGUI countdownText;
     public KartController kartController; // ���� ���� �ʿ�
 
+    public KartGameManager kmg;
+
     private void Start()
     {
         StartCoroutine(CountdownRoutine());
@@ -14,7 +16,10 @@ public class CountdownUI : MonoBehaviour
 
     IEnumerator CountdownRoutine()
     {
+        kmg = KartGameManager.Instance;
+
         KartController kartController = FindAnyObjectByType<KartController>();
+        kmg.rpcKartDisable();
         //kartController.enabled = false;
 
         string[] countdowns = { "3", "2", "1", "Go!" };
@@ -25,7 +30,10 @@ public class CountdownUI : MonoBehaviour
             yield return new WaitForSeconds(1f);
         }
 
+        
+
         countdownText.gameObject.SetActive(false);
-        kartController.enabled = true;
+        kmg.rpcKartEnable();
+        //kartController.enabled = true;
     }
 }
