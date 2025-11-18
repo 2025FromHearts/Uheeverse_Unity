@@ -14,27 +14,46 @@ public class KartStart : NetworkBehaviour
 
     private void Awake()
     {
-        // Debug.Log("카트 start awake진입");
+        Debug.Log("카트 start awake진입");
         // server_rpc_kart();
     }
 
     public override void OnStartClient()
     {
-        
         kgm = KartGameManager.Instance;
         base.OnStartClient();
 
-        if(IsOwner)
+        conn = LocalConnection;
+        Debug.Log($"[내 정보] ClientId: {conn.ClientId}, OwnerId: {this.OwnerId}, IsOwner: {IsOwner}");
+
+        if(OwnerId == conn.ClientId)
         {
-
-            conn = LocalConnection;
-
-            
+            Debug.Log("IsOwner 성공!");
             LocalInstance = this;
-            Debug.Log("OnStartClient - ServerRpc 호출");
             server_rpc_kart_dis();
             kgm.Client_add(conn);
         }
+        else
+        {
+            Debug.Log($"IsOwner 실패! 내 ClientId: {conn.ClientId}, 오브젝트 OwnerId: {this.OwnerId}");
+        } 
+        // kgm = KartGameManager.Instance;
+        // base.OnStartClient();
+
+        // conn = LocalConnection;
+        // Debug.Log($"{conn.ClientId}");
+
+        // Debug.Log("OnstartClient 활성화");
+
+        // if(IsOwner)
+        // {
+
+        //     // conn = LocalConnection;
+        //     LocalInstance = this;
+        //     Debug.Log("OnStartClient - ServerRpc 호출");
+        //     server_rpc_kart_dis();
+        //     kgm.Client_add(conn);
+        // }
     }
 
 

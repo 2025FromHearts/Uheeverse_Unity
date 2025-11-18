@@ -37,10 +37,12 @@ public class ScenePlayerSpawner : NetworkBehaviour
         }
         else if (KartList.Count == 1)
         {
+            Debug.Log($"{connection.ClientId}");
             Vector3 spawnPos = new Vector3(3f, 15f, -45f);
             //NetworkObject obj = NetworkManager.GetPooledInstantiated(playerPrefab, asServer: true);
             NetworkObject obj = Instantiate(playerPrefab, spawnPos, Quaternion.identity);
             Spawn(obj, connection, gameObject.scene);
+            Debug.Log($"Spawn 완료 - OwnerId: {obj.OwnerId}, ClientId: {connection.ClientId}");
             Debug.Log("두번째 클라이언트 스폰");
 
             //kmg = KartGameManager.Instance;
@@ -48,6 +50,5 @@ public class ScenePlayerSpawner : NetworkBehaviour
             //kmg.Client_add(connection);
             //Debug.Log("클라이언트 추가 실행");
         }
-
     }
 }
