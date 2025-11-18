@@ -57,14 +57,17 @@ public class KartStart : NetworkBehaviour
     }
 
 
-    [ServerRpc]
+    [ServerRpc(RequireOwnership =false)]
     public void server_rpc_kart_dis()
     {
-        if(!IsOwner)
-        {
-            return;
-        }
         Debug.Log("server_rpc_kart_dis 진입");
+
+        if (!IsOwner)
+        {
+            Debug.Log("오너 아님");
+            //return;
+        }
+        
         // kgm = KartGameManager.Instance;
 
         // kgm.serverKartDisable();
