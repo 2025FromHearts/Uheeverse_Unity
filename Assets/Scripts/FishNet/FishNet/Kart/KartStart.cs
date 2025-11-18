@@ -29,7 +29,7 @@ public class KartStart : NetworkBehaviour
         if(OwnerId == conn.ClientId)
         {
             Debug.Log("IsOwner 성공!");
-            LocalInstance = this;
+            Instance = this;
             server_rpc_kart_dis();
             kgm.Client_add(conn);
         }
