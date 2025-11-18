@@ -36,6 +36,7 @@ public class KartGameManager : NetworkBehaviour
         }
     }
 
+    [ServerRpc(RequireOwnership = false)]
     public void Client_add(NetworkConnection conn)
     {
 
@@ -43,6 +44,7 @@ public class KartGameManager : NetworkBehaviour
         {
             Kart_Client.Add(conn.ClientId);
             Debug.Log("클라이언트 추가 완료");
+            Debug.Log(Kart_Client.Count);
         }
 
         if (Kart_Client.Count == 2)
@@ -57,7 +59,7 @@ public class KartGameManager : NetworkBehaviour
         }
     }
 
-    [ServerRpc(RequireOwnership =false)]
+    [ObserversRpc]
     public void countClient(NetworkConnection conn)
     {
             Debug.Log("게임 시작");
@@ -65,7 +67,7 @@ public class KartGameManager : NetworkBehaviour
     }
 
 
-    [ObserversRpc]
+    [ServerRpc(RequireOwnership = false)]
     public void RpcCountdownStart(NetworkConnection conn)
     {
         Debug.Log("rpc 실행됨");
@@ -100,7 +102,7 @@ public class KartGameManager : NetworkBehaviour
     }
 
 
-    [Server]
+    [ServerRpc(RequireOwnership = false)]
     public void serverKartDisable()
     {
         Debug.Log("ServerKartDisable 진입");

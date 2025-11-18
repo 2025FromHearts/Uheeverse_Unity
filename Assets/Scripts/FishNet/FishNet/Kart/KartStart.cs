@@ -8,7 +8,7 @@ using System.Xml.Serialization;
 public class KartStart : NetworkBehaviour
 {
     public KartGameManager kgm;
-    public static KartStart LocalInstance { get; private set; }
+    public static KartStart Instance { get; private set; }
     private KartController kart;
     private NetworkConnection conn;
 
@@ -91,7 +91,7 @@ public class KartStart : NetworkBehaviour
         
     }
 
-    [ServerRpc]
+    [ServerRpc(RequireOwnership =false)]
     public void server_rpc_kart_en()
     {
         Debug.Log("server_rpc_kart_en 진입");

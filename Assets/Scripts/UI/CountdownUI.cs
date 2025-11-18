@@ -26,12 +26,12 @@ public class CountdownUI : MonoBehaviour
         
         kmg = KartGameManager.Instance;
 
-        KartStart mykart = KartStart.LocalInstance;
+        ks = KartStart.Instance;
 
         Debug.Log($"kmg isSpawned 확인{kmg.IsSpawned}");
 
-        mykart.server_rpc_kart_dis();
-        Debug.Log("카트 비활성화");
+        //ks.server_rpc_kart_dis();
+        //Debug.Log("카트 비활성화");
 
         string[] countdowns = { "3", "2", "1", "Go!" };
 
@@ -42,7 +42,7 @@ public class CountdownUI : MonoBehaviour
         }
 
         countdownText.gameObject.SetActive(false);
-        mykart.server_rpc_kart_en();
+        ks.server_rpc_kart_en();
         Debug.Log($"{conn.ClientId} 카트 활성화");
         //kartController.enabled = true;
     }
