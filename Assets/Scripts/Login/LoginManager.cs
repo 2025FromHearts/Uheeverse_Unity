@@ -74,9 +74,7 @@ public class LoginManager : MonoBehaviour
             Debug.Log("Login success! Access Token: " + accessToken);
 
             yield return StartCoroutine(GetUserInfo());
-            yield return StartCoroutine(CheckOrCreateInventory());
-
-            UnityEngine.SceneManagement.SceneManager.LoadScene("MyStation");
+            FindObjectOfType<SceneLoader>().LoadSceneByCharacterCheck();
         }
     }
 
@@ -110,23 +108,5 @@ public class LoginManager : MonoBehaviour
         }
     }
 
-    IEnumerator CheckOrCreateInventory()
-    {
-        string url = ServerConfig.baseUrl + "/item/inventory/init/" + characterId + "/";
-        Debug.Log("Calling URL: " + url);
 
-        UnityWebRequest www = UnityWebRequest.Get(url);
-        www.SetRequestHeader("Authorization", "Bearer " + accessToken);
-
-        yield return www.SendWebRequest();
-
-        if (www.result != UnityWebRequest.Result.Success)
-        {
-            Debug.LogError("Inventory init failed: " + www.error);
-        }
-        else
-        {
-            Debug.Log("Inventory checked or created: " + www.downloadHandler.text);
-        }
-    }
 }

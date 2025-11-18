@@ -2,6 +2,7 @@
 using UnityEngine.SceneManagement;
 using UnityEngine.Networking;
 using System.Collections;
+using UnityEngine.TextCore.Text;
 
 public class SceneLoader : MonoBehaviour
 {
@@ -69,7 +70,18 @@ public class SceneLoader : MonoBehaviour
         }
         else
         {
-            Debug.LogError($"❌ 캐릭터 정보 조회 실패: {request.error}\n응답: {request.downloadHandler.text}");
+            string response = request.downloadHandler.text;
+            Debug.LogError($"❌ 캐릭터 정보 조회 실패: {request.error}\n응답: {response}");
+
+            if (request.responseCode == 404)
+            {
+                Debug.Log("캐릭터가 없으므로 CreateCharacter 씬으로 이동합니다.");
+                LoadSceneByName(characterCreateSceneName);
+            }
+            else
+            {
+                Debug.LogError("오류 발생 → Scene 유지");
+            }
         }
     }
 

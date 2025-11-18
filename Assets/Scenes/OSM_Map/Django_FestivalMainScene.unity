@@ -8582,6 +8582,68 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 297736f5105505549bab4a665f8b636e, type: 3}
   m_PrefabInstance: {fileID: 205673373}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &205914850
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 205914852}
+  - component: {fileID: 205914853}
+  m_Layer: 0
+  m_Name: Crowds
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &205914852
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 205914850}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 12.659086, y: 20.978317, z: 1.8523308}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &205914853
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 205914850}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4aea483a753544c429b19c19b8bd6d4a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  crowdPrefab:
+  - {fileID: 3660374497888724983, guid: 5122c1dd035a9624d93fbe546227b7ea, type: 3}
+  - {fileID: 4550907853294714048, guid: 6a8a1b6c02728494f8aaf5eeeeb11ae0, type: 3}
+  - {fileID: 7906028572983936318, guid: b0086edac47b6f745af1c14f8aaa29ef, type: 3}
+  - {fileID: 2183181202954266151, guid: 5a52afdaa2478e646b3c955da9755e30, type: 3}
+  spawnPoints:
+  - {fileID: 6758873922859315987, guid: af22dd84f2872074b9994ae95345e441, type: 3}
+  - {fileID: 1344142123186715905, guid: a0a44b4bc63e93c459ee09403a47350b, type: 3}
+  - {fileID: 8074522973870755323, guid: 8b2db9a143d1aa74d9a85b8162a063e1, type: 3}
+  - {fileID: 2334439966772570023, guid: 87ea550645fe3db45ac80d72713b725d, type: 3}
+  - {fileID: 4401197433096745150, guid: 09dd9f52b58db7445b196c17594b7359, type: 3}
+  - {fileID: 3276399137094226328, guid: fb2f8ab6cfb29734a96b756c64fc5f90, type: 3}
+  - {fileID: 1128332979414174388, guid: 8738029b616f6dd44aac7a28b497fa87, type: 3}
+  - {fileID: 1917390750279465167, guid: 7e654e8fe80068845872a70d64bf19b1, type: 3}
+  - {fileID: 296807217861228214, guid: 9da7830b8710bfc48a155cd74701a0ef, type: 3}
+  - {fileID: 1574284920088101735, guid: 8d10be9aec15e11458cbccc9899bdbba, type: 3}
+  minPerChar: 2
+  maxPerChar: 3
 --- !u!1 &210979128
 GameObject:
   m_ObjectHideFlags: 0
@@ -51641,6 +51703,16 @@ MonoBehaviour:
     pose2RotationOffset: {x: 20, y: 180, z: 0}
     pose3PositionOffset: {x: -0.1, y: -1.75, z: 0}
     pose3RotationOffset: {x: 0, y: -210, z: 0}
+  - characterName: Basic
+    pose1Prefab: {fileID: 919132149155446097, guid: 845a45d342cb6a0488975a5181806b20, type: 3}
+    pose2Prefab: {fileID: 919132149155446097, guid: 3546bd3681d4447438bee25f893e75c2, type: 3}
+    pose3Prefab: {fileID: 919132149155446097, guid: dcebd108b54134941aff95b42b2d4e6e, type: 3}
+    pose1PositionOffset: {x: 0, y: -1.75, z: 0}
+    pose1RotationOffset: {x: 0, y: 210, z: 0}
+    pose2PositionOffset: {x: -0.2, y: -1.85, z: 2}
+    pose2RotationOffset: {x: 0, y: 180, z: 0}
+    pose3PositionOffset: {x: -0.1, y: -0.98, z: 3.9}
+    pose3RotationOffset: {x: 0, y: 198, z: 0}
   playerCamera: {fileID: 810580122}
   photoCamera: {fileID: 418246616}
   photoHud: {fileID: 377102959}
@@ -85801,7 +85873,7 @@ MonoBehaviour:
   npcInputField: {fileID: 335744457}
   sendButton: {fileID: 563622077}
   closeButton: {fileID: 1276229043}
-  playerController: {fileID: 0}
+  playerController: {fileID: 314172104}
   npcId: 
   npcName: 
 --- !u!114 &1945857163
@@ -94106,3 +94178,4 @@ SceneRoots:
   - {fileID: 314172099}
   - {fileID: 1146065336}
   - {fileID: 1143187556866413967}
+  - {fileID: 205914852}
