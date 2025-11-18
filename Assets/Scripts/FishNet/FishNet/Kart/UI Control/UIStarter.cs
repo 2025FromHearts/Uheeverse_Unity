@@ -25,6 +25,7 @@ public class UIStarter : MonoBehaviour
     
     public void CountdownStart()
     {
+        Debug.Log("countdownStart 진입");
         //GameObject uiroot = GameObject.Find("UIRoot");
         uiroot.SetActive(true);
     }

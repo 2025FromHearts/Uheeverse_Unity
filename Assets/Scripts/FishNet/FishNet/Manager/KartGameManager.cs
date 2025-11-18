@@ -50,7 +50,7 @@ public class KartGameManager : NetworkBehaviour
         if (Kart_Client.Count == 2)
         {
             Debug.Log("클라이언트 2명");
-            countClient(conn);
+            RpcCountdownStart(conn);
         }
 
         if (Kart_Client.Count > 2)
@@ -59,15 +59,8 @@ public class KartGameManager : NetworkBehaviour
         }
     }
 
+
     [ObserversRpc]
-    public void countClient(NetworkConnection conn)
-    {
-            Debug.Log("게임 시작");
-            RpcCountdownStart(conn);
-    }
-
-
-    [ServerRpc(RequireOwnership = false)]
     public void RpcCountdownStart(NetworkConnection conn)
     {
         Debug.Log("rpc 실행됨");
