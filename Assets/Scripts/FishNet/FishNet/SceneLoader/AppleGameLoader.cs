@@ -1,0 +1,45 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using FishNet.Connection;
+using FishNet.Object;
+public class AppleGameLoader : NetworkBehaviour
+{
+    public SceneLoadingManager slm;
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (!IsServer)
+        {
+            Debug.Log("서버 꺼짐");
+            //return;
+        }
+
+        Debug.Log("트리거감지");
+
+        if (other.CompareTag("AppleGameLoader"))
+        {
+            NetworkObject nob = GetComponent<NetworkObject>();
+            if (nob != null)
+                LoadScene(nob);
+            Debug.Log("씬로드 함수 호출");
+        }
+        
+        
+    }
+
+    [ServerRpc]
+    private void LoadScene(NetworkObject nob)
+    {
+        if (!nob.Owner.IsActive)
+        {
+            return;
+        }
+
+        Debug.Log("씬로딩 요청");
+
+        slm = SceneLoadingManager.Instance;
+
+        slm.LoadingAppleGame(SceneType.Apple, "MyStation", nob.Owner);
+    }
+}

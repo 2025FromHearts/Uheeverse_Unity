@@ -20,6 +20,7 @@ TagManager:
   - TrainLoader
   - FestivalLoader
   - KartGameLoader
+  - AppleGameLoader
   layers:
   - Default
   - TransparentFX

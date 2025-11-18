@@ -55,8 +55,8 @@ public class KartSpawner : NetworkBehaviour
             NetworkObject obj = NetworkManager.GetPooledInstantiated(playerPrefab, asServer: true);
             Spawn(obj, client, gameObject.scene);
 
-            kmg.Client_add(Owner.ClientId);
-            Debug.Log("클라이언트 추가 실행");
+            // kmg.Client_add(connection);
+            // Debug.Log("클라이언트 추가 실행");
         }
     }
 }

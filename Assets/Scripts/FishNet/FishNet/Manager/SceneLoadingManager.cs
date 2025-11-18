@@ -18,7 +18,8 @@ public enum SceneType
     Station,
     Quiz,
     Festival,
-    Game
+    Game,
+    Apple
 }
 
 public class SceneLoadingManager : MonoBehaviour
@@ -35,6 +36,7 @@ public class SceneLoadingManager : MonoBehaviour
 
     public int _stackedSceneHandle = 0;
     public int _FestivalSceneHandle = 0;
+    public int _AppleBasKetHandle = 0;
 
     private void Start()
     {
@@ -94,6 +96,7 @@ public class SceneLoadingManager : MonoBehaviour
             case SceneType.Quiz: return "Train";
             case SceneType.Festival: return "Django_FestivalMainScene";
             case SceneType.Game: return "InGame";
+            case SceneType.Apple : return "AppleBasketGame";
             default: return "StartScene";
         }
     }
@@ -198,6 +201,44 @@ public class SceneLoadingManager : MonoBehaviour
 
     }
 
+    public void LoadingAppleGame(SceneType type, string currentScene, NetworkConnection conn)
+    {
+        if (!InstanceFinder.IsServer)
+        {
+            Debug.LogWarning("서버가 아님");
+            return;
+        }
+
+        Debug.Log($"[ServerRpc] caller: {conn.ClientId}");
+
+        NetworkObject nob = conn.FirstObject;
+        string newScene = "AppleBasketGame";
+
+        SceneLookupData lookup;
+        Debug.Log("Loading by handle?" + (_stackedSceneHandle != 0));
+
+        if (_stackedSceneHandle != 0)
+        {
+            lookup = new SceneLookupData(_AppleBasKetHandle);
+        }
+        else {
+            lookup = new SceneLookupData(newScene);
+        }
+
+        SceneLoadData sld = new SceneLoadData(lookup);
+
+        sld.ReplaceScenes = ReplaceOption.None;
+        sld.Options.AllowStacking = true;
+        sld.Options.LocalPhysics = LocalPhysicsMode.Physics2D;
+        InstanceFinder.SceneManager.LoadConnectionScenes(conn, sld);
+
+        Debug.Log("로딩완료");
+
+        currentSceneUnloading(conn, currentScene);
+
+
+    }
+
     private void SceneManager_OnLoadEnd(SceneLoadEndEventArgs obj)
     {
         if (!obj.QueueData.AsServer)
@@ -220,6 +261,12 @@ public class SceneLoadingManager : MonoBehaviour
                 {
                     _stackedSceneHandle = scene.handle;
                     Debug.Log($"Festival 씬 핸들 저장: {_stackedSceneHandle}");
+                    return;
+                }
+                if (scene.name == "AppleBasketGame")
+                {
+                    _AppleBasKetHandle = scene.handle;
+                    Debug.Log($"Apple씬 핸들 저장: {_AppleBasKetHandle}");
                     return;
                 }
             }

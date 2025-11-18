@@ -4156,7 +4156,7 @@ MonoBehaviour:
   _spectatorInterpolation: 2
   _enableTeleport: 0
   _teleportThreshold: 1
-  <PrefabId>k__BackingField: 1
+  <PrefabId>k__BackingField: 2
   <SpawnableCollectionId>k__BackingField: 0
   <AssetPathHash>k__BackingField: 17050576592793578357
   <SceneId>k__BackingField: 0
@@ -5156,6 +5156,7 @@ GameObject:
   - component: {fileID: 9001652354308048337}
   - component: {fileID: 1082580293486290966}
   - component: {fileID: 8446089851745086916}
+  - component: {fileID: 2191245953971714114}
   m_Layer: 0
   m_Name: Kart Copy
   m_TagString: Kart
@@ -5307,6 +5308,22 @@ MonoBehaviour:
     X: 0
     Y: 0
     Z: 0
+--- !u!114 &2191245953971714114
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6724153448348577808}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 679f9d034a05b4a3c9f20f8548d21d83, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _componentIndexCache: 255
+  _addedNetworkObject: {fileID: -2104458409001886395}
+  _networkObjectCache: {fileID: 0}
+  kgm: {fileID: 0}
 --- !u!1 &6814334882019842285
 GameObject:
   m_ObjectHideFlags: 0

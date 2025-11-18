@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using FishNet.Connection;
 using FishNet.Object;
 using Unity.Services.Vivox;
 using UnityEngine;
@@ -35,19 +36,19 @@ public class KartGameManager : NetworkBehaviour
         }
     }
 
-    public void Client_add(int ClientId)
+    public void Client_add(NetworkConnection conn)
     {
 
         if (Kart_Client.Count < 2)
         {
-            Kart_Client.Add(ClientId);
+            Kart_Client.Add(conn.ClientId);
             Debug.Log("클라이언트 추가 완료");
         }
 
         if (Kart_Client.Count == 2)
         {
             Debug.Log("클라이언트 2명");
-            countClient();
+            countClient(conn);
         }
 
         if (Kart_Client.Count > 2)
@@ -56,51 +57,70 @@ public class KartGameManager : NetworkBehaviour
         }
     }
 
-    [Server]
-    public void countClient()
+    [ServerRpc(RequireOwnership =false)]
+    public void countClient(NetworkConnection conn)
     {
-        
             Debug.Log("게임 시작");
-            RpcCountdownStart();
-        
+            RpcCountdownStart(conn);
     }
 
 
-    [ObserversRpc(ExcludeServer = false)]
-    public void RpcCountdownStart()
+    [ObserversRpc]
+    public void RpcCountdownStart(NetworkConnection conn)
     {
         Debug.Log("rpc 실행됨");
-        //CountdownUI countdownUI = FindAnyObjectByType<CountdownUI>();
         GameObject uistarter = GameObject.Find("UIStarter");
         UIStarter uiStarterScript = uistarter.GetComponent<UIStarter>();
         uiStarterScript.CountdownStart();
-        // if (uiRoot != null)
-        // {
-        //     uiRoot.SetActive(true);
-        //     Debug.Log("클라이언트 카운트다운 rpc 실행");
-        // }
-        // else
-        // {
-        //     Debug.Log("uiroot 없음");
-        // }
-        
-
-
-        //countdownUI.gameObject.SetActive(true);
-        //kartSpawner.gameObject.SetActive(true);
     }
 
-    [ObserversRpc(ExcludeServer = false)]
+    [ServerRpc(RequireOwnership =false)]
+    public void serverKartEnable(NetworkConnection conn)
+    {
+        Debug.Log("ServerKartEnable 진입");
+        rpcKartEnable();
+    }
+
+    [ObserversRpc]
     public void rpcKartEnable()
     {
+        var conn = FishNet.InstanceFinder.ClientManager.Connection;
+        Debug.Log($"ClientID : {conn.ClientId} rpcKartEnable 진입함");
         KartController kartController = FindAnyObjectByType<KartController>();
-        kartController.enabled = true;
+
+        if(kartController != null)
+        {
+            kartController.enabled = true;
+            Debug.Log("카트 활성화됨");
+        }
+        else
+        {
+            Debug.Log("카트 컨트롤러 찾을 수 없음");
+        }
     }
 
-    [ObserversRpc(ExcludeServer = false)]
+
+    [Server]
+    public void serverKartDisable()
+    {
+        Debug.Log("ServerKartDisable 진입");
+        rpcKartDisable();
+    }
+
+    [ObserversRpc]
     public void rpcKartDisable()
     {
+        var conn = FishNet.InstanceFinder.ClientManager.Connection;
+        Debug.Log($"ClientID : {conn.ClientId} rpcKartDisable 진입함");
         KartController kartController = FindAnyObjectByType<KartController>();
-        kartController.enabled = false;
+        if(kartController != null)
+        {
+            kartController.enabled = false;
+            Debug.Log("카트 비활성화됨");
+        }
+        else
+        {
+            Debug.Log("카트 컨트롤러 찾을 수 없음");
+        }
     }
 }
