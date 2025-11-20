@@ -11,42 +11,30 @@ public class NpcShopManager : MonoBehaviour
     public GameObject dialoguePanel;
     public ShopUI shopUI;
 
-    [Tooltip("상점 UI 오브젝트 (활성화/비활성화로 제어)")]
     public GameObject shopUIPanel;
 
-    [Tooltip("상점 NPC가 처음 건네는 인사말")]
-    public string responseMessage = "물건 구경하고 가세요!";
+    public string responseMessage = "축제만의 아이템들 구경하고 가세요!";
 
     private string currentNpcName;
     private string currentNpcId;
 
-    public void ShowShopDialogue(string npcName)
+    public void ShowShopDialogue(NpcInteract callerNpc)
     {
-        currentNpcName = npcName;
+        currentNpcName = callerNpc.npcName;
+        currentNpcId = callerNpc.npcId;
 
-        Debug.Log($"[Shop] NPC 이름: {npcName}");
+        Debug.Log($"[Shop] NPC 이름: {currentNpcName}");
         Debug.Log($"[Shop] 메시지: {responseMessage}");
 
         dialoguePanel.SetActive(true);
 
         if (npcNameText != null)
-            npcNameText.text = npcName;
+            npcNameText.text = currentNpcName;
 
         if (dialogueText != null)
             dialogueText.text = responseMessage;
 
-        // npcId 추출 (npcName 기준으로 탐색)
-        var foundNpc = GameObject.FindObjectsOfType<NpcInteract>();
-        foreach (var npc in foundNpc)
-        {
-            if (npc.npcName == npcName)
-            {
-                currentNpcId = npc.npcId;
-                break;
-            }
-        }
-
-        // 1.5초 후 대화창 닫고 상점 열기
+        // 1.5초 후 상점 열기
         StartCoroutine(ShowShopAfterDelay(1.5f));
     }
 
@@ -55,9 +43,8 @@ public class NpcShopManager : MonoBehaviour
         yield return new WaitForSeconds(delay);
         dialoguePanel.SetActive(false);
 
-        NpcTalkTracker.Instance?.MarkNpcAsTalked();
+        NpcTalkTracker.Instance?.MarkNpcAsTalked(currentNpcId);
 
-        // 상점 UI 열기
         if (shopUI != null)
         {
             if (shopUIPanel != null)

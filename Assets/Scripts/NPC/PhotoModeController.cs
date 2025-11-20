@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -25,16 +26,13 @@ public class PhotoModeController : MonoBehaviour
     [Header("플레이어 제어 비활성화 목록")]
     public MonoBehaviour[] componentsToDisableWhilePhoto;
 
-    [Header("포토 모드에서 숨길 NPC들")]
-    public GameObject[] npcsToHide;
-
-    [Header("키 설정")]
-    public KeyCode shutterKey = KeyCode.Plus;
-    public KeyCode exitKey = KeyCode.Minus;
-    public KeyCode zoomInKey = KeyCode.A;
-    public KeyCode zoomOutKey = KeyCode.B;
+    [Header("NPC 포토존 스폰 포인트")]
+    public Transform npcSpawnPoints;
+    public float detectRadius = 2f;
 
     [Header("줌 설정")]
+    public Button zoomInButton;
+    public Button zoomOutButton;
     public float zoomSpeed = 50f;
     public float fovDefault = 60f;
     public float fovMin = 20f;
@@ -43,24 +41,30 @@ public class PhotoModeController : MonoBehaviour
     private GameObject currentPoseObj;
     private CharacterPoseSet currentPoseSet;
     private GameObject playerCharacter;
-
     private bool isOn;
 
     private string uploadUrl = $"{ServerConfig.baseUrl}/gallery/upload_image/";
 
     void Awake()
     {
-        if (photoCamera != null) photoCamera.enabled = false;
+        if (photoCamera != null)
+            photoCamera.enabled = false;
+
         photoHud?.SetActive(false);
 
         shutterButton.onClick.AddListener(TakeShot);
         exitButton.onClick.AddListener(ExitPhotoMode);
 
+        // 포즈 버튼 연결
         for (int i = 0; i < poseButtons.Length; i++)
         {
             int index = i;
             poseButtons[i].onClick.AddListener(() => SetPose(index + 1));
         }
+
+        // 줌인 / 줌아웃 버튼 연결
+        zoomInButton.onClick.AddListener(ZoomIn);
+        zoomOutButton.onClick.AddListener(ZoomOut);
     }
 
     private void SetPose(int poseIndex)
@@ -100,13 +104,14 @@ public class PhotoModeController : MonoBehaviour
         currentPoseObj = Instantiate(prefab, finalPos, finalRot);
     }
 
+
     public void EnterPhotoMode(string characterStyle, GameObject playerObj)
     {
         isOn = true;
+
         playerCharacter = playerObj;
         playerCharacter.SetActive(false);
 
-        // pose set 찾기
         currentPoseSet = Array.Find(poseData, set => set.characterName == characterStyle);
 
         if (currentPoseSet == null)
@@ -126,12 +131,34 @@ public class PhotoModeController : MonoBehaviour
         foreach (var c in componentsToDisableWhilePhoto)
             c.enabled = false;
 
-        foreach (var npc in npcsToHide)
+        HideNPCsNearSpawnPoints();
+    }
+
+
+    private List<GameObject> autoHiddenNPCs = new List<GameObject>();
+
+    private void HideNPCsNearSpawnPoints()
+    {
+        autoHiddenNPCs.Clear();
+
+        if (npcSpawnPoints == null)
         {
-            if (npc != null)
-                npc.SetActive(false);
+            Debug.LogWarning("NPC 스폰 포인트를 설정해주세요.");
+            return;
+        }
+
+        Collider[] hits = Physics.OverlapSphere(npcSpawnPoints.position, detectRadius);
+
+        foreach (var hit in hits)
+        {
+            if (hit.CompareTag("NPC"))
+            {
+                hit.gameObject.SetActive(false);
+                autoHiddenNPCs.Add(hit.gameObject);
+            }
         }
     }
+
 
     public void ExitPhotoMode()
     {
@@ -151,32 +178,42 @@ public class PhotoModeController : MonoBehaviour
         foreach (var c in componentsToDisableWhilePhoto)
             c.enabled = true;
 
-        foreach (var npc in npcsToHide)
+        foreach (var npc in autoHiddenNPCs)
         {
             if (npc != null)
                 npc.SetActive(true);
         }
     }
 
+
     void Update()
     {
         if (!isOn) return;
-
-        float wheel = Input.mouseScrollDelta.y;
-        float key = (Input.GetKey(zoomInKey) ? 1 : 0) - (Input.GetKey(zoomOutKey) ? 1 : 0);
-
-        float delta = (wheel + key) * zoomSpeed * Time.deltaTime;
-        if (Mathf.Abs(delta) > 0.01f)
-            photoCamera.fieldOfView = Mathf.Clamp(photoCamera.fieldOfView - delta, fovMin, fovMax);
-
-        if (Input.GetKeyDown(shutterKey)) TakeShot();
-        if (Input.GetKeyDown(exitKey)) ExitPhotoMode();
     }
+
+
+    public void ZoomIn()
+    {
+        photoCamera.fieldOfView = Mathf.Clamp(
+            photoCamera.fieldOfView - zoomSpeed * Time.deltaTime,
+            fovMin, fovMax
+        );
+    }
+
+    public void ZoomOut()
+    {
+        photoCamera.fieldOfView = Mathf.Clamp(
+            photoCamera.fieldOfView + zoomSpeed * Time.deltaTime,
+            fovMin, fovMax
+        );
+    }
+
 
     public void TakeShot()
     {
         StartCoroutine(CaptureAndUpload());
     }
+
 
     private IEnumerator CaptureAndUpload()
     {
@@ -197,7 +234,7 @@ public class PhotoModeController : MonoBehaviour
         yield return UploadImageBytes(pngBytes);
     }
 
-    // 업로드 함수
+
     private IEnumerator UploadImageBytes(byte[] imageBytes)
     {
         string token = PlayerPrefs.GetString("access_token", "");
@@ -211,13 +248,13 @@ public class PhotoModeController : MonoBehaviour
         yield return www.SendWebRequest();
 
         if (www.result != UnityWebRequest.Result.Success)
+        {
             Debug.LogError($"업로드 실패: {www.error}\n응답: {www.downloadHandler.text}");
-
-        if (www.result == UnityWebRequest.Result.Success)
+        }
+        else
         {
             Debug.Log($"✅ 업로드 성공! 응답: {www.downloadHandler.text}");
 
-            // 업로드 성공 → 갤러리 업데이트 콜백 실행
             var galleryList = FindAnyObjectByType<U_GalleryList>(FindObjectsInactive.Include);
             if (galleryList != null)
                 galleryList.RefreshGallery();
