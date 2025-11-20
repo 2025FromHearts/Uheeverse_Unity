@@ -7,12 +7,12 @@ using Newtonsoft.Json;
 public class TicketReveal : MonoBehaviour
 {
     [Header("UI")]
-    public CanvasGroup alertCg;          // 알람 패널(CanvasGroup)
-    public TextMeshProUGUI alertText;    // 알람 텍스트 (TMP)
+    public CanvasGroup alertCg;
+    public TextMeshProUGUI alertText;
 
     [Header("Timing")]
-    public float fadeTime = 0.2f;   // 페이드 인/아웃 시간
-    public float showTime = 2f;     // 표시 유지 시간
+    public float fadeTime = 0.2f;
+    public float showTime = 2f;
 
     Coroutine _running;
 
@@ -35,10 +35,8 @@ public class TicketReveal : MonoBehaviour
     {
         if (alertText) alertText.text = message;
 
-        // 캔버스 활성화
         alertCg.gameObject.SetActive(true);
 
-        // Fade In
         float t = 0f;
         while (t < 1f)
         {
@@ -46,12 +44,9 @@ public class TicketReveal : MonoBehaviour
             alertCg.alpha = Mathf.Lerp(0f, 1f, t);
             yield return null;
         }
-        alertCg.alpha = 1f;
 
-        // 유지
         yield return new WaitForSeconds(showTime);
 
-        // Fade Out
         t = 0f;
         while (t < 1f)
         {
@@ -59,61 +54,63 @@ public class TicketReveal : MonoBehaviour
             alertCg.alpha = Mathf.Lerp(1f, 0f, t);
             yield return null;
         }
-        alertCg.alpha = 0f;
 
-        // 사라지면 비활성화
+        alertCg.alpha = 0f;
         alertCg.gameObject.SetActive(false);
     }
 
-    public void OnDialogueCompleted(string festivalId)
+    public void OnDialogueCompleted(string unused)
     {
-        StartCoroutine(TryIssueTicket(festivalId));
+        StartCoroutine(TryIssueTicket());
     }
 
-    IEnumerator TryIssueTicket(string festivalId)
+    IEnumerator TryIssueTicket()
     {
+        string mapId = "a62122b8-7d5d-45cf-a660-ddc75a30dfc28";
         string url = $"{ServerConfig.baseUrl}/tickets/issue/";
-        WWWForm form = new WWWForm();
-        form.AddField("map_id", festivalId);
-        form.AddField("character_id", PlayerPrefs.GetString("characterId")); // 필요하다면 포함
 
-        UnityWebRequest www = UnityWebRequest.Post(url, form);
-        www.SetRequestHeader("Authorization", "Bearer " + PlayerPrefs.GetString("accessToken"));
+        var payload = new { map_id = mapId };
+        string jsonToSend = JsonConvert.SerializeObject(payload);
+
+        UnityWebRequest www = new UnityWebRequest(url, "POST");
+        byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonToSend);
+
+        www.uploadHandler = new UploadHandlerRaw(bodyRaw);
+        www.downloadHandler = new DownloadHandlerBuffer();
+
+        www.SetRequestHeader("Content-Type", "application/json");
+        www.SetRequestHeader("Authorization", "Bearer " + PlayerPrefs.GetString("access_token"));
 
         yield return www.SendWebRequest();
+
+        string response = www.downloadHandler.text;
+        Debug.Log("응답: " + response);
 
         if (www.result != UnityWebRequest.Result.Success)
         {
             Debug.LogError("❌ 티켓 발급 실패: " + www.error);
+            Debug.LogError("서버 응답 본문: " + response);
             yield break;
         }
 
-        string json = www.downloadHandler.text;
-        Debug.Log($"✅ 티켓 발급 응답: {json}");
-
-        // "이미 발급된 티켓입니다." 처리
-        if (json.Contains("이미 발급된 티켓"))
+        // 이미 발급된 티켓
+        if (response.Contains("이미 발급된 티켓"))
         {
             ShowAlert("이미 발급된 티켓입니다!");
             yield break;
         }
 
+        // 성공적으로 새 티켓이 생성됨
         try
         {
-            // JSON → TicketData 역직렬화
             TicketUIManager.TicketData newTicket =
-                JsonConvert.DeserializeObject<TicketUIManager.TicketData>(json);
+                JsonConvert.DeserializeObject<TicketUIManager.TicketData>(response);
 
-            // UI에 티켓 추가
             var uiManager = FindObjectOfType<TicketUIManager>();
             if (uiManager != null)
             {
                 uiManager.AddTicket(newTicket);
                 ShowAlert("티켓이 발급되었습니다!");
-            }
-            else
-            {
-                Debug.LogWarning("⚠️ TicketUIManager를 찾을 수 없음");
             }
         }
         catch (System.Exception e)
