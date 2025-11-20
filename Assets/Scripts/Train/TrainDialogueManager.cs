@@ -26,8 +26,14 @@ public class TrainDialogueManager : MonoBehaviour
     private int currentLineIndex = 0;
     private bool isReadyToStartQuiz = false;
 
-    void Start()
+    private IEnumerator Start()
     {
+        while (string.IsNullOrEmpty(PlayerPrefs.GetString("character_id")))
+        {
+            yield return null;
+        }
+
+        Debug.Log("TrainScene 시작 시 character_id = " + PlayerPrefs.GetString("character_id"));
         ShowCurrentLine();
         quizCanvas.SetActive(false);
     }
@@ -42,7 +48,7 @@ public class TrainDialogueManager : MonoBehaviour
             dialogueCanvas.SetActive(false);
             quizCanvas.SetActive(true);
 
-            // 🔽 퀴즈 요청 시작
+            // 퀴즈 요청 시작
             StartCoroutine(FetchQuizFromServer("청송"));
             return;
         }

@@ -28,8 +28,8 @@ public class SceneLoader : MonoBehaviour
     }
 
     private string getCharacterUrl;
-    private string characterCreateSceneName = "CreateCharacter"; 
-    private string myStationSceneName = "MyStation";  
+    private string characterCreateSceneName = "CreateCharacter";
+    private string myStationSceneName = "MyStation";
 
     public void LoadSceneByCharacterCheck()
     {

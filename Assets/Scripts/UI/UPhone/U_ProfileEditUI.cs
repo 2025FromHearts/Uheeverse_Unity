@@ -9,7 +9,7 @@ public class U_ProfileEditUI : MonoBehaviour
     [Header("UI Reference")]
     public TMP_InputField introInputField;   // 수정 입력창
     public TMP_Text profileIntroText;        // 프로필 패널의 한줄소개 텍스트
-    public GameObject editPanel;             // 수정 패널 (저장 후 닫힘)
+    public GameObject editPanel;             // 수정 패널
     private string updateIntroUrl;
 
     void Awake()
@@ -17,7 +17,6 @@ public class U_ProfileEditUI : MonoBehaviour
         updateIntroUrl = $"{ServerConfig.baseUrl}/users/update_character_intro/";
     }
 
-    // 🔹 “저장하기” 버튼에 연결
     public void OnClickSaveIntro()
     {
         string newIntro = introInputField.text.Trim();
@@ -62,11 +61,13 @@ public class U_ProfileEditUI : MonoBehaviour
                 IntroUpdateResponse data = JsonUtility.FromJson<IntroUpdateResponse>(www.downloadHandler.text);
                 Debug.Log("✅ 한줄소개 수정 완료: " + data.character_intro);
 
-                // 🔹 프로필 패널 텍스트 갱신
+                EventBus.OnIntroChanged?.Invoke(newIntro);
+
+                // 프로필 패널 텍스트 갱신
                 if (profileIntroText != null)
                     profileIntroText.text = data.character_intro;
 
-                // 🔹 수정 패널만 닫기 (프로필 패널은 그대로)
+                // 수정 패널만 닫기
                 if (editPanel != null)
                     editPanel.SetActive(false);
             }

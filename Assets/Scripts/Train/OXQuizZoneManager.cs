@@ -10,6 +10,7 @@ public class OXQuizZoneManager : MonoBehaviour
     private QuizManager currentQuizManager;
     private string character_id;
 
+
     public void StartOXQuiz(string correctAnswer, int quizId, QuizManager quizManager)
     {
         currentQuizManager = quizManager;
@@ -22,6 +23,7 @@ public class OXQuizZoneManager : MonoBehaviour
         else
         {
             Debug.LogError("❌ 캐릭터 ID를 가져올 수 없습니다.");
+            Debug.Log(PlayerPrefs.GetString("character_id"));
             return;
         }
 

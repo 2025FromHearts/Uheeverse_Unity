@@ -12,19 +12,17 @@ public class NpcGameManager : MonoBehaviour
     public Button buttonO;
     public Button buttonX;
 
-    [Tooltip("외부 코드에서 설정됨 (Minigame 타입 NPC가 호출 시 주입)")]
     [HideInInspector] public string minigameSceneName;
 
-    [Tooltip("미니게임 설명 문장들 (랜덤 선택됨)")]
     public string[] promptMessages = {
-        "사과를 바구니에 담아보세요! 높은 점수를 노려보세요!",
         "게임을 시작해볼까요? 재미있는 미션이 기다리고 있어요!",
         "집중해서 플레이해보세요. 당신의 반사신경이 중요해요!",
-        "축제 한정 미니게임이에요! 한번 도전해보시겠어요?"
+        "축제 한정 미니게임이에요! 한번 도전해보시겠어요?",
+        "가볍게 도전해보세요! 생각보다 더 재미있을지도 몰라요.",
+        "한 번 해보면 멈출 수 없어요! 지금 바로 플레이해볼까요?",
     };
 
-    [Tooltip("미니게임 참여 거절 시 보여줄 메시지")]
-    public string exitMessage = "괜찮아요. 다음에 또 도전해주세요!";
+    public string exitMessage = "괜찮아요, 다음에 다시 도전해주세요!";
 
     private string currentNpcName;
     private string currentNpcId;
@@ -38,40 +36,29 @@ public class NpcGameManager : MonoBehaviour
         buttonX.onClick.AddListener(OnNo);
     }
 
-    public void ShowMinigameDialogue(string npcName, string sceneName)
+    public void ShowMinigameDialogue(NpcInteract callerNpc)
     {
-        currentNpcName = npcName;
-        minigameSceneName = sceneName;
+        currentNpcName = callerNpc.npcName;
+        currentNpcId = callerNpc.npcId;
+        minigameSceneName = callerNpc.minigameSceneName;
         dialoguePanel.SetActive(true);
 
         if (npcNameText != null)
-            npcNameText.text = npcName;
+            npcNameText.text = currentNpcName;
 
         if (dialogueText != null && promptMessages.Length > 0)
         {
             string selectedPrompt = promptMessages[Random.Range(0, promptMessages.Length)];
             dialogueText.text = selectedPrompt;
         }
-
-        // npcId 추출 (Find로 해당 NPC 검색)
-        var foundNpc = GameObject.FindObjectsOfType<NpcInteract>();
-        foreach (var npc in foundNpc)
-        {
-            if (npc.npcName == npcName)
-            {
-                currentNpcId = npc.npcId;
-                break;
-            }
-        }
     }
 
     private void OnYes()
     {
-        Debug.Log($"✅ {currentNpcName} 미니게임 참여");
+        Debug.Log($"{currentNpcName} 미니게임 참여");
 
-        NpcTalkTracker.Instance?.MarkNpcAsTalked();
+        NpcTalkTracker.Instance?.MarkNpcAsTalked(currentNpcId);
 
-        // 현재 플레이어 위치 저장
         GameObject player = GameObject.FindWithTag("Player");
         if (player != null)
         {
@@ -81,7 +68,7 @@ public class NpcGameManager : MonoBehaviour
             PlayerPrefs.SetFloat("PlayerPosX", pos.x);
             PlayerPrefs.SetFloat("PlayerPosY", pos.y);
             PlayerPrefs.SetFloat("PlayerPosZ", pos.z);
-            PlayerPrefs.SetFloat("PlayerRotY", rot.eulerAngles.y);  // 회전값도 저장
+            PlayerPrefs.SetFloat("PlayerRotY", rot.eulerAngles.y);
 
             PlayerPrefs.SetInt("ShouldRestorePosition", 1);
             PlayerPrefs.Save();
@@ -91,7 +78,6 @@ public class NpcGameManager : MonoBehaviour
             Debug.LogWarning("❌ 'Player' 태그가 있는 오브젝트를 찾지 못했습니다.");
         }
 
-        // 미니게임 씬으로 이동
         if (!string.IsNullOrEmpty(minigameSceneName))
         {
             SceneManager.LoadScene(minigameSceneName);
@@ -104,7 +90,7 @@ public class NpcGameManager : MonoBehaviour
 
     private void OnNo()
     {
-        Debug.Log($"🔚 {currentNpcName} 미니게임 창 닫기");
+        Debug.Log($"{currentNpcName} 미니게임 창 닫기");
 
         if (dialogueText != null)
             dialogueText.text = exitMessage;

@@ -170,6 +170,6 @@ public class GameTimer : MonoBehaviour
 
     private void QuitGame()
     {
-        SceneManager.LoadScene("Django_FestivalMainScene");
+        SceneManager.LoadScene("Django_FestivalMainScene", LoadSceneMode.Single);
     }
 }

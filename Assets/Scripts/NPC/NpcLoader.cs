@@ -46,6 +46,7 @@ public class NpcLoader : MonoBehaviour
         StartCoroutine(LoadNpcs());
     }
 
+
     IEnumerator LoadNpcs()
     {
         BASE_URL = ServerConfig.baseUrl;
@@ -81,11 +82,12 @@ public class NpcLoader : MonoBehaviour
 
             GameObject npcObj = Instantiate(prefab, spawnPoints[i].position, spawnPoints[i].rotation);
             npcObj.name = npc.npc_name;
+            NpcTalkTracker.Instance?.RegisterNpc(npc.npc_id);
 
             var interact = npcObj.GetComponent<NpcInteract>();
             if (interact != null)
             {
-                // 🔑 JSON 데이터로 NPC 세팅
+                // JSON 데이터로 NPC 세팅
                 interact.SetNpcData(npc);
 
                 // 매니저 연결
@@ -99,7 +101,7 @@ public class NpcLoader : MonoBehaviour
             }
         }
 
-        int trackableCount = npcList.npcs.Count; // 전부 포함 (원하면 조건 넣기)
+        int trackableCount = npcList.npcs.Count;
         if (NpcTalkTracker.Instance != null)
             NpcTalkTracker.Instance.SetRequiredCount(trackableCount);
     }

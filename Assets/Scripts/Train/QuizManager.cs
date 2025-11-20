@@ -54,7 +54,7 @@ public class QuizManager : MonoBehaviour
         questionText.text = quiz.question;
         explanationText.text = ""; // 정답 선택 전까지 해설 숨김
 
-        // 🆕 퀴즈 표시 후 OX 판정 시작
+        // 퀴즈 표시 후 OX 판정 시작
         if (oxQuizZoneManager != null)
         {
             oxQuizZoneManager.StartOXQuiz(quiz.answer, quiz.id, this);

@@ -83,11 +83,35 @@ public class CharacterCustomizer : MonoBehaviour
         if (request.result == UnityWebRequest.Result.Success)
         {
             Debug.Log("✅ 캐릭터 저장 성공: " + request.downloadHandler.text);
+
+            // 서버 응답에서 character_id 추출
+            string json = request.downloadHandler.text;
+
+            try
+            {
+                CharacterSaveResponse res = JsonUtility.FromJson<CharacterSaveResponse>(json);
+
+                if (!string.IsNullOrEmpty(res.character_id))
+                {
+                    PlayerPrefs.SetString("character_id", res.character_id);
+                    PlayerPrefs.SetString("character_style", selectedStyle);
+                    PlayerPrefs.Save();
+
+                    Debug.Log("🎯 PlayerPrefs 저장됨: " + res.character_id);
+                }
+                else
+                {
+                    Debug.LogError("❌ 서버 응답에 character_id가 없습니다.");
+                }
+            }
+            catch
+            {
+                Debug.LogError("❌ character_id 파싱 실패 → JSON 구조 확인 필요");
+            }
+
             var loader = FindAnyObjectByType<SceneLoader>();
             if (loader != null)
                 loader.LoadSceneByName(nextSceneName);
-            else
-                Debug.LogError("SceneLoader를 찾을 수 없습니다!");
         }
         else
         {
@@ -107,5 +131,12 @@ public class CharacterCustomizer : MonoBehaviour
     {
         public string characterName;
         public string characterStyle;
+    }
+
+    [System.Serializable]
+    public class CharacterSaveResponse
+    {
+        public string status;
+        public string character_id;
     }
 }

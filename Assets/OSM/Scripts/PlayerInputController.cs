@@ -29,8 +29,16 @@ public class PlayerInputController : MonoBehaviour
     {
         if (!canMove) return;
 
+        // cameraTransform이 null이거나 Destroy된 경우 바로 리턴
+        if (cameraTransform == null)
+        {
+            // Debug.LogWarning("cameraTransform is NULL or Destroyed");
+            return;
+        }
+
         Vector3 fwd = cameraTransform.forward;
         fwd.y = 0; fwd.Normalize();
+
         Vector3 right = cameraTransform.right;
         right.y = 0; right.Normalize();
 
@@ -38,7 +46,6 @@ public class PlayerInputController : MonoBehaviour
         bool isMoving = inputDir.sqrMagnitude > 0.01f;
         inputDir.Normalize();
 
-        // 👉 애니메이션은 핸들러에게 위임
         animHandler?.SetMoveState(isMoving);
 
         if (isMoving)
@@ -55,4 +62,5 @@ public class PlayerInputController : MonoBehaviour
 
         controller.Move((inputDir * moveSpeed + velocity) * Time.deltaTime);
     }
+
 }

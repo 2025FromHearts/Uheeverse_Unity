@@ -3625,11 +3625,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 89248b2fa87df1e4ab64064cefdf5d0a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hairChanger: {fileID: 0}
-  eyeChanger: {fileID: 0}
-  cheekChanger: {fileID: 0}
-  lipChanger: {fileID: 0}
-  characterCreateSceneName: CreateCharacter
+  characterPrefabs: []
 --- !u!4 &815163658
 Transform:
   m_ObjectHideFlags: 0
@@ -7679,7 +7675,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 42bd9452ca8ef0e4bb5649370917ddf1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  serverUrl: http://localhost:8000/map/submit_score/
+  serverUrl: https://uheeverse.ngrok.app/map/submit_score/
 --- !u!4 &1696549847
 Transform:
   m_ObjectHideFlags: 0
@@ -7707,9 +7703,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 44a048c3ffae18f428f2e8917c63a948, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  getCharacterUrl: https://970d-203-252-223-254.ngrok-free.app/users/get_my_character/
-  characterCreateSceneName: CreateCharacter
-  myStationSceneName: MyStation
 --- !u!114 &1696549849
 MonoBehaviour:
   m_ObjectHideFlags: 0
