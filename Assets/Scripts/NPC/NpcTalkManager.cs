@@ -33,9 +33,7 @@ public class NpcTalkManager : MonoBehaviour
     public class FestivalResponse
     {
         public string reply;
-        public string info;
         public string intent;
-        public string festival;
     }
 
     [System.Serializable]
@@ -105,13 +103,11 @@ public class NpcTalkManager : MonoBehaviour
 
         if (npcName.Contains("청송"))
         {
-            // 서버에 '/llm/tmi_info/' 엔드포인트를 등록해야 합니다.
             endpoint = "/llm/tmi_answer/";
         }
         else
         {
-            // 기존 축제 안내 NPC일 경우 기존 API 사용
-            endpoint = "/llm/festival_info/";
+            endpoint = "/llm/festival_info_answer/";
         }
 
         string url = BASE_URL + endpoint;
