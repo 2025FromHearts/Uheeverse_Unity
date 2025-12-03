@@ -86365,10 +86365,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mapId: a62122b8-7d5d-45cf-a660-dc75a30dfc28
-  guidePrefab: {fileID: 2185404866268491767, guid: b6fd449a1ce32bf47b0a25acc3576971, type: 3}
-  minigamePrefab: {fileID: 2185404866268491767, guid: b6fd449a1ce32bf47b0a25acc3576971, type: 3}
-  vendorPrefab: {fileID: 2185404866268491767, guid: b6fd449a1ce32bf47b0a25acc3576971, type: 3}
-  photoPrefab: {fileID: 2185404866268491767, guid: 8a72b8b8affee7e4da2878da50c239f0, type: 3}
+  guidePrefab: {fileID: 5863837331009306707, guid: 25868e86430243b49acde0a8a813ecde, type: 3}
+  minigamePrefab: {fileID: 5863837331009306707, guid: 25868e86430243b49acde0a8a813ecde, type: 3}
+  vendorPrefab: {fileID: 5863837331009306707, guid: 25868e86430243b49acde0a8a813ecde, type: 3}
+  photoPrefab: {fileID: 5863837331009306707, guid: 25868e86430243b49acde0a8a813ecde, type: 3}
   spawnPoints:
   - {fileID: 14403340}
   - {fileID: 1620403525}
@@ -94414,8 +94414,8 @@ SceneRoots:
   - {fileID: 834525785}
   - {fileID: 1524461759}
   - {fileID: 1936209688}
-  - {fileID: 1945857161}
   - {fileID: 1066223916}
+  - {fileID: 1945857161}
   - {fileID: 2141667952}
   - {fileID: 413290875}
   - {fileID: 1652024044}

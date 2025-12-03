@@ -8,6 +8,10 @@ public class PlayerInputController : MonoBehaviour
     public bool canMove = true;
     public float gravity = -20f;
     public float groundCheckDistance = 0.2f;
+    public float sitRange = 2f;
+    public Transform[] chairPoints;
+    private bool isSitting = false;
+    private Transform nearestChair;
 
     private Vector3 velocity;
     private Vector2 moveInput;
@@ -20,6 +24,27 @@ public class PlayerInputController : MonoBehaviour
         controller = GetComponent<CharacterController>();
     }
 
+    private Transform GetNearestChair()
+    {
+        float minDist = Mathf.Infinity;
+        Transform nearest = null;
+
+        foreach (var chair in chairPoints)
+        {
+            if (chair == null) continue;
+
+            float dist = Vector3.Distance(transform.position, chair.position);
+
+            if (dist < minDist)
+            {
+                minDist = dist;
+                nearest = chair;
+            }
+        }
+
+        return nearest;
+    }
+
     public void SetActiveCharacter(GameObject character)
     {
         animHandler = character.GetComponent<CharacterAnimHandler>();
@@ -27,14 +52,27 @@ public class PlayerInputController : MonoBehaviour
 
     void Update()
     {
-        if (!canMove) return;
+        HandleSitToggle();
 
-        // cameraTransform이 null이거나 Destroy된 경우 바로 리턴
-        if (cameraTransform == null)
+        if (!isSitting)
+            HandleMovement();   // 앉아있지 않을 때만 이동 가능
+    }
+
+    private void HandleSitToggle()
+    {
+        if (Input.GetKeyDown(KeyCode.I))
         {
-            // Debug.LogWarning("cameraTransform is NULL or Destroyed");
-            return;
+            // 토글
+            if (!isSitting)
+                TrySit();
+            else
+                StandUp();
         }
+    }
+
+    private void HandleMovement()
+    {
+        if (cameraTransform == null) return;
 
         Vector3 fwd = cameraTransform.forward;
         fwd.y = 0; fwd.Normalize();
@@ -63,4 +101,28 @@ public class PlayerInputController : MonoBehaviour
         controller.Move((inputDir * moveSpeed + velocity) * Time.deltaTime);
     }
 
+    private void TrySit()
+    {
+        nearestChair = GetNearestChair();
+        if (nearestChair == null) return;
+
+        float dist = Vector3.Distance(transform.position, nearestChair.position);
+        if (dist > sitRange) return;
+
+        isSitting = true;
+        controller.enabled = false;
+        transform.position = nearestChair.position;
+        transform.rotation = nearestChair.rotation;
+        controller.enabled = true;
+
+        animHandler?.SetSitState(true);
+    }
+
+
+    private void StandUp()
+    {
+        animHandler?.SetSitState(false);
+        canMove = true;
+        isSitting = false;
+    }
 }
