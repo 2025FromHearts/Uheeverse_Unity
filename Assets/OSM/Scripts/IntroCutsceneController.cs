@@ -28,17 +28,36 @@ public class IntroCutsceneController : MonoBehaviour
 
     void Awake()
     {
-        if (ui){ ui.alpha = 0; ui.interactable = false; ui.blocksRaycasts = false; }
-        if (playerControllerRoot) playerControllerRoot.SetActive(false);
-        if (extraControlScripts != null) foreach (var s in extraControlScripts) if (s) s.enabled = false;
+        if (FindObjectsOfType<IntroCutsceneController>().Length > 1)
+        {
+            Destroy(gameObject);
+            return;
+        }
 
-        if (introVcam)  introVcam.Priority  = introPrio;
+        if (PlayerPrefs.GetInt("FestivalIntroPlayed", 0) == 1)
+        {
+            SkipIntroImmediately();
+            return;
+        }
+
+
+        if (ui) { ui.alpha = 0; ui.interactable = false; ui.blocksRaycasts = false; }
+        if (playerControllerRoot) playerControllerRoot.SetActive(false);
+        if (extraControlScripts != null)
+            foreach (var s in extraControlScripts)
+                if (s) s.enabled = false;
+
+        if (introVcam) introVcam.Priority = introPrio;
         if (playerVcam) playerVcam.Priority = playerPrio;
 
         if (cart) cart.m_Position = 0f;
     }
 
-    void Start(){ StartCoroutine(PlayIntro()); }
+    void Start()
+    {
+        if (PlayerPrefs.GetInt("FestivalIntroPlayed", 0) == 0)
+            StartCoroutine(PlayIntro());
+    }
 
     System.Collections.IEnumerator PlayIntro()
     {
@@ -72,6 +91,11 @@ public class IntroCutsceneController : MonoBehaviour
         if (extraControlScripts != null) foreach (var s in extraControlScripts) if (s) s.enabled = true;
 
         if (ui) StartCoroutine(FadeUIIn());
+
+        PlayerPrefs.SetInt("FestivalIntroPlayed", 1);
+        PlayerPrefs.Save();
+
+        if (introVcam) introVcam.gameObject.SetActive(false);
     }
 
     bool IsSkip()
@@ -80,6 +104,26 @@ public class IntroCutsceneController : MonoBehaviour
         if (Input.GetKeyDown(skipKey)) return true;
         return UnityEngine.InputSystem.Keyboard.current != null &&
                UnityEngine.InputSystem.Keyboard.current.anyKey.wasPressedThisFrame;
+    }
+
+    void SkipIntroImmediately()
+    {
+        if (introVcam) introVcam.Priority = playerPrio - 1;
+        if (playerVcam) playerVcam.Priority = playerPrio;
+
+        if (playerControllerRoot) playerControllerRoot.SetActive(true);
+        if (extraControlScripts != null)
+            foreach (var s in extraControlScripts)
+                if (s) s.enabled = true;
+
+        if (ui)
+        {
+            ui.alpha = 1;
+            ui.interactable = true;
+            ui.blocksRaycasts = true;
+        }
+
+        // 인트로 코루틴 실행 X
     }
 
     System.Collections.IEnumerator FadeUIIn()

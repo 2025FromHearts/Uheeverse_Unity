@@ -4,27 +4,26 @@ using TMPro;
 
 public class NpcPhotoManager : MonoBehaviour
 {
-    [Header("대화 패널")]
     public GameObject dialoguePanel;
     public TMP_Text titleText;
     public TMP_Text bodyText;
     public Button startButton;
     public Button cancelButton;
 
-    [Header("포토 모드")]
     public PhotoModeController photoMode;
 
-    private NpcInteract caller;
+    private string currentNpcId;
+    private string currentNpcName;
 
-    public void ShowPhotoDialogue(string npcName, NpcInteract callerNpc)
+    public void ShowPhotoDialogue(NpcInteract caller)
     {
-        caller = callerNpc;
+        currentNpcId = caller.npcId;
+        currentNpcName = caller.npcName;
 
         dialoguePanel?.SetActive(true);
-        titleText.text = npcName;
+        titleText.text = caller.npcName;
         bodyText.text = "사진 촬영을 시작할까요?";
 
-        // 버튼 리스너 초기화
         startButton.onClick.RemoveAllListeners();
         cancelButton.onClick.RemoveAllListeners();
 
@@ -32,7 +31,6 @@ public class NpcPhotoManager : MonoBehaviour
         {
             dialoguePanel?.SetActive(false);
 
-            // 1) 플레이어 찾기
             GameObject playerObj = GameObject.FindWithTag("Player");
             if (playerObj == null)
             {
@@ -40,15 +38,12 @@ public class NpcPhotoManager : MonoBehaviour
                 return;
             }
 
-            // 2) character_style 가져오기
             string characterStyle = PlayerPrefs.GetString("character_style", "");
             if (string.IsNullOrEmpty(characterStyle))
                 Debug.LogWarning("❌ PlayerPrefs에서 character_style을 찾을 수 없습니다.");
 
-            // 3) 포토 모드 진입
             photoMode.EnterPhotoMode(characterStyle, playerObj);
 
-            // 4) 플레이어 이동
             Transform spawn = photoMode.photoSpawnPoint;
             if (spawn != null)
             {
@@ -60,7 +55,7 @@ public class NpcPhotoManager : MonoBehaviour
                 if (cc != null) cc.enabled = true;
             }
 
-            NpcTalkTracker.Instance?.MarkNpcAsTalked();
+            NpcTalkTracker.Instance?.MarkNpcAsTalked(currentNpcId);
         });
 
         cancelButton.onClick.AddListener(() =>

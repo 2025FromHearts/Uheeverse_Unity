@@ -52,6 +52,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: C_Pucca
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: c458b2ba9dbfd924b9e5f134503df022, type: 3}
+      propertyPath: m_TagString
+      value: NPC
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

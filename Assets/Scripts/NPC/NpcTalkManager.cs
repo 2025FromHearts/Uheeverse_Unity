@@ -6,6 +6,7 @@ using TMPro;
 using UnityEngine.UI;
 using System.Text.RegularExpressions;
 using System.Text;
+using Newtonsoft.Json; // TicketReveal과 일관성을 위해 추가
 
 public class NpcTalkManager : MonoBehaviour
 {
@@ -28,17 +29,13 @@ public class NpcTalkManager : MonoBehaviour
 
     private string initialNpcGreeting = "안녕하세요! 축제와 관련된 궁금한 사항을 말씀해 주세요.";
 
-    // ✅ 서버 응답 구조
     [System.Serializable]
     public class FestivalResponse
     {
         public string reply;
-        public string info;
         public string intent;
-        public string festival;
     }
 
-    // ✅ 서버 요청 구조
     [System.Serializable]
     public class TalkPayload
     {
@@ -52,9 +49,9 @@ public class NpcTalkManager : MonoBehaviour
             sendButton.onClick.AddListener(OnSendMessage);
 
         if (closeButton != null)
-        { 
+        {
         }
-            closeButton.onClick.AddListener(OnCloseDialogue);
+        closeButton.onClick.AddListener(OnCloseDialogue);
         npcInputField.onSelect.AddListener((_) =>
         {
             if (playerController != null)
@@ -68,23 +65,17 @@ public class NpcTalkManager : MonoBehaviour
         });
     }
 
-    // ✅ NPC 대화 시작 (첫 인사 표시)
-    public void TalkToNpc(string npcId, string npcName)
+    public void TalkToNpc(NpcInteract callerNpc)
     {
-        Debug.Log($"🗨️ {npcId}({npcName})에게 대화 요청");
+        currentNpcId = callerNpc.npcId;
+        currentNpcName = callerNpc.npcName;
+
         dialoguePanel.SetActive(true);
-        playerController.canMove = false;
 
-        if (npcNameText != null)
-            npcNameText.text = npcName;
-        if (dialogueText != null)
-            dialogueText.text = initialNpcGreeting;
-
-        currentNpcId = npcId;
-        currentNpcName = npcName;
+        npcNameText.text = currentNpcName;
+        dialogueText.text = initialNpcGreeting;
     }
 
-    // ✅ 전송 버튼 눌렀을 때
     public void OnSendMessage()
     {
         if (npcInputField == null || string.IsNullOrWhiteSpace(npcInputField.text))
@@ -105,21 +96,33 @@ public class NpcTalkManager : MonoBehaviour
         StartCoroutine(SendTalkRequest(currentNpcName, message));
     }
 
-    // ✅ Django 서버와 통신
-    IEnumerator SendTalkRequest(string festivalName, string message)
+    IEnumerator SendTalkRequest(string npcName, string message)
     {
         BASE_URL = ServerConfig.baseUrl;
-        string url = BASE_URL + "/llm/festival_info/";
+        string endpoint;
+
+        if (npcName.Contains("청송"))
+        {
+            endpoint = "/llm/tmi_answer/";
+        }
+        else
+        {
+            endpoint = "/llm/festival_info_answer/";
+        }
+
+        string url = BASE_URL + endpoint;
 
         // 전송할 데이터 구조화
         TalkPayload payload = new TalkPayload
         {
             message = message,
-            festival_name = festivalName
+            festival_name = npcName // LLM에게 NPC 이름을 전달하여 역할 설정에 사용
         };
 
+        // JsonUtility 대신 Newtonsoft.Json을 사용하는 것이 더 안전할 수 있지만, 
+        // 기존 코드를 유지하고 JsonUtility.ToJson 사용
         string jsonData = JsonUtility.ToJson(payload);
-        Debug.Log("📨 보낸 JSON: " + jsonData);
+        Debug.Log($"📨 보낸 JSON ({endpoint}): " + jsonData);
 
         UnityWebRequest www = new UnityWebRequest(url, "POST");
         byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonData);
@@ -129,7 +132,7 @@ public class NpcTalkManager : MonoBehaviour
 
         yield return www.SendWebRequest();
 
-        // ✅ 에러 처리
+        // 에러 처리
         if (www.result != UnityWebRequest.Result.Success)
         {
             Debug.LogError($"❌ Talk request failed: {www.responseCode} | {www.error}\n서버응답: {www.downloadHandler.text}");
@@ -138,10 +141,11 @@ public class NpcTalkManager : MonoBehaviour
             yield break;
         }
 
-        // ✅ 정상 응답 처리
+        // 정상 응답 처리
         Debug.Log("✅ Talk request success!");
         Debug.Log("📩 서버 응답: " + www.downloadHandler.text);
 
+        // 응답은 reply, intent 필드를 포함하는 FestivalResponse 구조체를 사용합니다.
         FestivalResponse res = JsonUtility.FromJson<FestivalResponse>(www.downloadHandler.text);
         if (res == null || string.IsNullOrEmpty(res.reply))
         {
@@ -151,7 +155,7 @@ public class NpcTalkManager : MonoBehaviour
             yield break;
         }
 
-        // ✅ 자연스러운 줄바꿈 처리
+        // 자연스러운 줄바꿈 처리
         if (dialogueText != null)
         {
             string[] split = Regex.Split(res.reply, @"(?<=[.?!])\s+");
@@ -166,13 +170,13 @@ public class NpcTalkManager : MonoBehaviour
         }
     }
 
-    // ✅ 대화 종료 버튼
+    // 대화 종료 버튼
     public void OnCloseDialogue()
     {
         if (dialogueText != null)
             dialogueText.text = "감사합니다. 또 궁금한 게 있으면 물어봐주세요!";
         StartCoroutine(CloseDialogueAfterDelay(1.5f));
-        NpcTalkTracker.Instance?.MarkNpcAsTalked();
+        NpcTalkTracker.Instance?.MarkNpcAsTalked(currentNpcId);
     }
 
     private IEnumerator CloseDialogueAfterDelay(float delay)

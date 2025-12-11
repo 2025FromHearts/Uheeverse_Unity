@@ -41,11 +41,10 @@ public class ProfileUI : MonoBehaviour
                 styleSpriteMap[entry.styleName] = entry.sprite;
         }
     }
-
-    // ✅ 패널이 켜질 때마다 자동으로 최신화
     void OnEnable()
     {
         StartCoroutine(LoadCharacterInfo());
+        EventBus.OnIntroChanged += UpdateIntro;
     }
 
     IEnumerator LoadCharacterInfo()
@@ -65,12 +64,12 @@ public class ProfileUI : MonoBehaviour
 
         CharacterInfo info = JsonUtility.FromJson<CharacterInfo>(www.downloadHandler.text);
 
-        // ✅ 데이터 반영
+        // 데이터 반영
         nicknameText.text = info.character_name;
         introText.text = info.character_intro;
         coinText.text = info.character_coin.ToString();
 
-        // ✅ 중첩 객체에서 스타일명 꺼내기
+        // 중첩 객체에서 스타일명 꺼내기
         if (info.character_style != null && !string.IsNullOrEmpty(info.character_style.characterStyle))
         {
             string styleName = info.character_style.characterStyle;
@@ -120,10 +119,19 @@ public class ProfileUI : MonoBehaviour
         public string characterStyle;
     }
 
-    // 수동 새로고침 버튼
     public void OnRefreshButtonClicked()
     {
         StopAllCoroutines();
         StartCoroutine(LoadCharacterInfo());
+    }
+
+    private void OnDisable()
+    {
+        EventBus.OnIntroChanged -= UpdateIntro;
+    }
+
+    private void UpdateIntro(string intro)
+    {
+        introText.text = intro;
     }
 }

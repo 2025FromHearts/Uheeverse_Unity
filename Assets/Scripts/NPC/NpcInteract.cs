@@ -97,26 +97,28 @@ public class NpcInteract : MonoBehaviour
     private void InteractWithNpc()
     {
         Debug.Log($"[{npcName}] Interact, npcType={npcType}");
+
         switch (npcType)
         {
             case NpcType.Guide:
                 var talkManager = FindAnyObjectByType<NpcTalkManager>();
-                if (talkManager != null)
-                {
-                    talkManager.TalkToNpc(talkKey, npcName);
-                }
+                talkManager?.TalkToNpc(this);
                 break;
+
             case NpcType.Minigame:
-                npcGameManager?.ShowMinigameDialogue(npcName, minigameSceneName);
+                npcGameManager?.ShowMinigameDialogue(this);
                 break;
+
             case NpcType.Vendor:
-                npcShopManager?.ShowShopDialogue(npcName);
+                npcShopManager?.ShowShopDialogue(this);
                 break;
+
             case NpcType.Photo:
-                npcPhotoManager?.ShowPhotoDialogue(npcName, this);
+                npcPhotoManager?.ShowPhotoDialogue(this);
                 break;
         }
     }
+
 
     public void ResetTalkState()
     {
