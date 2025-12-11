@@ -807,6 +807,7 @@ GameObject:
   - component: {fileID: 57124246829374466}
   - component: {fileID: 2881289641163208313}
   - component: {fileID: -8785997218041158983}
+  - component: {fileID: 4831083950637755569}
   m_Layer: 0
   m_Name: C_Basic
   m_TagString: NPC
@@ -893,6 +894,31 @@ MonoBehaviour:
   - {fileID: 7192527579032815354, guid: f3fae067c1c705748af3a472e9b05199, type: 3}
   - {fileID: 8416471828230399246, guid: 94817bd76ffac554883bcb406913a4cf, type: 3}
   - {fileID: 3134763149382755989, guid: 85700e9ea42457747b4d26e18a92f868, type: 3}
+--- !u!143 &4831083950637755569
+CharacterController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3660374497888724983}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Height: 3.5
+  m_Radius: 1.05
+  m_SlopeLimit: 45
+  m_StepOffset: 0.3
+  m_SkinWidth: 0.08
+  m_MinMoveDistance: 0.001
+  m_Center: {x: 0, y: 1.83, z: 0}
 --- !u!1 &3848385252629642570
 GameObject:
   m_ObjectHideFlags: 0
