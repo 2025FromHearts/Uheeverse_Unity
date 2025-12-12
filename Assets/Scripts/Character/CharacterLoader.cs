@@ -8,7 +8,7 @@ public class CharacterLoader : MonoBehaviour
 
     IEnumerator Start()
     {
-        yield return null; // 모든 로딩이 끝난 뒤 실행되도록 한 프레임 대기
+        yield return new WaitForSeconds(0.4f);
 
         PlayerInputController inputController = GetComponent<PlayerInputController>();
         GameObject activeCharacter = null;
@@ -46,10 +46,6 @@ public class CharacterLoader : MonoBehaviour
         {
             inputController.SetActiveCharacter(activeCharacter);
             Debug.Log($"🎬 AnimHandler 연결 완료: '{activeCharacter.name}'");
-        }
-        else
-        {
-            Debug.LogError("❌ PlayerInputController 또는 activeCharacter 없음");
         }
     }
 }
