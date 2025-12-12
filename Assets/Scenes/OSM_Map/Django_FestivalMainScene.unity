@@ -8582,6 +8582,64 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 297736f5105505549bab4a665f8b636e, type: 3}
   m_PrefabInstance: {fileID: 205673373}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &209877522
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 209877524}
+  - component: {fileID: 209877523}
+  m_Layer: 0
+  m_Name: JoypadReceiver
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &209877523
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 209877522}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e6f30925ef0c542cbbd5c966ac21e3ce, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  listenPort: 9000
+  latest:
+    lx: 0
+    ly: 0
+    a: 0
+    b: 0
+    x: 0
+    y: 0
+    l: 0
+    r: 0
+    plus: 0
+    minus: 0
+    page: 0
+  isReceiving: 0
+--- !u!4 &209877524
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 209877522}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &210979128
 GameObject:
   m_ObjectHideFlags: 0
@@ -13065,6 +13123,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 4512141499455400764, guid: cfd02918d0ef41641b2b6c50796747c9, type: 3}
       insertIndex: -1
       addedObject: {fileID: 314172102}
+    - targetCorrespondingSourceObject: {fileID: 4512141499455400764, guid: cfd02918d0ef41641b2b6c50796747c9, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 314172106}
   m_SourcePrefab: {fileID: 100100000, guid: cfd02918d0ef41641b2b6c50796747c9, type: 3}
 --- !u!1 &314172100 stripped
 GameObject:
@@ -13122,6 +13183,8 @@ MonoBehaviour:
   canMove: 1
   gravity: -20
   groundCheckDistance: 0.2
+  useExternalInput: 0
+  externalMoveInput: {x: 0, y: 0}
 --- !u!143 &314172105
 CharacterController:
   m_ObjectHideFlags: 0
@@ -13147,6 +13210,21 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &314172106
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 314172100}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff533bbdae00a4dcaaa71a26416ff334, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inputController: {fileID: 314172104}
+  pad: {fileID: 209877523}
+  deadZone: 0.1
 --- !u!1001 &322910245
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -35115,8 +35193,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 810580120}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.38519707, y: 0.3248614, z: -0.14704555, w: 0.85115564}
-  m_LocalPosition: {x: -466.6474, y: 380.91223, z: 13.013672}
+  m_LocalRotation: {x: -0.124343775, y: -0.3533945, z: 0.047494955, w: -0.92595637}
+  m_LocalPosition: {x: -100.647385, y: 88.912224, z: 205.01367}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -94106,3 +94184,4 @@ SceneRoots:
   - {fileID: 314172099}
   - {fileID: 1146065336}
   - {fileID: 1143187556866413967}
+  - {fileID: 209877524}
