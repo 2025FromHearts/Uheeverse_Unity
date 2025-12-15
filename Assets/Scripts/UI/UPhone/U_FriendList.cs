@@ -1,10 +1,11 @@
 ﻿using UnityEngine;
-using UnityEngine.UI;
 using TMPro;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.Networking;
 using Newtonsoft.Json;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 [System.Serializable]
 public class FriendData
@@ -23,21 +24,139 @@ public class U_FriendList : MonoBehaviour
     public Transform friendsParent;
     public GameObject friendPrefab;
 
-    private string baseUrl = ServerConfig.baseUrl;
+    [Header("Input")]
+    public PadInputEventRouter padInput;
 
-    // 버튼 OnClick에 연결할 함수
-    public void OpenFriendPanel()
+    [Header("Overlay")]
+    public GameObject plusOverlayPanel;
+    public TMP_InputField nicknameInput;
+
+    [Header("Pad")]
+    public PadCommandSender padSender;
+    public UdpPadReceiver pad;
+
+    [Header("Search")]
+    public U_SearchFriend searchFriend;
+
+    private string baseUrl = ServerConfig.baseUrl;
+    bool isInitialized = false;
+    public ListNavigation listNavigation;
+
+    /* ===================== LifeCycle ===================== */
+
+    void Start()
     {
-        if (friendPanel != null)
+        OpenFriendPanel();
+    }
+
+    void Update()
+    {
+        if (pad == null || pad.latest == null) return;
+        if (!friendPanel.activeInHierarchy) return;
+        if (listNavigation == null) return;
+
+        float y = pad.latest.ly;
+        if (Mathf.Abs(y) < 0.6f) return;
+
+        // 1하이라이트 이동 (index 변경)
+        if (y > 0)
+            listNavigation.MoveUp();
+        else
+            listNavigation.MoveDown();
+
+        // 2스크롤 이동
+        ScrollRect sr = listNavigation.scrollRect;
+        if (sr != null)
         {
-            friendPanel.SetActive(true);
+            float speed = 0.8f * Time.unscaledDeltaTime;
+            sr.verticalNormalizedPosition = Mathf.Clamp01(
+                sr.verticalNormalizedPosition + (y > 0 ? speed : -speed)
+            );
+        }
+    }
+
+    void ResetListState()
+    {
+        listNavigation.scrollRect.verticalNormalizedPosition = 1f;
+        listNavigation.SetItems(new List<MonoBehaviour>(), false);
+    }
+
+    void OnEnable()
+    {
+        if (padInput != null)
+        {
+            padInput.OnPlusPressed += OnPlus;
+            padInput.OnBPressed += OnB;
         }
 
-        // 패널 활성화 후 코루틴 실행
+        PadCommandReceiver.OnSubmitText += ApplyNickname;
+    }
+
+    void OnDisable()
+    {
+        if (padInput != null)
+        {
+            padInput.OnPlusPressed -= OnPlus;
+            padInput.OnBPressed -= OnB;
+        }
+
+        PadCommandReceiver.OnSubmitText -= ApplyNickname;
+        ResetState();
+
+    }
+
+    void OnPlus()
+    {
+        if (!friendPanel.activeInHierarchy) return;
+
+        plusOverlayPanel.SetActive(true);
+
+        nicknameInput.text = "";
+        EventSystem.current.SetSelectedGameObject(nicknameInput.gameObject);
+        nicknameInput.ActivateInputField();
+
+
+        if (padSender != null)
+            padSender.SendOpenTextInput("nickname");
+
+        Debug.Log("[FriendList] Plus → Overlay Open + Pad Keyboard Request");
+    }
+
+    void OnB()
+    {
+        ResetListState();
+        plusOverlayPanel.SetActive(false);
+        EventSystem.current.SetSelectedGameObject(null);
+        padInput.currentMode = PadInputEventRouter.InputMode.UPhone;
+        return;
+    }
+
+
+    void ApplyNickname(string text)
+    {
+        nicknameInput.text = text;
+        nicknameInput.caretPosition = text.Length;
+        nicknameInput.ForceLabelUpdate();
+
+        EventSystem.current.SetSelectedGameObject(null);
+
+        StartCoroutine(searchFriend.SearchFriends(text));
+    }
+
+    public void ResetState()
+    {
+        if (listNavigation != null)
+            listNavigation.ResetToTop();
+    }
+    public void OpenFriendPanel()
+    {
+        if (friendPanel.activeSelf) return;
+
+        friendPanel.SetActive(true);
         StartCoroutine(OpenWithDelay());
     }
 
-    private IEnumerator OpenWithDelay()
+    IEnumerator OpenWithDelay()
     {
         yield return null;
         yield return RefreshFriends();
@@ -45,59 +164,35 @@ public class U_FriendList : MonoBehaviour
 
     public IEnumerator RefreshFriends()
     {
-
         string token = PlayerPrefs.GetString("access_token", "");
-        if (string.IsNullOrEmpty(token))
-        {
-            Debug.LogError("❌ Access token 없음, 로그인 먼저 필요");
-            yield break;
-        }
+        if (string.IsNullOrEmpty(token)) yield break;
 
         string url = $"{baseUrl}/social/friends/list/";
         UnityWebRequest www = UnityWebRequest.Get(url);
         www.SetRequestHeader("Authorization", "Bearer " + token);
 
         yield return www.SendWebRequest();
+        if (www.result != UnityWebRequest.Result.Success) yield break;
 
-        if (www.result != UnityWebRequest.Result.Success)
-        {
-            Debug.LogError("❌ 친구 목록 API 실패: " + www.error + "\n응답: " + www.downloadHandler.text);
-            yield break;
-        }
-
-        // 기존 항목 삭제
         foreach (Transform child in friendsParent)
-        {
             Destroy(child.gameObject);
-        }
 
-        // 응답 파싱
-        List<FriendData> results = null;
-        try
-        {
-            results = JsonConvert.DeserializeObject<List<FriendData>>(www.downloadHandler.text);
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogError("JSON 파싱 실패: " + e.Message);
-        }
+        var results = JsonConvert.DeserializeObject<List<FriendData>>(www.downloadHandler.text);
+        if (results == null) yield break;
 
-        if (results == null || results.Count == 0)
-        {
-            Debug.LogWarning("친구 데이터 없음");
-            yield break;
-        }
+        List<MonoBehaviour> uiList = new List<MonoBehaviour>();
 
         foreach (var f in results)
         {
-            GameObject obj = Instantiate(friendPrefab, friendsParent);
-            Debug.Log("생성 완료: " + obj.name);
-
-            FriendListUI ui = obj.GetComponent<FriendListUI>();
+            var obj = Instantiate(friendPrefab, friendsParent);
+            var ui = obj.GetComponent<FriendListUI>();
             if (ui != null)
             {
+                yield return null;
                 ui.SetData(f);
+                uiList.Add(ui);
             }
         }
+        listNavigation.SetItems(uiList);
     }
 }

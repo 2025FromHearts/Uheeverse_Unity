@@ -560,6 +560,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itemNameText: {fileID: 1196627874716578216}
-  itemPriceText: {fileID: 6705402727719201041}
-  purchaseButton: {fileID: 7804485757914098315}
   itemImage: {fileID: 5440327508998645970}
+  itemButton: {fileID: 7804485757914098315}
+  selectedScale: 1.08
+  scaleSpeed: 8

@@ -21,7 +21,10 @@ public class PlayerMove : MonoBehaviour
     private float invertDuration = 5f;     // 반전 지속 시간
     private Coroutine invertCoroutine = null;
 
-    
+    [Header("Joypad")]
+    public bool useJoypad = false;
+    public Vector2 joypadInput;
+
     private Animator animator;
 
     void Start()
@@ -32,10 +35,20 @@ public class PlayerMove : MonoBehaviour
 
     void Update()
     {
-        float inputX = Input.GetAxis("Horizontal");
-        float inputZ = Input.GetAxis("Vertical");
+        float inputX;
+        float inputZ;
 
-        // 🧠 반전 처리
+        if (useJoypad)
+        {
+            inputX = joypadInput.x;
+            inputZ = joypadInput.y;
+        }
+        else
+        {
+            inputX = Input.GetAxis("Horizontal");
+            inputZ = Input.GetAxis("Vertical");
+        }
+
         if (controlsInverted)
         {
             inputX = -inputX;
@@ -46,10 +59,10 @@ public class PlayerMove : MonoBehaviour
         dir.z = inputZ;
         dir.Normalize();
 
-        animator.SetBool("isMoving", dir != Vector3.zero);
-
+        animator.SetBool("isMove", dir != Vector3.zero);
         CheckGround();
     }
+
 
     private void FixedUpdate()
     {

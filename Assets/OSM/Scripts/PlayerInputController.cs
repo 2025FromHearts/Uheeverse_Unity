@@ -18,6 +18,7 @@ public class PlayerInputController : MonoBehaviour
     [Header("외부 입력 (JoyPad 등)")]
     public bool useExternalInput = false;          // true면 조이패드 같은 외부 입력 사용
     [HideInInspector] public Vector2 externalMoveInput = Vector2.zero; // (-1~1, x=좌우, y=앞뒤)
+    public PadInputEventRouter padInput;
 
     private Vector3 velocity;
 
@@ -52,6 +53,26 @@ public class PlayerInputController : MonoBehaviour
         return nearest;
     }
 
+    void OnEnable()
+    {
+        if (padInput != null)
+            padInput.OnXPressed += OnXPressed;
+    }
+
+    void OnDisable()
+    {
+        if (padInput != null)
+            padInput.OnXPressed -= OnXPressed;
+    }
+
+    void OnXPressed()
+    {
+        if (!isSitting)
+            TrySit();
+        else
+            StandUp();
+    }
+
     public void SetActiveCharacter(GameObject character)
     {
         animHandler = character.GetComponent<CharacterAnimHandler>();
@@ -59,6 +80,14 @@ public class PlayerInputController : MonoBehaviour
 
     void Update()
     {
+        if (padInput.currentMode != PadInputEventRouter.InputMode.Player)
+            return;
+
+        /*if (padInput != null &&
+            padInput.currentMode != PadInputEventRouter.InputMode.Player)
+            return;*/
+
+
         HandleSitToggle();
 
         if (!isSitting)
@@ -80,8 +109,6 @@ public class PlayerInputController : MonoBehaviour
     private void HandleMovement()
     {
         if (cameraTransform == null) return;
-        if (!canMove || controller == null || cameraTransform == null)
-            return;
 
         // -------- 1. 입력값 얻기 (키보드 or 외부 입력) --------
         Vector2 moveInput;

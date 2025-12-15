@@ -18,6 +18,9 @@ public class GameTimer : MonoBehaviour
     public Button quitButton;
     private bool gameEnded = false;
 
+    [Header("Joypad")]
+    public PadInputEventRouter padInput;
+
     void Start()
     {
         currentTime = totalTime;
@@ -171,5 +174,35 @@ public class GameTimer : MonoBehaviour
     private void QuitGame()
     {
         SceneManager.LoadScene("Django_FestivalMainScene", LoadSceneMode.Single);
+    }
+    void OnEnable()
+    {
+        if (padInput != null)
+        {
+            padInput.OnRPressed += OnRestartByPad;
+            padInput.OnXPressed += OnQuitByPad;
+        }
+    }
+
+    void OnDisable()
+    {
+        if (padInput != null)
+        {
+            padInput.OnRPressed -= OnRestartByPad;
+            padInput.OnXPressed -= OnQuitByPad;
+        }
+    }
+
+    void OnRestartByPad()
+    {
+        if (!gameEnded) return;
+
+        StartCoroutine(RestartGameAfterScoreSubmit());
+    }
+
+    void OnQuitByPad()
+    {
+        if (!gameEnded) return;
+        QuitGame();
     }
 }

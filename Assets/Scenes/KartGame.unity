@@ -7019,6 +7019,7 @@ MonoBehaviour:
   restartButton: {fileID: 142430591}
   quitButton: {fileID: 722373345}
   finishTextOnly: {fileID: 585855493}
+  padInput: {fileID: 1965227649}
 --- !u!1 &1098219352
 GameObject:
   m_ObjectHideFlags: 0
@@ -13647,6 +13648,139 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1960189380}
   m_CullTransparentMesh: 1
+--- !u!1 &1965227645
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1965227652}
+  - component: {fileID: 1965227651}
+  - component: {fileID: 1965227650}
+  - component: {fileID: 1965227649}
+  - component: {fileID: 1965227648}
+  - component: {fileID: 1965227647}
+  - component: {fileID: 1965227646}
+  m_Layer: 0
+  m_Name: JoypadReciver
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1965227646
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1965227645}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a65f5ec96c8aa354aa63aef3e2876d99, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pad: {fileID: 1965227650}
+  kart: {fileID: 2005505755}
+--- !u!114 &1965227647
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1965227645}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 11d3352d4a19c0049a52a166f3fee0cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetIp: 127.0.0.1
+  targetPort: 9001
+--- !u!114 &1965227648
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1965227645}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d9ade38b5efc65c47bc3ff31735bf69b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  listenPort: 9002
+--- !u!114 &1965227649
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1965227645}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7786f0bd46af20149a4ec1bd7427fc39, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pad: {fileID: 1965227650}
+  currentMode: 0
+--- !u!114 &1965227650
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1965227645}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e6f30925ef0c542cbbd5c966ac21e3ce, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  listenPort: 9000
+  latest:
+    lx: 0
+    ly: 0
+    a: 0
+    b: 0
+    x: 0
+    y: 0
+    l: 0
+    r: 0
+    plus: 0
+    minus: 0
+    page: 0
+  isReceiving: 0
+--- !u!114 &1965227651
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1965227645}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff533bbdae00a4dcaaa71a26416ff334, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inputController: {fileID: 0}
+  pad: {fileID: 1965227650}
+  deadZone: 0.1
+--- !u!4 &1965227652
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1965227645}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -249.28377, y: 520.71783, z: -220.99478}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1971285938
 GameObject:
   m_ObjectHideFlags: 0
@@ -13934,6 +14068,8 @@ MonoBehaviour:
   bananaPrefab: {fileID: 5191064201427563231, guid: 51931a080b39ada44bf2815b4c123916, type: 3}
   bananaPivot: {fileID: 5215108152477165563, guid: 51931a080b39ada44bf2815b4c123916, type: 3}
   itemDisplayUI: {fileID: 615293110}
+  useJoypad: 0
+  joypadMoveInput: {x: 0, y: 0}
 --- !u!65 &2005505757
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -22086,3 +22222,4 @@ SceneRoots:
   - {fileID: 1680860416}
   - {fileID: 1148214273}
   - {fileID: 715424478}
+  - {fileID: 1965227652}

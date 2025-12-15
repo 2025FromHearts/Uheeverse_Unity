@@ -13,6 +13,9 @@ public class TrainDialogueManager : MonoBehaviour
     public GameObject dialogueCanvas;
     public GameObject quizCanvas;
 
+    [Header("Joypad")]
+    public PadInputEventRouter padInput;
+
     private List<string> dialogueLines = new List<string>()
     {
         "안녕하세요!",
@@ -29,13 +32,28 @@ public class TrainDialogueManager : MonoBehaviour
     private IEnumerator Start()
     {
         while (string.IsNullOrEmpty(PlayerPrefs.GetString("character_id")))
-        {
             yield return null;
-        }
 
-        Debug.Log("TrainScene 시작 시 character_id = " + PlayerPrefs.GetString("character_id"));
         ShowCurrentLine();
         quizCanvas.SetActive(false);
+    }
+
+    void OnEnable()
+    {
+        if (padInput != null)
+            padInput.OnAPressed += OnJoypadNext;
+    }
+
+    void OnDisable()
+    {
+        if (padInput != null)
+            padInput.OnAPressed -= OnJoypadNext;
+    }
+
+    void OnJoypadNext()
+    {
+        if (!dialogueCanvas.activeInHierarchy) return;
+        OnClickNext();
     }
 
     public void OnClickNext()
@@ -48,7 +66,6 @@ public class TrainDialogueManager : MonoBehaviour
             dialogueCanvas.SetActive(false);
             quizCanvas.SetActive(true);
 
-            // 퀴즈 요청 시작
             StartCoroutine(FetchQuizFromServer("청송"));
             return;
         }
@@ -65,7 +82,6 @@ public class TrainDialogueManager : MonoBehaviour
         {
             TMP_Text btnText = nextButton.GetComponentInChildren<TMP_Text>();
             if (btnText != null) btnText.text = "시작";
-
             isReadyToStartQuiz = true;
         }
     }
@@ -75,7 +91,7 @@ public class TrainDialogueManager : MonoBehaviour
         string url = ServerConfig.baseUrl + "/users/generate_quiz/?region=" + region;
 
         UnityWebRequest www = new UnityWebRequest(url, "POST");
-        www.uploadHandler = new UploadHandlerRaw(new byte[0]);  // 바디 없음
+        www.uploadHandler = new UploadHandlerRaw(new byte[0]);
         www.downloadHandler = new DownloadHandlerBuffer();
         www.SetRequestHeader("Content-Type", "application/json");
 
@@ -87,10 +103,7 @@ public class TrainDialogueManager : MonoBehaviour
             yield break;
         }
 
-        string json = www.downloadHandler.text;
-        QuizData quiz = JsonUtility.FromJson<QuizData>(json);
-        List<QuizData> quizList = new List<QuizData> { quiz };
-
-        quizManager.StartQuiz(quizList);
+        QuizData quiz = JsonUtility.FromJson<QuizData>(www.downloadHandler.text);
+        quizManager.StartQuiz(new List<QuizData> { quiz });
     }
 }

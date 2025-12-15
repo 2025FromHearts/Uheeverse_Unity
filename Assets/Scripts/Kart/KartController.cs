@@ -46,6 +46,10 @@ public class KartController : MonoBehaviour
 
     //아이템 이미지UI 연결
     public ItemDisplayUI itemDisplayUI;
+
+    [Header("Joypad Input")]
+    public bool useJoypad = false;
+    public Vector2 joypadMoveInput;
     void Update()
     {
         // BananaPivot 회전
@@ -158,10 +162,23 @@ public class KartController : MonoBehaviour
         float slopeAngle = Vector3.Angle(transform.up, Vector3.up);
         float slopeTorqueBoost = Mathf.Clamp(slopeAngle * 100f, 0, 10000f);
 
-        float motor = (-Input.GetAxis("Vertical") * (maxMotorTorque + slopeTorqueBoost)) * speedMultiplier;
+        float vertical;
+        float horizontal;
 
-        // 좌우 조향 입력 (조작 반전 고려)
-        float steerInput = Input.GetAxis("Horizontal") * (controlsReversed ? -1f : 1f);
+        if (useJoypad)
+        {
+            vertical = joypadMoveInput.y;
+            horizontal = joypadMoveInput.x;
+        }
+        else
+        {
+            vertical = Input.GetAxis("Vertical");
+            horizontal = Input.GetAxis("Horizontal");
+        }
+
+        float motor = (-vertical * (maxMotorTorque + slopeTorqueBoost)) * speedMultiplier;
+        float steerInput = horizontal * (controlsReversed ? -1f : 1f);
+
         float steerAngle = steerInput * maxSteerAngle;
 
         // 조향 적용 (전/후륜 모두)
@@ -344,5 +361,6 @@ public class KartController : MonoBehaviour
         rb.angularVelocity = Vector3.zero;
         enabled = false; // 입력 비활성화
     }
+
 
 }
