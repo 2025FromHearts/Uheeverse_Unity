@@ -76,11 +76,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d656d58d598349ab90b63cc73b56245, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _componentIndexCache: 255
+  _addedNetworkObject: {fileID: 0}
+  _networkObjectCache: {fileID: 0}
   cameraTransform: {fileID: 0}
   moveSpeed: 5
   canMove: 1
   gravity: -20
   groundCheckDistance: 0.2
+  sitRange: 2
+  chairPoints: []
 --- !u!114 &7735235107779867725
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -110,6 +115,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 32cdd5b5d7ce5134e8165965d7acfb8e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  animator: {fileID: 0}
 --- !u!1001 &723765998499655375
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -190,6 +196,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 32cdd5b5d7ce5134e8165965d7acfb8e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  animator: {fileID: 0}
 --- !u!95 &6292544380283273955
 Animator:
   serializedVersion: 7
@@ -302,6 +309,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 32cdd5b5d7ce5134e8165965d7acfb8e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  animator: {fileID: 0}
 --- !u!95 &6014835211794791556
 Animator:
   serializedVersion: 7
@@ -402,6 +410,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 32cdd5b5d7ce5134e8165965d7acfb8e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  animator: {fileID: 0}
 --- !u!4 &4527059180872515006 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2709602313670587690, guid: 1315b79d4625a0c4d89fd6fff900b643, type: 3}
@@ -496,6 +505,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 32cdd5b5d7ce5134e8165965d7acfb8e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  animator: {fileID: 0}
 --- !u!4 &6701268429234737925 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 50e08dbc004423e45964af64a4d251fb, type: 3}

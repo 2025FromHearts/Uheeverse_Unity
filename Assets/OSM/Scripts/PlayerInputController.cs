@@ -1,6 +1,7 @@
+using FishNet.Object;
 using UnityEngine;
 
-public class PlayerInputController : MonoBehaviour
+public class PlayerInputController : NetworkBehaviour
 {
     private CharacterController controller;
     public Transform cameraTransform;
@@ -24,6 +25,20 @@ public class PlayerInputController : MonoBehaviour
         controller = GetComponent<CharacterController>();
     }
 
+    public override void OnStartClient()
+    {
+        base.OnStartClient();
+
+        
+        if (!IsOwner)
+        {
+            enabled = false;
+            return;
+        }
+
+        
+        cameraTransform = Camera.main.transform;
+    }
     private Transform GetNearestChair()
     {
         float minDist = Mathf.Infinity;
