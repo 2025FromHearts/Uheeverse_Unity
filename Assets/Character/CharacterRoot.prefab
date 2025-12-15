@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 3616220631467188160}
   - component: {fileID: 7735235107779867725}
   - component: {fileID: 4364836906292062215}
+  - component: {fileID: 1473661271184218325}
   m_Layer: 0
   m_Name: CharacterRoot
   m_TagString: Player
@@ -76,7 +77,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d656d58d598349ab90b63cc73b56245, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _componentIndexCache: 255
+  _componentIndexCache: 0
   _addedNetworkObject: {fileID: 0}
   _networkObjectCache: {fileID: 0}
   cameraTransform: {fileID: 0}
@@ -116,6 +117,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   animator: {fileID: 0}
+--- !u!114 &1473661271184218325
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1247758673133105538}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2cbf4c0bce2a34179b69644341dbf2db, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  slm: {fileID: 0}
 --- !u!1001 &723765998499655375
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -18,11 +18,17 @@ public class TrainLoader : MonoBehaviour
             Debug.Log("서버 꺼짐");
             return;
         }
+
+        if (other.CompareTag("TrainLoader")) {
+
+            Debug.Log("트리거감지");
+            NetworkObject nob = other.GetComponent<NetworkObject>();
+            if (nob != null)
+                LoadScene(nob);
+
+        }
         
-        Debug.Log("트리거감지"); 
-        NetworkObject nob = other.GetComponent<NetworkObject>();
-        if (nob != null)
-            LoadScene(nob);
+        
     }
 
     private void LoadScene(NetworkObject nob)

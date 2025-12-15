@@ -36,8 +36,15 @@ public class PlayerInputController : NetworkBehaviour
             return;
         }
 
-        
-        cameraTransform = Camera.main.transform;
+
+        Camera cam = Camera.main;
+        if (cam == null) return;
+
+        cam.transform.SetParent(transform);
+        cam.transform.localPosition = new Vector3(0f, 3f, -3f);
+        cam.transform.localRotation = Quaternion.identity;
+
+        cameraTransform = cam.transform;
     }
     private Transform GetNearestChair()
     {
