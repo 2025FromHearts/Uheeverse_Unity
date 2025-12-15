@@ -4,70 +4,64 @@ using TMPro;
 
 public class NpcPhotoManager : MonoBehaviour
 {
-    [Header("대화 패널")]
-    public GameObject dialoguePanel;     // "사진 촬영을 시작할까요?" 패널
+    public GameObject dialoguePanel;
     public TMP_Text titleText;
     public TMP_Text bodyText;
     public Button startButton;
     public Button cancelButton;
 
-    [Header("포토 모드")]
-    public PhotoModeController photoMode; // 실제 촬영/카메라 전환 담당
+    public PhotoModeController photoMode;
 
-    private NpcInteract caller;
+    private string currentNpcId;
+    private string currentNpcName;
 
-    public void ShowPhotoDialogue(string npcName, NpcInteract callerNpc)
+    public void ShowPhotoDialogue(NpcInteract caller)
     {
-        caller = callerNpc;
+        currentNpcId = caller.npcId;
+        currentNpcName = caller.npcName;
 
-        if (dialoguePanel != null) dialoguePanel.SetActive(true);
-        if (titleText != null) titleText.text = $"{npcName}";
-        if (bodyText != null) bodyText.text = "사진 촬영을 시작할까요?";
+        dialoguePanel?.SetActive(true);
+        titleText.text = caller.npcName;
+        bodyText.text = "사진 촬영을 시작할까요?";
 
-        // 중복 리스너 제거 후 등록
         startButton.onClick.RemoveAllListeners();
         cancelButton.onClick.RemoveAllListeners();
 
         startButton.onClick.AddListener(() =>
         {
-            if (dialoguePanel != null) dialoguePanel.SetActive(false);
+            dialoguePanel?.SetActive(false);
 
-            // 포토 모드 진입
-            photoMode.EnterPhotoMode();
-
-            // 플레이어 위치 이동
             GameObject playerObj = GameObject.FindWithTag("Player");
-            if (playerObj != null)
+            if (playerObj == null)
             {
-                Transform player = playerObj.transform;
-                Transform photoSpawnPoint = photoMode.photoSpawnPoint;
-
-                if (photoSpawnPoint != null)
-                {
-                    var cc = player.GetComponent<CharacterController>();
-                    if (cc != null) cc.enabled = false;
-
-                    player.position = photoSpawnPoint.position;
-
-                    if (cc != null) cc.enabled = true;
-                }
-                else
-                {
-                    Debug.LogWarning("❌ photoSpawnPoint가 null입니다.");
-                }
-            }
-            else
-            {
-                Debug.LogWarning("❌ Player 태그가 있는 오브젝트를 찾을 수 없습니다.");
+                Debug.LogWarning("❌ Player 태그가 없습니다.");
+                return;
             }
 
-            NpcTalkTracker.Instance?.MarkNpcAsTalked();
+            string characterStyle = PlayerPrefs.GetString("character_style", "");
+            if (string.IsNullOrEmpty(characterStyle))
+                Debug.LogWarning("❌ PlayerPrefs에서 character_style을 찾을 수 없습니다.");
+
+            photoMode.EnterPhotoMode(characterStyle, playerObj);
+
+            Transform spawn = photoMode.photoSpawnPoint;
+            if (spawn != null)
+            {
+                var cc = playerObj.GetComponent<CharacterController>();
+                if (cc != null) cc.enabled = false;
+
+                playerObj.transform.position = spawn.position;
+
+                if (cc != null) cc.enabled = true;
+            }
+
+            NpcTalkTracker.Instance?.MarkNpcAsTalked(currentNpcId);
         });
 
         cancelButton.onClick.AddListener(() =>
         {
-            if (dialoguePanel != null) dialoguePanel.SetActive(false);
-            if (caller != null) caller.ResetTalkState();
+            dialoguePanel?.SetActive(false);
+            caller?.ResetTalkState();
         });
     }
 }

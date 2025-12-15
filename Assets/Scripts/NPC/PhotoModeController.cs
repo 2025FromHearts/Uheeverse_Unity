@@ -1,189 +1,263 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.UI;
+using static PhotoPoseData;
 
 public class PhotoModeController : MonoBehaviour
 {
+    public CharacterPoseSet[] poseData;
+
     [Header("카메라")]
     public Camera playerCamera;
-    public Camera photoCamera;              // 비활성화해 두기 권장
-    public Transform photoPivot;            // 비워두면 photoCamera.transform 사용
-    public Transform photoSpawnPoint;
+    public Camera photoCamera;
 
     [Header("HUD / UI")]
-    public GameObject photoHud;             // 촬영/나가기 UI
+    public GameObject photoHud;
     public GameObject mainUICanvas;
-    public Button shutterButton;            // 촬영
-    public Button exitButton;               // 종료
-    public CanvasGroup flash;               // 선택: 촬영 플래시
+    public Button shutterButton;
+    public Button exitButton;
+    public Button[] poseButtons;
+    public Transform photoSpawnPoint;
 
     [Header("플레이어 제어 비활성화 목록")]
-    public MonoBehaviour[] componentsToDisableWhilePhoto; // PlayerMovement 등
+    public MonoBehaviour[] componentsToDisableWhilePhoto;
 
-    [Header("키 설정")]
-    public KeyCode shutterKey = KeyCode.Space;
-    public KeyCode exitKey = KeyCode.Escape;
-    public KeyCode zoomInKey = KeyCode.Equals;   // 키보드 +
-    public KeyCode zoomOutKey = KeyCode.Minus;   // 키보드 -
+    [Header("NPC 포토존 스폰 포인트")]
+    public Transform npcSpawnPoints;
+    public float detectRadius = 2f;
 
-    [Header("이동/줌 설정")]
-    public float moveSpeed = 3f;            // WASD 평면 이동 속도
-    public float zoomSpeed = 50f;           // FOV 변화 속도(휠/키)
+    [Header("줌 설정")]
+    public Button zoomInButton;
+    public Button zoomOutButton;
+    public float zoomSpeed = 50f;
     public float fovDefault = 60f;
     public float fovMin = 20f;
     public float fovMax = 90f;
 
+    private GameObject currentPoseObj;
+    private CharacterPoseSet currentPoseSet;
+    private GameObject playerCharacter;
     private bool isOn;
-    private float lockY;                    // 수평 이동용 고정 높이
+
+    private string uploadUrl = $"{ServerConfig.baseUrl}/gallery/upload_image/";
 
     void Awake()
     {
-        if (photoCamera != null) photoCamera.enabled = false;
-        if (photoHud != null) photoHud.SetActive(false);
+        if (photoCamera != null)
+            photoCamera.enabled = false;
 
-        if (shutterButton != null)
+        photoHud?.SetActive(false);
+
+        shutterButton.onClick.AddListener(TakeShot);
+        exitButton.onClick.AddListener(ExitPhotoMode);
+
+        // 포즈 버튼 연결
+        for (int i = 0; i < poseButtons.Length; i++)
         {
-            shutterButton.onClick.RemoveAllListeners();
-            shutterButton.onClick.AddListener(TakeShot);
+            int index = i;
+            poseButtons[i].onClick.AddListener(() => SetPose(index + 1));
         }
-        if (exitButton != null)
-        {
-            exitButton.onClick.RemoveAllListeners();
-            exitButton.onClick.AddListener(ExitPhotoMode);
-        }
+
+        // 줌인 / 줌아웃 버튼 연결
+        zoomInButton.onClick.AddListener(ZoomIn);
+        zoomOutButton.onClick.AddListener(ZoomOut);
     }
 
-    public void EnterPhotoMode()
+    private void SetPose(int poseIndex)
+    {
+        if (currentPoseSet == null) return;
+
+        if (currentPoseObj != null)
+            Destroy(currentPoseObj);
+
+        GameObject prefab = poseIndex switch
+        {
+            1 => currentPoseSet.pose1Prefab,
+            2 => currentPoseSet.pose2Prefab,
+            3 => currentPoseSet.pose3Prefab,
+            _ => null
+        };
+
+        Vector3 posOffset = poseIndex switch
+        {
+            1 => currentPoseSet.pose1PositionOffset,
+            2 => currentPoseSet.pose2PositionOffset,
+            3 => currentPoseSet.pose3PositionOffset,
+            _ => Vector3.zero
+        };
+
+        Vector3 rotOffset = poseIndex switch
+        {
+            1 => currentPoseSet.pose1RotationOffset,
+            2 => currentPoseSet.pose2RotationOffset,
+            3 => currentPoseSet.pose3RotationOffset,
+            _ => Vector3.zero
+        };
+
+        Vector3 finalPos = photoSpawnPoint.position + posOffset;
+        Quaternion finalRot = photoSpawnPoint.rotation * Quaternion.Euler(rotOffset);
+
+        currentPoseObj = Instantiate(prefab, finalPos, finalRot);
+    }
+
+
+    public void EnterPhotoMode(string characterStyle, GameObject playerObj)
     {
         isOn = true;
 
-        // 피벗 기본값: 포토 카메라 트랜스폼
-        if (photoPivot == null && photoCamera != null)
-            photoPivot = photoCamera.transform;
+        playerCharacter = playerObj;
+        playerCharacter.SetActive(false);
 
-        if (photoCamera != null)
+        currentPoseSet = Array.Find(poseData, set => set.characterName == characterStyle);
+
+        if (currentPoseSet == null)
         {
-            photoCamera.enabled = true;
-            photoCamera.fieldOfView = fovDefault;
+            Debug.LogWarning($"PoseSet 미발견: {characterStyle}");
+            return;
         }
-        if (playerCamera != null) playerCamera.enabled = false;
 
-        if (photoHud != null) photoHud.SetActive(true);
+        SetPose(1);
+
+        photoCamera.enabled = true;
+        playerCamera.enabled = false;
+
+        photoHud?.SetActive(true);
+        mainUICanvas?.SetActive(false);
 
         foreach (var c in componentsToDisableWhilePhoto)
-            if (c != null) c.enabled = false;
+            c.enabled = false;
 
-        // 수평 이동을 위해 현재 Y 고정
-        if (photoPivot != null) lockY = photoPivot.position.y;
-
-        if (mainUICanvas != null)
-            mainUICanvas.SetActive(false);
+        HideNPCsNearSpawnPoints();
     }
+
+
+    private List<GameObject> autoHiddenNPCs = new List<GameObject>();
+
+    private void HideNPCsNearSpawnPoints()
+    {
+        autoHiddenNPCs.Clear();
+
+        if (npcSpawnPoints == null)
+        {
+            Debug.LogWarning("NPC 스폰 포인트를 설정해주세요.");
+            return;
+        }
+
+        Collider[] hits = Physics.OverlapSphere(npcSpawnPoints.position, detectRadius);
+
+        foreach (var hit in hits)
+        {
+            if (hit.CompareTag("NPC"))
+            {
+                hit.gameObject.SetActive(false);
+                autoHiddenNPCs.Add(hit.gameObject);
+            }
+        }
+    }
+
 
     public void ExitPhotoMode()
     {
         isOn = false;
 
-        if (photoHud != null) photoHud.SetActive(false);
+        if (currentPoseObj != null)
+            Destroy(currentPoseObj);
 
-        if (photoCamera != null)
-        {
-            photoCamera.fieldOfView = fovDefault;
-            photoCamera.enabled = false;
-        }
-        if (playerCamera != null) playerCamera.enabled = true;
+        playerCharacter?.SetActive(true);
+
+        photoHud?.SetActive(false);
+        mainUICanvas?.SetActive(true);
+
+        photoCamera.enabled = false;
+        playerCamera.enabled = true;
 
         foreach (var c in componentsToDisableWhilePhoto)
-            if (c != null) c.enabled = true;
+            c.enabled = true;
 
-        if (mainUICanvas != null)
-            mainUICanvas.SetActive(true);
+        foreach (var npc in autoHiddenNPCs)
+        {
+            if (npc != null)
+                npc.SetActive(true);
+        }
     }
+
 
     void Update()
     {
         if (!isOn) return;
-
-        // --- 평면 이동 (앞/뒤/좌/우) ---
-        if (photoPivot != null && photoCamera != null)
-        {
-            // 카메라 기준의 평면 방향 벡터
-            Vector3 fwd = photoCamera.transform.forward; fwd.y = 0f; fwd.Normalize();
-            Vector3 right = photoCamera.transform.right; right.y = 0f; right.Normalize();
-
-            float h = Input.GetAxisRaw("Horizontal"); // A/D
-            float v = Input.GetAxisRaw("Vertical");   // W/S
-
-            Vector3 delta = (right * h + fwd * v).normalized * moveSpeed * Time.unscaledDeltaTime;
-            Vector3 pos = photoPivot.position + delta;
-            pos.y = lockY; // 수직 고정
-            photoPivot.position = pos;
-        }
-
-        // --- 줌 (FOV) : 마우스 휠 + 단축키(+/-) ---
-        if (photoCamera != null)
-        {
-            float wheel = Input.mouseScrollDelta.y; // 위로 굴리면 +, 아래 - (플랫폼별 반대로 보이면 부호 반전)
-            float key = 0f;
-            if (Input.GetKey(zoomInKey)) key += 1f;
-            if (Input.GetKey(zoomOutKey)) key -= 1f;
-
-            float delta = (wheel + key) * zoomSpeed * Time.unscaledDeltaTime;
-            if (Mathf.Abs(delta) > 0.0001f)
-            {
-                float fov = Mathf.Clamp(photoCamera.fieldOfView - delta, fovMin, fovMax);
-                photoCamera.fieldOfView = fov;
-            }
-        }
-
-        // --- 단축키 ---
-        if (Input.GetKeyDown(shutterKey)) TakeShot();
-        if (Input.GetKeyDown(exitKey)) ExitPhotoMode();
     }
 
-    private void TakeShot()
+
+    public void ZoomIn()
     {
-        StartCoroutine(CaptureWithoutUI());
+        photoCamera.fieldOfView = Mathf.Clamp(
+            photoCamera.fieldOfView - zoomSpeed * Time.deltaTime,
+            fovMin, fovMax
+        );
     }
 
-    private System.Collections.IEnumerator CaptureWithoutUI()
+    public void ZoomOut()
     {
-        // 1️⃣ 모든 Canvas 비활성화
+        photoCamera.fieldOfView = Mathf.Clamp(
+            photoCamera.fieldOfView + zoomSpeed * Time.deltaTime,
+            fovMin, fovMax
+        );
+    }
+
+
+    public void TakeShot()
+    {
+        StartCoroutine(CaptureAndUpload());
+    }
+
+
+    private IEnumerator CaptureAndUpload()
+    {
         Canvas[] canvases = FindObjectsOfType<Canvas>();
-        foreach (Canvas c in canvases)
-            c.enabled = false;
+        foreach (Canvas c in canvases) c.enabled = false;
 
-        yield return new WaitForEndOfFrame(); // UI 꺼진 프레임 반영
+        yield return new WaitForEndOfFrame();
 
-        // 2️⃣ 캡처
-        string file = $"photo_{DateTime.Now:yyyyMMdd_HHmmss}.png";
-        string path = Path.Combine(Application.persistentDataPath, file);
+        Texture2D screenshot = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, false);
+        screenshot.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0);
+        screenshot.Apply();
 
-        ScreenCapture.CaptureScreenshot(path);
-        Debug.Log($"📸 Saved (UI 제외): {path}");
+        byte[] pngBytes = screenshot.EncodeToPNG();
+        Destroy(screenshot);
 
-        if (flash != null)
-            StartCoroutine(FlashRoutine());
+        foreach (Canvas c in canvases) c.enabled = true;
 
-        // 3️⃣ 잠시 대기 후 UI 다시 켜기
-        yield return new WaitForSecondsRealtime(0.3f);
-        foreach (Canvas c in canvases)
-            c.enabled = true;
+        yield return UploadImageBytes(pngBytes);
     }
 
 
-    private System.Collections.IEnumerator FlashRoutine()
+    private IEnumerator UploadImageBytes(byte[] imageBytes)
     {
-        flash.gameObject.SetActive(true);
-        flash.alpha = 1f;
-        float t = 0f;
-        while (t < 0.15f)
+        string token = PlayerPrefs.GetString("access_token", "");
+
+        WWWForm form = new WWWForm();
+        form.AddBinaryData("image", imageBytes, "photo.png", "image/png");
+
+        UnityWebRequest www = UnityWebRequest.Post(uploadUrl, form);
+        www.SetRequestHeader("Authorization", $"Bearer {token}");
+
+        yield return www.SendWebRequest();
+
+        if (www.result != UnityWebRequest.Result.Success)
         {
-            t += Time.unscaledDeltaTime;
-            flash.alpha = Mathf.Lerp(1f, 0f, t / 0.15f);
-            yield return null;
+            Debug.LogError($"업로드 실패: {www.error}\n응답: {www.downloadHandler.text}");
         }
-        flash.gameObject.SetActive(false);
+        else
+        {
+            Debug.Log($"✅ 업로드 성공! 응답: {www.downloadHandler.text}");
+
+            var galleryList = FindAnyObjectByType<U_GalleryList>(FindObjectsInactive.Include);
+            if (galleryList != null)
+                galleryList.RefreshGallery();
+        }
     }
 }

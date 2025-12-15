@@ -1,105 +1,128 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
 
-[RequireComponent(typeof(CharacterController))]
 public class PlayerInputController : MonoBehaviour
 {
-    private InputActions controls;
-    private Vector2 moveInput;
+    private CharacterController controller;
+    public Transform cameraTransform;
     public float moveSpeed = 5f;
     public bool canMove = true;
-
-    public Transform cameraTransform; // 카메라 방향 따라 이동
-    private Animator animator;
-    private CharacterController controller;
-
-    private Vector3 velocity;
     public float gravity = -20f;
     public float groundCheckDistance = 0.2f;
+    public float sitRange = 2f;
+    public Transform[] chairPoints;
+    private bool isSitting = false;
+    private Transform nearestChair;
+
+    private Vector3 velocity;
+    private Vector2 moveInput;
+
+    // 현재 활성화된 캐릭터 애니메이션 핸들러
+    private CharacterAnimHandler animHandler;
 
     void Awake()
     {
-        controls = new InputActions();
-        controls.Player.Move.performed += ctx => moveInput = ctx.ReadValue<Vector2>();
-        controls.Player.Move.canceled += ctx => moveInput = Vector2.zero;
-
-        animator = GetComponent<Animator>();
         controller = GetComponent<CharacterController>();
     }
 
-    void OnEnable() => controls.Enable();
-    void OnDisable() => controls.Disable();
+    private Transform GetNearestChair()
+    {
+        float minDist = Mathf.Infinity;
+        Transform nearest = null;
+
+        foreach (var chair in chairPoints)
+        {
+            if (chair == null) continue;
+
+            float dist = Vector3.Distance(transform.position, chair.position);
+
+            if (dist < minDist)
+            {
+                minDist = dist;
+                nearest = chair;
+            }
+        }
+
+        return nearest;
+    }
+
+    public void SetActiveCharacter(GameObject character)
+    {
+        animHandler = character.GetComponent<CharacterAnimHandler>();
+    }
 
     void Update()
     {
-        // ✅ 채팅창 입력 중 or 대화 중일 때 이동 금지
-        if (!canMove)
+        HandleSitToggle();
+
+        if (!isSitting)
+            HandleMovement();   // 앉아있지 않을 때만 이동 가능
+    }
+
+    private void HandleSitToggle()
+    {
+        if (Input.GetKeyDown(KeyCode.I))
         {
-            animator.SetBool("IsMove", false);
-            return;
+            // 토글
+            if (!isSitting)
+                TrySit();
+            else
+                StandUp();
         }
+    }
 
-        // 카메라 기준 전후좌우 방향 계산
-        Vector3 fwd = Vector3.forward;
-        Vector3 right = Vector3.right;
+    private void HandleMovement()
+    {
+        if (cameraTransform == null) return;
 
-        if (cameraTransform != null)
-        {
-            fwd = cameraTransform.forward;
-            fwd.y = 0;
-            fwd.Normalize();
+        Vector3 fwd = cameraTransform.forward;
+        fwd.y = 0; fwd.Normalize();
 
-            right = cameraTransform.right;
-            right.y = 0;
-            right.Normalize();
-        }
+        Vector3 right = cameraTransform.right;
+        right.y = 0; right.Normalize();
 
-        // 입력 방향 벡터 계산
-        Vector3 inputDir = (fwd * moveInput.y + right * moveInput.x);
-        if (inputDir.sqrMagnitude > 1e-4f)
-            inputDir.Normalize();
-
-        // 이동 여부 확인
+        Vector3 inputDir = fwd * Input.GetAxis("Vertical") + right * Input.GetAxis("Horizontal");
         bool isMoving = inputDir.sqrMagnitude > 0.01f;
-        animator.SetBool("IsMove", isMoving);
+        inputDir.Normalize();
 
-        // 캐릭터 회전
+        animHandler?.SetMoveState(isMoving);
+
         if (isMoving)
         {
-            var targetRot = Quaternion.LookRotation(inputDir, Vector3.up);
+            Quaternion targetRot = Quaternion.LookRotation(inputDir, Vector3.up);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.deltaTime * 10f);
         }
 
-        // 지면 감지 및 중력 처리
-        bool grounded = controller.isGrounded || GroundCheckSphere();
-
+        bool grounded = controller.isGrounded;
         if (grounded)
-            velocity.y = -2f; // 바닥 스냅
+            velocity.y = -2f;
         else
             velocity.y += gravity * Time.deltaTime;
 
-        // 최종 이동 벡터
-        Vector3 finalMove = inputDir * moveSpeed + velocity;
-        controller.Move(finalMove * Time.deltaTime);
+        controller.Move((inputDir * moveSpeed + velocity) * Time.deltaTime);
     }
 
-    // ✅ 발 밑에 SphereCast로 지면 판정
-    bool GroundCheckSphere()
+    private void TrySit()
     {
-        float halfH = controller.height * 0.5f;
-        float feetOffset = halfH - controller.radius;
-        Vector3 feet = transform.position + controller.center + Vector3.down * feetOffset + Vector3.up * 0.05f;
+        nearestChair = GetNearestChair();
+        if (nearestChair == null) return;
 
-        return Physics.SphereCast(
-            feet, controller.radius * 0.95f, Vector3.down,
-            out _, 0.15f, ~0, QueryTriggerInteraction.Ignore
-        );
+        float dist = Vector3.Distance(transform.position, nearestChair.position);
+        if (dist > sitRange) return;
+
+        isSitting = true;
+        controller.enabled = false;
+        transform.position = nearestChair.position;
+        transform.rotation = nearestChair.rotation;
+        controller.enabled = true;
+
+        animHandler?.SetSitState(true);
     }
 
-    // ✅ Raycast 예비용 (필요 시 사용 가능)
-    bool IsGrounded()
+
+    private void StandUp()
     {
-        Vector3 rayOrigin = transform.position + Vector3.up * 0.1f;
-        return Physics.Raycast(rayOrigin, Vector3.down, groundCheckDistance + 0.1f);
+        animHandler?.SetSitState(false);
+        canMove = true;
+        isSitting = false;
     }
 }

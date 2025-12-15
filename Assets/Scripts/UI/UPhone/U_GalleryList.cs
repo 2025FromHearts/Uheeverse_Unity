@@ -1,12 +1,11 @@
 ﻿using UnityEngine;
-using UnityEngine.UI;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine.Networking;
-using Newtonsoft.Json;
+using System.Collections;
+using TMPro;
+using UnityEngine.UI;
 
 [System.Serializable]
-public class GalleryData
+public class GalleryItemData
 {
     public string gallery_id;
     public string url;
@@ -17,64 +16,121 @@ public class GalleryData
 public class U_GalleryList : MonoBehaviour
 {
     [Header("UI")]
-    public Transform contentParent;     // ScrollView → Content
-    public GameObject galleryItemPrefab; // Prefab (GalleryItemUI 포함)
+    [SerializeField] private Transform galleryContainer;   // 갤러리 아이템들이 배치될 부모
+    [SerializeField] private GameObject galleryItemPrefab; // 하나의 썸네일 프리팹
 
-    private string baseUrl = ServerConfig.baseUrl;
-    public void OpenGallery()
+    private string baseUrl;
+    private string accessToken;
+
+    private void Start()
     {
-        gameObject.SetActive(true);
+        RefreshGallery();
+    }
+
+    /// ✅ 갤러리 목록 새로고침 (Viewer에서 호출)
+    public void RefreshGallery()
+    {
+        StopAllCoroutines();
         StartCoroutine(LoadGallery());
     }
 
     private IEnumerator LoadGallery()
     {
-        string token = PlayerPrefs.GetString("access_token", "");
-        if (string.IsNullOrEmpty(token))
-        {
-            Debug.LogError("❌ Access token 없음!");
-            yield break;
-        }
+        baseUrl = ServerConfig.baseUrl;
+        accessToken = PlayerPrefs.GetString("access_token", "");
 
         string url = $"{baseUrl}/gallery/gallery_list/";
-        UnityWebRequest www = UnityWebRequest.Get(url);
-        www.SetRequestHeader("Authorization", "Bearer " + token);
+        UnityWebRequest req = UnityWebRequest.Get(url);
+        req.SetRequestHeader("Authorization", "Bearer " + accessToken);
 
-        yield return www.SendWebRequest();
+        yield return req.SendWebRequest();
 
-        if (www.result != UnityWebRequest.Result.Success)
+        if (req.result != UnityWebRequest.Result.Success)
         {
-            Debug.LogError("❌ 갤러리 요청 실패: " + www.error + "\n" + www.downloadHandler.text);
+            Debug.LogError($"❌ 갤러리 로드 실패: {req.error}\n{req.downloadHandler.text}");
             yield break;
         }
 
-        List<GalleryData> results = null;
-        try
-        {
-            results = JsonConvert.DeserializeObject<List<GalleryData>>(www.downloadHandler.text);
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogError("❌ JSON 파싱 실패: " + e.Message);
-            yield break;
-        }
-
-        // 기존 목록 삭제
-        foreach (Transform child in contentParent)
-        {
+        // 기존 아이템 모두 제거
+        foreach (Transform child in galleryContainer)
             Destroy(child.gameObject);
-        }
 
-        // 프리팹 생성
-        foreach (var g in results)
+        // JSON 파싱
+        string json = req.downloadHandler.text;
+        GalleryItemData[] items = JsonHelper.FromJson<GalleryItemData>(json);
+
+        foreach (var item in items)
         {
-            GameObject item = Instantiate(galleryItemPrefab, contentParent);
-                item.SetActive(true);
-            GalleryListUI ui = item.GetComponent<GalleryListUI>();
-            if (ui != null)
-                ui.SetData(g.url, g.uploaded_at);
-        }
+            GameObject thumb = Instantiate(galleryItemPrefab, galleryContainer);
 
-        Debug.Log($"✅ 갤러리 불러오기 완료 ({results.Count}개)");
+            // 버튼 참조
+            Button btn = thumb.GetComponent<Button>();
+            if (btn == null)
+            {
+                Debug.LogWarning("⚠️ galleryItemPrefab에 Button 컴포넌트가 없습니다.");
+                continue;
+            }
+
+            // 클릭 잠금 (이미지 로드 중에는 비활성화)
+            btn.interactable = false;
+            btn.onClick.RemoveAllListeners();
+
+            // 각각의 텍스트 찾기
+            var texts = thumb.GetComponentsInChildren<TextMeshProUGUI>();
+            TextMeshProUGUI festivalNameText = null;
+            TextMeshProUGUI dateText = null;
+
+            foreach (var t in texts)
+            {
+                if (t.name == "T_festival_name") festivalNameText = t;
+                else if (t.name == "T_date") dateText = t;
+            }
+
+            if (festivalNameText != null)
+                festivalNameText.text = "청송사과축제"; // 축제명 표시
+
+            if (dateText != null)
+                dateText.text = FormatDate(item.uploaded_at); // 날짜 표시
+
+            // 이미지 로드
+            var image = thumb.GetComponentInChildren<RawImage>();
+            UnityWebRequest texReq = UnityWebRequestTexture.GetTexture(item.url);
+            yield return texReq.SendWebRequest();
+
+            if (texReq.result == UnityWebRequest.Result.Success)
+            {
+                Texture2D tex = ((DownloadHandlerTexture)texReq.downloadHandler).texture;
+                image.texture = tex;
+
+                // ✅ 로드 완료 시 버튼 활성화
+                btn.interactable = true;
+
+                // ✅ 중복 리스너 방지 후 새로 등록
+                btn.onClick.RemoveAllListeners();
+                btn.onClick.AddListener(() =>
+                {
+                    var viewer = FindAnyObjectByType<U_GalleryViewer>(FindObjectsInactive.Include);
+                    if (viewer == null)
+                    {
+                        Debug.LogError("🚫 U_GalleryViewer를 씬에서 찾지 못했습니다. (Scene에 Viewer 오브젝트가 비활성화되어 있는지 확인하세요)");
+                        return;
+                    }
+
+                    Debug.Log($"✅ 썸네일 클릭됨 → {item.filename}");
+                    viewer.ShowPhoto(tex, FormatDate(item.uploaded_at), item.url, item.gallery_id);
+                });
+            }
+            else
+            {
+                Debug.LogWarning($"⚠️ 이미지 로드 실패: {item.url}");
+            }
+        }
+    }
+
+    private string FormatDate(string isoDate)
+    {
+        if (System.DateTime.TryParse(isoDate, out System.DateTime parsed))
+            return parsed.ToString("yyyy.MM.dd");
+        return "-";
     }
 }
