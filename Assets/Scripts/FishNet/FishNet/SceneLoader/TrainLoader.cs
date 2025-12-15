@@ -1,36 +1,35 @@
-using FishNet;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 using FishNet.Connection;
 using FishNet.Object;
-using Unity.VisualScripting;
-using UnityEngine;
-using FishNet.Managing.Logging;
-using UnityEngine.SceneManagement;
 
-public class TrainLoader : MonoBehaviour
+public class TrainLoader : NetworkBehaviour
 {
     public SceneLoadingManager slm;
 
-    [Server]
     private void OnTriggerEnter(Collider other)
     {
-        if (!InstanceFinder.IsServer)
+        if (!IsServer)
         {
             Debug.Log("서버 꺼짐");
-            return;
+            //return;
         }
 
-        if (other.CompareTag("TrainLoader")) {
+        Debug.Log("트리거감지");
 
-            Debug.Log("트리거감지");
-            NetworkObject nob = other.GetComponent<NetworkObject>();
+        if (other.CompareTag("TrainLoader"))
+        {
+            NetworkObject nob = GetComponent<NetworkObject>();
             if (nob != null)
                 LoadScene(nob);
-
+            Debug.Log("씬로드 함수 호출");
         }
-        
-        
+
+
     }
 
+    [ServerRpc]
     private void LoadScene(NetworkObject nob)
     {
         if (!nob.Owner.IsActive)
@@ -42,8 +41,56 @@ public class TrainLoader : MonoBehaviour
 
         slm = SceneLoadingManager.Instance;
 
-        slm.CreateSessionFromTag(SceneType.Quiz, "MyStation", nob.Owner);
+        slm.LoadingKartGame(SceneType.Quiz, "MyStation", nob.Owner);
     }
+}
+
+//using FishNet;
+//using FishNet.Connection;
+//using FishNet.Object;
+//using Unity.VisualScripting;
+//using UnityEngine;
+//using FishNet.Managing.Logging;
+//using UnityEngine.SceneManagement;
+
+//public class TrainLoader : MonoBehaviour
+//{
+//    public SceneLoadingManager slm;
+
+//    [Server]
+//    private void OnTriggerEnter(Collider other)
+//    {
+//        if (!InstanceFinder.IsServer)
+//        {
+//            Debug.Log("서버 꺼짐");
+//            return;
+//        }
+
+//        if (other.CompareTag("TrainLoader")) {
+
+//            Debug.Log("트리거감지");
+//            NetworkObject nob = other.GetComponent<NetworkObject>();
+//            if (nob != null)
+//                LoadScene(nob);
+
+//        }
+        
+        
+//    }
+
+//    private void LoadScene(NetworkObject nob)
+//    {
+//        if (!nob.Owner.IsActive)
+//        {
+//            return;
+//        }
+
+//        Debug.Log("씬로딩 요청");
+
+//        slm = SceneLoadingManager.Instance;
+
+//        slm.CreateSessionFromTag(SceneType.Quiz, "MyStation", nob.Owner);
+//    }
     // public GameObject playerPrefab;
     // private SceneLoadingManager slm;
     // void Awake()
@@ -73,4 +120,4 @@ public class TrainLoader : MonoBehaviour
     //     // NetworkConnection conn = InstanceFinder.ClientManager.Connection;
     //     slm.CreateSessionFromTag(SceneType.Quiz, "MyStation", conn);
     // }
-}
+//}
