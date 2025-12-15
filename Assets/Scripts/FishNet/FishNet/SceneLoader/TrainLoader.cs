@@ -41,7 +41,7 @@ public class TrainLoader : NetworkBehaviour
 
         slm = SceneLoadingManager.Instance;
 
-        slm.LoadingKartGame(SceneType.Quiz, "MyStation", nob.Owner);
+        slm.CreateSessionFromTag(SceneType.Quiz, "MyStation", nob.Owner);
     }
 }
 
