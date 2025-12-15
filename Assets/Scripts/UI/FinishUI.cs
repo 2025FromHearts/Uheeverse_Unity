@@ -13,7 +13,7 @@ public class FinishUI : MonoBehaviour
     public Button restartButton;
     public Button quitButton;
     public GameObject finishTextOnly;
-
+    public PadInputEventRouter padInput;
     private void Start()
     {
         finishPanel.SetActive(false);
@@ -25,6 +25,11 @@ public class FinishUI : MonoBehaviour
 
     public void ShowFinishPanel(float time, int appleCount)
     {
+        UIManager.IsUIBlocking = true;
+
+        if (padInput != null)
+            padInput.currentMode = PadInputEventRouter.InputMode.Popup;
+
         StartCoroutine(FinishSequence(time, appleCount));
     }
 
@@ -56,5 +61,22 @@ public class FinishUI : MonoBehaviour
     private void QuitGame()
     {
         SceneManager.LoadScene("Django_FestivalMainScene");
+    }
+    void OnEnable()
+    {
+        if (padInput != null)
+        {
+            padInput.OnRPressed += RestartGame;
+            padInput.OnXPressed += QuitGame;
+        }
+    }
+
+    void OnDisable()
+    {
+        if (padInput != null)
+        {
+            padInput.OnRPressed -= RestartGame;
+            padInput.OnXPressed -= QuitGame;
+        }
     }
 }

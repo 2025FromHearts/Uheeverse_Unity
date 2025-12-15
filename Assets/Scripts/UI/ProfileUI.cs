@@ -84,7 +84,6 @@ public class ProfileUI : MonoBehaviour
             string savedStyle = PlayerPrefs.GetString("character_style", "");
             if (!string.IsNullOrEmpty(savedStyle))
             {
-                Debug.Log($"🎨 PlayerPrefs 스타일: {savedStyle}");
                 ApplyProfileSprite(savedStyle);
             }
         }

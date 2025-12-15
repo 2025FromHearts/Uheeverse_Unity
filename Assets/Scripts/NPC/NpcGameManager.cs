@@ -12,13 +12,15 @@ public class NpcGameManager : MonoBehaviour
     public Button buttonO;
     public Button buttonX;
 
+    [Header("Pad Input")]
+    public PadInputEventRouter padInput;
+
     [HideInInspector] public string minigameSceneName;
 
     public string[] promptMessages = {
         "게임을 시작해볼까요? 재미있는 미션이 기다리고 있어요!",
         "집중해서 플레이해보세요. 당신의 반사신경이 중요해요!",
         "축제 한정 미니게임이에요! 한번 도전해보시겠어요?",
-        "가볍게 도전해보세요! 생각보다 더 재미있을지도 몰라요.",
         "한 번 해보면 멈출 수 없어요! 지금 바로 플레이해볼까요?",
     };
 
@@ -36,12 +38,43 @@ public class NpcGameManager : MonoBehaviour
         buttonX.onClick.AddListener(OnNo);
     }
 
+    void OnEnable()
+    {
+        if (padInput == null) return;
+
+        padInput.OnYPressed += OnPadY;
+        padInput.OnXPressed += OnPadX;
+    }
+
+    void OnDisable()
+    {
+        if (padInput == null) return;
+
+        padInput.OnYPressed -= OnPadY;
+        padInput.OnXPressed -= OnPadX;
+        padInput.currentMode = PadInputEventRouter.InputMode.Player;
+    }
+
+    void OnPadY()
+    {
+        if (!dialoguePanel.activeSelf) return;
+        OnYes();
+    }
+
+    void OnPadX()
+    {
+        if (!dialoguePanel.activeSelf) return;
+        OnNo();
+    }
+
     public void ShowMinigameDialogue(NpcInteract callerNpc)
     {
         currentNpcName = callerNpc.npcName;
         currentNpcId = callerNpc.npcId;
         minigameSceneName = callerNpc.minigameSceneName;
+
         dialoguePanel.SetActive(true);
+        padInput.currentMode = PadInputEventRouter.InputMode.UPhone;
 
         if (npcNameText != null)
             npcNameText.text = currentNpcName;
@@ -53,9 +86,10 @@ public class NpcGameManager : MonoBehaviour
         }
     }
 
-    private void OnYes()
+    void OnYes()
     {
         Debug.Log($"{currentNpcName} 미니게임 참여");
+        padInput.currentMode = PadInputEventRouter.InputMode.Player;
 
         NpcTalkTracker.Instance?.MarkNpcAsTalked(currentNpcId);
 
@@ -73,34 +107,28 @@ public class NpcGameManager : MonoBehaviour
             PlayerPrefs.SetInt("ShouldRestorePosition", 1);
             PlayerPrefs.Save();
         }
-        else
-        {
-            Debug.LogWarning("❌ 'Player' 태그가 있는 오브젝트를 찾지 못했습니다.");
-        }
 
         if (!string.IsNullOrEmpty(minigameSceneName))
-        {
             SceneManager.LoadScene(minigameSceneName);
-        }
         else
-        {
             Debug.LogWarning("❌ 미니게임 씬 이름이 설정되지 않았습니다.");
-        }
     }
 
-    private void OnNo()
+    void OnNo()
     {
-        Debug.Log($"{currentNpcName} 미니게임 창 닫기");
+        Debug.Log($"{currentNpcName} 미니게임 거절");
 
         if (dialogueText != null)
             dialogueText.text = exitMessage;
 
-        StartCoroutine(ClosePanelAfterDelay(2f));
+        StartCoroutine(ClosePanelAfterDelay(1.5f));
     }
 
-    private IEnumerator ClosePanelAfterDelay(float delay)
+    IEnumerator ClosePanelAfterDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
         dialoguePanel.SetActive(false);
+
+        padInput.currentMode = PadInputEventRouter.InputMode.Player;
     }
 }

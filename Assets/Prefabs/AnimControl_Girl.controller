@@ -246,6 +246,20 @@ AnimatorStateTransition:
   m_InterruptionSource: 0
   m_OrderedInterruption: 1
   m_CanTransitionToSelf: 1
+--- !u!114 &5510876873247728520
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f718f5ead1e76874ea703239906689c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  footstepClip: {fileID: 8300000, guid: e4e68b0d955f5184598ec194af6f4d33, type: 3}
+  interval: 1.2
 --- !u!1102 &5793449367748290984
 AnimatorState:
   serializedVersion: 6
@@ -259,7 +273,8 @@ AnimatorState:
   m_Transitions:
   - {fileID: 4105977969071549262}
   - {fileID: 2149668377975874583}
-  m_StateMachineBehaviours: []
+  m_StateMachineBehaviours:
+  - {fileID: 5510876873247728520}
   m_Position: {x: 50, y: 50, z: 0}
   m_IKOnFeet: 1
   m_WriteDefaultValues: 1

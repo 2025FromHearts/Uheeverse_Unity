@@ -13,6 +13,7 @@ public class LapCounter : MonoBehaviour
     public Sprite playerSprite;
     public FinishUI finishUI;
 
+
     void Start()
     {
         playerStatusUI.SetPlayerSprite(playerSprite);

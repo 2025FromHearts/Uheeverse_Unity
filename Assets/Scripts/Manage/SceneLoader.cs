@@ -62,7 +62,7 @@ public class SceneLoader : MonoBehaviour
                 // 캐릭터 있음 → 정보 저장 후 MyStation으로 이동
                 PlayerPrefs.SetString("character_id", res.character_id);
                 PlayerPrefs.SetString("character_name", res.characterName);
-                PlayerPrefs.SetString("character_style", res.characterStyle);
+                //PlayerPrefs.SetString("character_style", res.characterStyle);
                 PlayerPrefs.Save();
 
                 LoadSceneByName(myStationSceneName);

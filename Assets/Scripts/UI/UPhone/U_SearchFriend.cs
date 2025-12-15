@@ -9,24 +9,107 @@ using Newtonsoft.Json;
 public class U_SearchFriend : MonoBehaviour
 {
     [Header("UI")]
-    public TMP_InputField searchInput;      // 닉네임 입력칸
-    public Transform resultsParent;         // 결과 패널 (Vertical Layout Group)
-    public GameObject resultPrefab;         // 결과 프리팹 (FriendResultUI 붙어있음)
+    public TMP_InputField searchInput;
+    public Transform resultsParent;
+    public GameObject resultPrefab;
+
+    [Header("Pad Input")]
+    public PadInputEventRouter padInput;
+    public UdpPadReceiver pad;
+
+    [Header("Pad Navigation")]
+    public float moveThreshold = 0.6f;
+    public float moveDelay = 0.25f;
+    float lastMoveTime = 0f;
+
+    [Header("Scroll")]
+    public ScrollRect scrollRect;
 
     private string baseUrl = ServerConfig.baseUrl;
     private Coroutine searchCoroutine;
 
+    private List<FriendResultUI> resultUIs = new List<FriendResultUI>();
+    private int currentIndex = 0;
+
     [System.Serializable]
     public class CharacterResult
     {
-        public string character_id;     // 서버 DB의 캐릭터 ID
-        public string character_name;   // 캐릭터 닉네임
-        public string character_style;  // 캐릭터 스타일명
+        public string character_id;
+        public string character_name;
+        public string character_style;
     }
 
     void Start()
     {
         searchInput.onValueChanged.AddListener(OnSearchInputChanged);
+    }
+
+    void OnEnable()
+    {
+        if (padInput != null)
+            padInput.OnAPressed += OnAPressed;
+    }
+
+    void OnDisable()
+    {
+        if (padInput != null)
+            padInput.OnAPressed -= OnAPressed;
+        ResetState();
+    }
+
+    void Update()
+    {
+        if (pad == null || pad.latest == null) return;
+        if (resultUIs.Count == 0) return;
+        if (Time.time - lastMoveTime < moveDelay) return;
+
+        float y = pad.latest.ly;
+        if (Mathf.Abs(y) < moveThreshold) return;
+
+        // 하이라이트 이동
+        if (y > 0)
+            MoveUp();
+        else
+            MoveDown();
+
+        // 2스크롤 이동
+        if (scrollRect != null)
+        {
+            float speed = 0.8f * Time.unscaledDeltaTime;
+            scrollRect.verticalNormalizedPosition = Mathf.Clamp01(
+                scrollRect.verticalNormalizedPosition + (y > 0 ? speed : -speed)
+            );
+        }
+
+        lastMoveTime = Time.time;
+    }
+    void MoveUp()
+    {
+        int next = currentIndex - 1;
+        if (next < 0) return;
+
+        SetHighlight(next);
+        lastMoveTime = Time.time;
+    }
+
+    public void ResetState()
+    {
+        currentIndex = 0;
+
+        for (int i = 0; i < resultUIs.Count; i++)
+            resultUIs[i].SetHighlight(i == 0);
+
+        if (scrollRect != null)
+            scrollRect.verticalNormalizedPosition = 1f;
+    }
+
+    void MoveDown()
+    {
+        int next = currentIndex + 1;
+        if (next >= resultUIs.Count) return;
+
+        SetHighlight(next);
+        lastMoveTime = Time.time;
     }
 
     void OnSearchInputChanged(string query)
@@ -45,34 +128,28 @@ public class U_SearchFriend : MonoBehaviour
             yield return StartCoroutine(SearchFriends(query));
     }
 
-    IEnumerator SearchFriends(string query)
+    public IEnumerator SearchFriends(string query)
     {
-        string token = PlayerPrefs.GetString("access_token", "");
+        padInput.currentMode = PadInputEventRouter.InputMode.Popup;
 
-        if (string.IsNullOrEmpty(token))
-        {
-            Debug.LogError("❌ Access token 없음! 로그인 먼저 필요");
-            yield break;
-        }
+        string token = PlayerPrefs.GetString("access_token", "");
+        if (string.IsNullOrEmpty(token)) yield break;
 
         string url = $"{baseUrl}/social/friends/search/?q={UnityWebRequest.EscapeURL(query)}";
         UnityWebRequest www = UnityWebRequest.Get(url);
         www.SetRequestHeader("Authorization", "Bearer " + token);
 
         yield return www.SendWebRequest();
+        if (www.result != UnityWebRequest.Result.Success) yield break;
 
-        if (www.result != UnityWebRequest.Result.Success)
-        {
-            Debug.LogError("❌ Friend search failed: " + www.error + "\n응답: " + www.downloadHandler.text);
-            yield break;
-        }
-
-        // 기존 결과 삭제
         foreach (Transform child in resultsParent)
             Destroy(child.gameObject);
 
-        // JSON 파싱
-        List<CharacterResult> results = JsonConvert.DeserializeObject<List<CharacterResult>>(www.downloadHandler.text);
+        resultUIs.Clear();
+        currentIndex = 0;
+
+        List<CharacterResult> results =
+            JsonConvert.DeserializeObject<List<CharacterResult>>(www.downloadHandler.text);
 
         foreach (var c in results)
         {
@@ -81,21 +158,41 @@ public class U_SearchFriend : MonoBehaviour
             if (ui)
             {
                 ui.SetData(c, this);
+                ui.SetHighlight(false);
+                resultUIs.Add(ui);
             }
         }
+
+        if (resultUIs.Count > 0)
+            SetHighlight(0);
+    }
+
+    void SetHighlight(int index)
+    {
+        if (index < 0 || index >= resultUIs.Count) return;
+
+        for (int i = 0; i < resultUIs.Count; i++)
+            resultUIs[i].SetHighlight(i == index);
+
+        currentIndex = index;
+    }
+
+    void OnAPressed()
+    {
+        if (padInput.currentMode != PadInputEventRouter.InputMode.Popup)
+            return;
+
+        if (resultUIs.Count == 0) return;
+
+        resultUIs[currentIndex].ConfirmAddFriend();
     }
 
     public IEnumerator AddFriendRequest(string targetId)
     {
         string token = PlayerPrefs.GetString("access_token", "");
-        if (string.IsNullOrEmpty(token))
-        {
-            Debug.LogError("❌ Access token 없음. 로그인 필요");
-            yield break;
-        }
+        if (string.IsNullOrEmpty(token)) yield break;
 
         string url = $"{baseUrl}/social/friends/add/";
-
         WWWForm form = new WWWForm();
         form.AddField("target_id", targetId);
 
@@ -104,13 +201,9 @@ public class U_SearchFriend : MonoBehaviour
 
         yield return www.SendWebRequest();
 
-        if (www.result != UnityWebRequest.Result.Success)
-        {
-            Debug.LogError("❌ 친구 추가 실패: " + www.error + "\n응답: " + www.downloadHandler.text);
-        }
+        if (www.result == UnityWebRequest.Result.Success)
+            Debug.Log("✅ 친구 추가 성공");
         else
-        {
-            Debug.Log("✅ 친구 추가 성공: " + www.downloadHandler.text);
-        }
+            Debug.LogError("❌ 친구 추가 실패: " + www.error);
     }
 }

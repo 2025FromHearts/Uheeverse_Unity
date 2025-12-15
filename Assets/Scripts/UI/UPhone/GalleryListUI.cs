@@ -16,8 +16,11 @@ public class GalleryListUI : MonoBehaviour
 
     private Texture2D loadedTexture;
     private string photoUrl;
-    private string galleryId; 
+    private string galleryId;
 
+    public Image background;
+    public Color normalColor = Color.white;
+    public Color highlightColor = new Color(0.85f, 0.9f, 1f, 1f);
     private void Awake()
     {
         // 자동으로 Viewer 찾아 연결
@@ -99,5 +102,10 @@ public class GalleryListUI : MonoBehaviour
             photoUrl,
             galleryId
         );
+    }
+    public void SetHighlight(bool on)
+    {
+        if (background == null) return;
+        background.color = on ? highlightColor : normalColor;
     }
 }

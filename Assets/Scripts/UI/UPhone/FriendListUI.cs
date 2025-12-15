@@ -16,6 +16,11 @@ public class FriendListUI : MonoBehaviour
     public List<ProfileSprite> styleSpriteList;
     private Dictionary<string, Sprite> styleSpriteMap;
 
+    [Header("Highlight")]
+    public Image background;
+    public Color normalColor = Color.white;
+    public Color highlightColor = new Color(0.85f, 0.9f, 1f, 1f);
+
     [System.Serializable]
     public class ProfileSprite
     {
@@ -33,10 +38,27 @@ public class FriendListUI : MonoBehaviour
                 styleSpriteMap[entry.styleName] = entry.sprite;
         }
     }
+    public void SetHighlight(bool on)
+    {
+        if (background == null) return;
+        background.color = on ? highlightColor : normalColor;
+    }
+    public void EnsureInit()
+    {
+        if (styleSpriteMap != null) return;
+
+        styleSpriteMap = new Dictionary<string, Sprite>();
+        foreach (var entry in styleSpriteList)
+        {
+            if (!styleSpriteMap.ContainsKey(entry.styleName))
+                styleSpriteMap[entry.styleName] = entry.sprite;
+        }
+    }
 
     /// 서버에서 받은 친구 정보 설정
     public void SetData(FriendData data)
     {
+        EnsureInit();
         // 이름
         if (nameText != null)
             nameText.text = data.character_name + " 님";
@@ -74,6 +96,18 @@ public class FriendListUI : MonoBehaviour
     /// 스타일 이름을 기반으로 스프라이트 적용
     private void ApplyProfileSprite(string styleName)
     {
+        if (profileImage == null)
+        {
+            Debug.LogError("❌ profileImage is NULL (Inspector 연결 확인)");
+            return;
+        }
+
+        if (styleSpriteMap == null)
+        {
+            Debug.LogError("❌ styleSpriteMap is NULL (Awake 호출 안 됨)");
+            return;
+        }
+
         if (styleSpriteMap.TryGetValue(styleName, out Sprite sprite))
         {
             profileImage.sprite = sprite;

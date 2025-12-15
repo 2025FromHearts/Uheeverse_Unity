@@ -2078,9 +2078,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 44a048c3ffae18f428f2e8917c63a948, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  getCharacterUrl: http://localhost:8000/users/get_my_character/
-  characterCreateSceneName: CreateCharacter
-  myStationSceneName: MyStation
 --- !u!4 &1614307545
 Transform:
   m_ObjectHideFlags: 0

@@ -7,96 +7,90 @@ using UnityEngine.Networking;
 
 public class InventoryUI : MonoBehaviour
 {
+    [Header("UI")]
     public GameObject inventoryPanel;
-    public GameObject closeButtonObject;
     public Transform slotParent;
     public GameObject slotPrefab;
-    public ItemAttacher itemAttacher;
+
+    [Header("Detail")]
     public GameObject detailPanel;
-    public Image detailImage;
     public Image detailItemImage;
     public TMP_Text detailName;
     public TMP_Text detailDescription;
-    public Button putOnButton;
-    public Button putOffButton;
+
     public GameObject infoGroup;
     public GameObject placeholderText;
 
-    private ItemDataDTO currentSelectedItem;
+    UdpPadReceiver pad;
+    public float axisThreshold = 0.6f;
+    public float moveDelay = 0.25f;
+    float lastMoveTime;
+
     private string baseUrl;
     private string characterId;
     private string accessToken;
-    private List<InventoryItem> currentItemList = new List<InventoryItem>();
+
+    private List<InventoryItem> _items = new List<InventoryItem>();
+    private List<InventorySlotUI> slotUIs = new List<InventorySlotUI>();
     private int selectedIndex = -1;
-
-    // === 페이지네이션 ===
-    [SerializeField] int gridColumns = 5;
-    [SerializeField] int gridRows = 3;
-    int PageSize => gridColumns * gridRows;
-
-    [SerializeField] Button prevPageBtn;
-    [SerializeField] Button nextPageBtn;
-    [SerializeField] TMP_Text pageLabel;
-
-    // 전체 아이템 / 슬롯 풀
-    List<InventoryItem> _items = new List<InventoryItem>();
-    readonly List<GameObject> _slotPool = new List<GameObject>();
-    int _currentPage = 0;
-
-    void Awake()
-    {
-        if (prevPageBtn) prevPageBtn.onClick.AddListener(() => SetPage(_currentPage - 1));
-        if (nextPageBtn) nextPageBtn.onClick.AddListener(() => SetPage(_currentPage + 1));
-    }
 
     [System.Serializable]
     public class ItemDataDTO
     {
         public string item_id;
-        public string item_type;
         public string item_name;
         public string item_description;
-        public int item_price;
         public string item_icon;
-        public string map;
-        public string item_rotation;
     }
 
     [System.Serializable]
     public class InventoryItem
     {
-        public string inventory_id;
         public ItemDataDTO item;
-        public int slot_location;
-        public int count = 1;   // 중복 합산용
+        public int count;
     }
 
     [System.Serializable]
     public class InventoryWrapper
     {
-        public List<InventoryItem> Items;
+        public List<RawInventoryItem> Items;
     }
 
-    // 인벤토리 열기
-    public void OpenOrCloseFromJoypad()
+    [System.Serializable]
+    public class RawInventoryItem
     {
-        OpenOrCloseInventory();
+        public string inventory_id;
+        public ItemDataDTO item;
     }
 
-    public void OpenOrCloseInventory()
+    void Start()
     {
-        if (!inventoryPanel.activeSelf)
-            OpenInventory();
-        else
-            CloseInventory();
+        pad = FindAnyObjectByType<UdpPadReceiver>();
+    }
+
+    void Update()
+    {
+        if (!inventoryPanel.activeInHierarchy) return;
+        if (pad == null || pad.latest == null) return;
+        if (_items.Count == 0) return;
+
+        if (Time.unscaledTime - lastMoveTime < moveDelay) return;
+
+        float x = pad.latest.lx;
+        if (Mathf.Abs(x) < axisThreshold) return;
+
+        MoveSelection(x > 0 ? 1 : -1);
+        lastMoveTime = Time.unscaledTime;
     }
 
     public void OpenInventory()
     {
         inventoryPanel.SetActive(true);
         detailPanel.SetActive(true);
-        if (infoGroup != null) infoGroup.SetActive(false);
-        if (placeholderText != null) placeholderText.SetActive(true);
+
+        infoGroup.SetActive(false);
+        placeholderText.SetActive(true);
+
         selectedIndex = -1;
         StartCoroutine(LoadInventory());
     }
@@ -105,213 +99,161 @@ public class InventoryUI : MonoBehaviour
     {
         inventoryPanel.SetActive(false);
         detailPanel.SetActive(false);
-        if (infoGroup != null) infoGroup.SetActive(false);
-        if (placeholderText != null) placeholderText.SetActive(false);
-        selectedIndex = -1;
-    }
 
+        infoGroup.SetActive(false);
+        placeholderText.SetActive(false);
+
+        selectedIndex = -1;
+        _items.Clear();
+        slotUIs.Clear();
+
+        foreach (Transform child in slotParent)
+            Destroy(child.gameObject);
+    }
     IEnumerator LoadInventory()
     {
         baseUrl = ServerConfig.baseUrl;
         characterId = PlayerPrefs.GetString("character_id", "");
         accessToken = PlayerPrefs.GetString("access_token", "");
-        string url = baseUrl + "/item/inventory/" + characterId + "/";
+
+        string url = $"{baseUrl}/item/inventory/{characterId}/";
         UnityWebRequest www = UnityWebRequest.Get(url);
         www.SetRequestHeader("Authorization", "Bearer " + accessToken);
+
         yield return www.SendWebRequest();
+
         if (www.result != UnityWebRequest.Result.Success)
         {
             Debug.LogError("❌ Inventory load failed: " + www.error);
+            yield break;
         }
-        else
+
+        string json = "{\"Items\":" + www.downloadHandler.text + "}";
+        InventoryWrapper wrapper = JsonUtility.FromJson<InventoryWrapper>(json);
+
+        // === 1. 중복 아이템 합치기 ===
+        Dictionary<string, InventoryItem> merged = new Dictionary<string, InventoryItem>();
+
+        foreach (var raw in wrapper.Items)
         {
-            Debug.Log("✅ Raw inventory JSON: " + www.downloadHandler.text);
-            string json = "{\"Items\":" + www.downloadHandler.text + "}";
-            InventoryWrapper wrapper = JsonUtility.FromJson<InventoryWrapper>(json);
-            currentItemList = wrapper.Items;
+            if (raw == null || raw.item == null) continue;
+            if (string.IsNullOrEmpty(raw.item.item_id)) continue;
 
-            // 중복 아이템 합치기
-            var mergedDict = new Dictionary<string, InventoryItem>();
-            foreach (var inv in wrapper.Items)
+            string key = raw.item.item_id;
+
+            if (merged.ContainsKey(key))
             {
-                if (inv == null || inv.item == null) continue;
+                merged[key].count++;
+            }
+            else
+            {
+                merged[key] = new InventoryItem
+                {
+                    item = raw.item,
+                    count = 1
+                };
+            }
+        }
 
-                string key = !string.IsNullOrEmpty(inv.item.item_id)
-                    ? inv.item.item_id
+        _items = new List<InventoryItem>(merged.Values);
+
+        // === 2. 슬롯 생성 ===
+        foreach (Transform child in slotParent)
+            Destroy(child.gameObject);
+
+        slotUIs.Clear();
+
+        foreach (var inv in _items)
+        {
+            GameObject slotObj = Instantiate(slotPrefab, slotParent);
+
+            InventorySlotUI slotUI = slotObj.GetComponent<InventorySlotUI>();
+            if (slotUI != null)
+                slotUIs.Add(slotUI);
+
+            // 텍스트 (개수 포함)
+            TMP_Text text = slotObj.GetComponentInChildren<TMP_Text>();
+            if (text != null)
+            {
+                text.text = inv.count > 1
+                    ? $"{inv.item.item_name} x{inv.count}"
                     : inv.item.item_name;
-
-                if (string.IsNullOrEmpty(key))
-                {
-                    Debug.LogWarning("인벤토리 아이템 key 확인 요망 (item_id, item_name null)");
-                    continue;
-                }
-
-                if (mergedDict.ContainsKey(key))
-                {
-                    mergedDict[key].count += 1;
-                }
-                else
-                {
-                    mergedDict[key] = inv;
-                    mergedDict[key].count = 1;
-                }
             }
-            _items = new List<InventoryItem>(mergedDict.Values);
 
-            // 슬롯 초기화 및 페이지 표시
-            foreach (Transform child in slotParent)
-                Destroy(child.gameObject);
+            //Icon
+            Image img = slotObj.transform
+                .Find("Button/ItemImage")
+                ?.GetComponent<Image>();
 
-            _slotPool.Clear();
-            BuildPoolIfNeeded();
-            SetPage(0);
-        }
-    }
+            Sprite icon = Resources.Load<Sprite>("Icons/" + inv.item.item_icon);
 
-    void BuildPoolIfNeeded()
-    {
-        if (slotPrefab == null || slotParent == null) return;
-        while (_slotPool.Count < PageSize)
-        {
-            var slot = Instantiate(slotPrefab, slotParent);
-            slot.SetActive(true);
-            _slotPool.Add(slot);
-        }
-    }
-
-    void BindSlot(GameObject slot, InventoryItem inv)
-    {
-        // 이름 + 개수 표시
-        var text = slot.transform.Find("Button/ItemName")?.GetComponent<TMP_Text>();
-        if (text)
-        {
-            if (inv.count > 1)
-                text.text = $"{inv.item.item_name} x{inv.count}";
-            else
-                text.text = inv.item.item_name;
-        }
-
-        // 아이콘
-        var iconTr = slot.transform.Find("Button/ItemImage");
-        var iconImg = iconTr ? iconTr.GetComponent<Image>() : null;
-        var icon = Resources.Load<Sprite>("Icons/" + inv.item.item_icon);
-        if (iconImg && icon) iconImg.sprite = icon;
-
-        // 버튼
-        var btn = slot.transform.Find("Button")?.GetComponent<Button>();
-        if (btn)
-        {
-            btn.onClick.RemoveAllListeners();
-            var captured = inv.item;
-            btn.onClick.AddListener(() =>
-            {
-                currentSelectedItem = captured;
-                ShowDetail(captured);
-            });
-        }
-    }
-
-    void SetPage(int page)
-    {
-        if (_items == null) return;
-        int totalPages = Mathf.Max(1, Mathf.CeilToInt((float)_items.Count / PageSize));
-        _currentPage = Mathf.Clamp(page, 0, totalPages - 1);
-
-        for (int i = 0; i < _slotPool.Count; i++)
-        {
-            int dataIndex = _currentPage * PageSize + i;
-            if (dataIndex < _items.Count)
-            {
-                _slotPool[i].SetActive(true);
-                BindSlot(_slotPool[i], _items[dataIndex]);
-            }
+            if (img != null && icon != null)
+                img.sprite = icon;
             else
             {
-                _slotPool[i].SetActive(false);
+                if (img == null)
+                    Debug.LogError("❌ ItemImage 못 찾음 (Button/ItemImage)");
+                if (icon == null)
+                    Debug.LogError("❌ 아이콘 로드 실패: " + inv.item.item_icon);
+            }
+
+            // 마우스 클릭 유지
+            Button btn = slotObj.GetComponentInChildren<Button>();
+            if (btn != null)
+            {
+                InventoryItem captured = inv;
+                btn.onClick.AddListener(() =>
+                {
+                    selectedIndex = _items.IndexOf(captured);
+                    UpdateSelection();
+                });
             }
         }
 
-        if (pageLabel) pageLabel.text = $"{_currentPage + 1} / {totalPages}";
-        if (prevPageBtn) prevPageBtn.interactable = _currentPage > 0;
-        if (nextPageBtn) nextPageBtn.interactable = _currentPage < totalPages - 1;
-
-        var rt = slotParent as RectTransform;
-        if (rt) UnityEngine.UI.LayoutRebuilder.ForceRebuildLayoutImmediate(rt);
-    }
-
-    public void OnJoypadNextDetail()
-    {
-        if (currentItemList == null || currentItemList.Count == 0) return;
-        selectedIndex++;
-        if (selectedIndex >= currentItemList.Count)
+        if (_items.Count > 0)
+        {
             selectedIndex = 0;
-        ShowDetail(currentItemList[selectedIndex].item);
+            UpdateSelection();
+        }
+    }
+    void MoveSelection(int dir)
+    {
+        if (_items.Count == 0) return;
+
+        selectedIndex += dir;
+
+        if (selectedIndex < 0)
+            selectedIndex = _items.Count - 1;
+        else if (selectedIndex >= _items.Count)
+            selectedIndex = 0;
+
+        UpdateSelection();
+    }
+
+    void UpdateSelection()
+    {
+        for (int i = 0; i < slotUIs.Count; i++)
+        {
+            if (slotUIs[i] != null)
+                slotUIs[i].SetSelected(i == selectedIndex);
+        }
+
+        ShowDetail(_items[selectedIndex].item);
     }
 
     void ShowDetail(ItemDataDTO item)
     {
         if (item == null) return;
+
         detailPanel.SetActive(true);
-        if (infoGroup != null) infoGroup.SetActive(true);
-        if (placeholderText != null) placeholderText.SetActive(false);
+        infoGroup.SetActive(true);
+        placeholderText.SetActive(false);
+
         detailName.text = item.item_name;
         detailDescription.text = item.item_description;
-        Sprite iconSprite = Resources.Load<Sprite>("Icons/" + item.item_icon);
-        if (iconSprite != null && detailItemImage != null)
-            detailItemImage.sprite = iconSprite;
-        else
-            Debug.LogWarning("⚠️ 아이템 이미지 로드 실패: " + item.item_icon);
 
-        putOnButton.onClick.RemoveAllListeners();
-        putOnButton.onClick.AddListener(() => EquipItem(item));
-        putOffButton.onClick.RemoveAllListeners();
-        putOffButton.onClick.AddListener(() => UnEquipItem(item));
-    }
-
-    void EquipItem(ItemDataDTO item)
-    {
-        Debug.Log($"🧙 EquipItem() | item: {(item != null ? item.item_name : "null")}");
-        if (item == null || itemAttacher == null || string.IsNullOrEmpty(item.item_type)) return;
-        Transform attachPoint = itemAttacher.GetAttachPoint(item.item_type);
-        if (attachPoint == null) return;
-
-        foreach (Transform child in attachPoint)
-            Destroy(child.gameObject);
-
-        GameObject prefab = Resources.Load<GameObject>("ItemModels/" + item.item_icon);
-        if (prefab == null)
-        {
-            Debug.LogError("❌ Prefab not found: " + item.item_icon);
-            return;
-        }
-
-        GameObject equipped = Instantiate(prefab, attachPoint);
-        equipped.transform.localPosition = Vector3.zero;
-
-        if (!string.IsNullOrEmpty(item.item_rotation))
-        {
-            string[] rotParts = item.item_rotation.Split(',');
-            if (rotParts.Length == 3 &&
-                float.TryParse(rotParts[0], out float x) &&
-                float.TryParse(rotParts[1], out float y) &&
-                float.TryParse(rotParts[2], out float z))
-            {
-                equipped.transform.localRotation = Quaternion.Euler(x, y, z);
-            }
-        }
-
-        Debug.Log($"✅ Equipped: {item.item_name}");
-    }
-
-    void UnEquipItem(ItemDataDTO item)
-    {
-        if (item == null || itemAttacher == null || string.IsNullOrEmpty(item.item_type)) return;
-        Transform attachPoint = itemAttacher.GetAttachPoint(item.item_type);
-        if (attachPoint == null) return;
-
-        foreach (Transform child in attachPoint)
-            Destroy(child.gameObject);
-
-        Debug.Log($"🔓 Unequipped: {item.item_name}");
+        Sprite icon = Resources.Load<Sprite>("Icons/" + item.item_icon);
+        if (icon != null)
+            detailItemImage.sprite = icon;
     }
 }

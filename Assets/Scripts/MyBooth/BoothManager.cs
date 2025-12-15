@@ -173,6 +173,8 @@ public class BoothManager : MonoBehaviour
             Debug.LogError($"❌ 부스 저장 실패: {req.error} (HTTP {req.responseCode})");
         else
             Debug.Log("✅ 부스 저장 완료");
+
+        UnityEngine.SceneManagement.SceneManager.LoadScene("MyStation");
     }
 
     // 데이터 구조체
