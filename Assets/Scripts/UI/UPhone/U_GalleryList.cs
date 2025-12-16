@@ -3,6 +3,8 @@ using UnityEngine.Networking;
 using System.Collections;
 using TMPro;
 using UnityEngine.UI;
+using System.Collections.Generic;
+using NUnit.Framework;
 
 [System.Serializable]
 public class GalleryItemData
@@ -13,11 +15,21 @@ public class GalleryItemData
     public string uploaded_at;
 }
 
+
 public class U_GalleryList : MonoBehaviour
 {
     [Header("UI")]
     [SerializeField] private Transform galleryContainer;   // 갤러리 아이템들이 배치될 부모
     [SerializeField] private GameObject galleryItemPrefab; // 하나의 썸네일 프리팹
+
+    [Header("Navigation")]
+    public ListNavigation listNavigation;
+
+    [Header("Scroll")]
+    [SerializeField] private ScrollRect scrollRect;
+
+    [Header("Pad Scroll")]
+    public float scrollSpeed = 0.8f;
 
     private string baseUrl;
     private string accessToken;
@@ -27,11 +39,32 @@ public class U_GalleryList : MonoBehaviour
         RefreshGallery();
     }
 
-    /// ✅ 갤러리 목록 새로고침 (Viewer에서 호출)
+    private void Update()
+    {
+            var pad = FindAnyObjectByType<UdpPadReceiver>();
+            if (pad == null || pad.latest == null) return;
+            if (!gameObject.activeInHierarchy) return;
+            if (scrollRect == null) return;
+
+            float y = pad.latest.ly;
+
+            if (Mathf.Abs(y) < 0.3f) return;
+
+            float pos = scrollRect.verticalNormalizedPosition;
+
+            pos += y * scrollSpeed * Time.unscaledDeltaTime;
+            scrollRect.verticalNormalizedPosition = Mathf.Clamp01(pos);
+    }
     public void RefreshGallery()
     {
         StopAllCoroutines();
         StartCoroutine(LoadGallery());
+    }
+
+    private void OnDisable()
+    {
+        if (scrollRect != null)
+            scrollRect.verticalNormalizedPosition = 1f;
     }
 
     private IEnumerator LoadGallery()
@@ -54,6 +87,8 @@ public class U_GalleryList : MonoBehaviour
         // 기존 아이템 모두 제거
         foreach (Transform child in galleryContainer)
             Destroy(child.gameObject);
+
+        List<MonoBehaviour> uiList = new List<MonoBehaviour>();
 
         // JSON 파싱
         string json = req.downloadHandler.text;
@@ -80,6 +115,7 @@ public class U_GalleryList : MonoBehaviour
             TextMeshProUGUI festivalNameText = null;
             TextMeshProUGUI dateText = null;
 
+
             foreach (var t in texts)
             {
                 if (t.name == "T_festival_name") festivalNameText = t;
@@ -97,15 +133,18 @@ public class U_GalleryList : MonoBehaviour
             UnityWebRequest texReq = UnityWebRequestTexture.GetTexture(item.url);
             yield return texReq.SendWebRequest();
 
+            var galleryUI = thumb.GetComponent<GalleryListUI>();
+            if (galleryUI != null)
+                uiList.Add(galleryUI);
+
             if (texReq.result == UnityWebRequest.Result.Success)
             {
                 Texture2D tex = ((DownloadHandlerTexture)texReq.downloadHandler).texture;
                 image.texture = tex;
 
-                // ✅ 로드 완료 시 버튼 활성화
                 btn.interactable = true;
 
-                // ✅ 중복 리스너 방지 후 새로 등록
+
                 btn.onClick.RemoveAllListeners();
                 btn.onClick.AddListener(() =>
                 {
@@ -125,6 +164,7 @@ public class U_GalleryList : MonoBehaviour
                 Debug.LogWarning($"⚠️ 이미지 로드 실패: {item.url}");
             }
         }
+        listNavigation.SetItems(uiList);
     }
 
     private string FormatDate(string isoDate)

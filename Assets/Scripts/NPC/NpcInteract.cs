@@ -6,7 +6,8 @@ public enum NpcType
     Guide,
     Minigame,
     Vendor,
-    Photo
+    Photo,
+    LocalTmi
 }
 
 public class NpcInteract : MonoBehaviour
@@ -29,6 +30,7 @@ public class NpcInteract : MonoBehaviour
     public NpcGameManager npcGameManager;
     public NpcShopManager npcShopManager;
     public NpcPhotoManager npcPhotoManager;
+    public LocalTmiManager localTmiManager;
     [Tooltip("상점 NPC가 표시할 안내 메시지")]
     public string responseMessage;
 
@@ -54,6 +56,9 @@ public class NpcInteract : MonoBehaviour
 
     void Update()
     {
+        if (UIManager.IsUIBlocking)
+            return;
+
         if (player == null)
         {
             var go = GameObject.FindWithTag("Player");
@@ -85,7 +90,11 @@ public class NpcInteract : MonoBehaviour
     // 조이패드 A 입력시 호출할 함수
     public void InteractWithNpcByPad()
     {
+        if (UIManager.IsUIBlocking)
+            return;
+
         if (player == null) return;
+
         float dist = Vector3.Distance(player.position, transform.position);
         if (dist <= interactionRadius)
         {
@@ -116,6 +125,14 @@ public class NpcInteract : MonoBehaviour
             case NpcType.Photo:
                 npcPhotoManager?.ShowPhotoDialogue(this);
                 break;
+
+            case NpcType.LocalTmi:
+                {
+                    var tmi = FindAnyObjectByType<LocalTmiManager>();
+                    Debug.Log("[NpcInteract] LocalTmiManager(found) = " + tmi);
+                    tmi?.Open("청송");
+                    break;
+                }
         }
     }
 
@@ -130,16 +147,43 @@ public class NpcInteract : MonoBehaviour
         npcId = data.npc_id;
         npcName = data.npc_name;
         basePrompt = data.base_prompt;
-        if (roleText != null) roleText.text = npcName;
+
+        if (roleText != null)
+            roleText.text = npcName;
+
         string type = data.npc_type.ToLower();
+
+        // 청송이 → LocalTmi 강제 분기
+        if (type == "guide" && npcName == "청송이")
+        {
+            npcType = NpcType.LocalTmi;
+            Debug.Log("[NpcInteract] 청송이 → LocalTmi로 설정됨");
+            return;
+        }
+
+        // 나머지 기존 분기
         if (type == "minigame")
         {
             npcType = NpcType.Minigame;
             minigameSceneName = data.scene_name;
         }
-        else if (type == "guide") npcType = NpcType.Guide;
-        else if (type == "vendor") npcType = NpcType.Vendor;
-        else if (type == "photo") npcType = NpcType.Photo;
-        else Debug.LogWarning($"⚠️ 알 수 없는 NPC 타입: {type}");
+        else if (type == "guide")
+        {
+            npcType = NpcType.Guide;
+        }
+        else if (type == "vendor")
+        {
+            npcType = NpcType.Vendor;
+        }
+        else if (type == "photo")
+        {
+            npcType = NpcType.Photo;
+        }
+        else
+        {
+            Debug.LogWarning($"⚠️ 알 수 없는 NPC 타입: {type}");
+        }
     }
+
+
 }

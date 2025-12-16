@@ -43,6 +43,17 @@ public class PhotoModeController : MonoBehaviour
     private GameObject playerCharacter;
     private bool isOn;
 
+    [Header("Joypad Input")]
+    public UdpPadReceiver pad;
+    public PadInputEventRouter padInput;
+
+    public float moveCameraSpeed = 2f;   // 상하 이동 속도
+    public float poseSwitchDelay = 0.25f;
+
+    float lastPoseSwitchTime;
+    int currentPoseIndex = 1; // 1~3
+
+
     private string uploadUrl = $"{ServerConfig.baseUrl}/gallery/upload_image/";
 
     void Awake()
@@ -65,6 +76,40 @@ public class PhotoModeController : MonoBehaviour
         // 줌인 / 줌아웃 버튼 연결
         zoomInButton.onClick.AddListener(ZoomIn);
         zoomOutButton.onClick.AddListener(ZoomOut);
+    }
+
+    void OnEnable()
+    {
+        if (padInput != null)
+        {
+            padInput.OnPlusPressed += TakeShot;     // + 버튼
+            padInput.OnMinusPressed += ExitPhotoMode; // - 버튼
+            padInput.OnBPressed += CyclePose;       // B 버튼
+        }
+    }
+
+    void OnDisable()
+    {
+        if (padInput != null)
+        {
+            padInput.OnPlusPressed -= TakeShot;
+            padInput.OnMinusPressed -= ExitPhotoMode;
+            padInput.OnBPressed -= CyclePose;
+        }
+        padInput.currentMode = PadInputEventRouter.InputMode.Player;
+    }
+
+    void CyclePose()
+    {
+        if (!isOn) return;
+        if (Time.time - lastPoseSwitchTime < poseSwitchDelay) return;
+
+        currentPoseIndex++;
+        if (currentPoseIndex > 3)
+            currentPoseIndex = 1;
+
+        SetPose(currentPoseIndex);
+        lastPoseSwitchTime = Time.time;
     }
 
     private void SetPose(int poseIndex)
@@ -120,6 +165,7 @@ public class PhotoModeController : MonoBehaviour
             return;
         }
 
+        padInput.currentMode = PadInputEventRouter.InputMode.Gallery;
         SetPose(1);
 
         photoCamera.enabled = true;
@@ -183,12 +229,22 @@ public class PhotoModeController : MonoBehaviour
             if (npc != null)
                 npc.SetActive(true);
         }
+        padInput.currentMode = PadInputEventRouter.InputMode.Player;
     }
-
 
     void Update()
     {
         if (!isOn) return;
+        if (pad == null || pad.latest == null) return;
+
+        float y = pad.latest.ly;
+
+        if (Mathf.Abs(y) < 0.2f) return;
+
+        if (y > 0)
+            ZoomIn();
+        else
+            ZoomOut();
     }
 
 

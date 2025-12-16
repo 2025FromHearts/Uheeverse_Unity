@@ -17,6 +17,15 @@ public class U_ProfileEditUI : MonoBehaviour
         updateIntroUrl = $"{ServerConfig.baseUrl}/users/update_character_intro/";
     }
 
+    void OnEnable()
+    {
+    }
+
+    void OnDisable()
+    {
+
+    }
+
     public void OnClickSaveIntro()
     {
         string newIntro = introInputField.text.Trim();

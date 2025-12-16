@@ -11,6 +11,7 @@ public class NpcData
     public string npc_type;
     public string scene_name;
     public string base_prompt;
+    public string talk_key;
 }
 
 [System.Serializable]

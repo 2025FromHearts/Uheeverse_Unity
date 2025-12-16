@@ -26,6 +26,10 @@ public class NpcTalkManager : MonoBehaviour
     private string BASE_URL;
     private string currentNpcId = "";
     private string currentNpcName = "";
+    public PadCommandSender commandSender;
+
+    [Header("Pad Input")]
+    public PadInputEventRouter padInput;
 
     private string initialNpcGreeting = "안녕하세요! 축제와 관련된 궁금한 사항을 말씀해 주세요.";
 
@@ -33,9 +37,7 @@ public class NpcTalkManager : MonoBehaviour
     public class FestivalResponse
     {
         public string reply;
-        public string info;
         public string intent;
-        public string festival;
     }
 
     [System.Serializable]
@@ -76,6 +78,8 @@ public class NpcTalkManager : MonoBehaviour
 
         npcNameText.text = currentNpcName;
         dialogueText.text = initialNpcGreeting;
+
+        commandSender.SendOpenTextInput(currentNpcName);
     }
 
     public void OnSendMessage()
@@ -101,18 +105,7 @@ public class NpcTalkManager : MonoBehaviour
     IEnumerator SendTalkRequest(string npcName, string message)
     {
         BASE_URL = ServerConfig.baseUrl;
-        string endpoint;
-
-        if (npcName.Contains("청송"))
-        {
-            // 서버에 '/llm/tmi_info/' 엔드포인트를 등록해야 합니다.
-            endpoint = "/llm/tmi_answer/";
-        }
-        else
-        {
-            // 기존 축제 안내 NPC일 경우 기존 API 사용
-            endpoint = "/llm/festival_info/";
-        }
+        string endpoint = "/llm/festival_info_answer/";
 
         string url = BASE_URL + endpoint;
 
@@ -120,7 +113,7 @@ public class NpcTalkManager : MonoBehaviour
         TalkPayload payload = new TalkPayload
         {
             message = message,
-            festival_name = npcName // LLM에게 NPC 이름을 전달하여 역할 설정에 사용
+            festival_name = npcName 
         };
 
         // JsonUtility 대신 Newtonsoft.Json을 사용하는 것이 더 안전할 수 있지만, 
@@ -186,6 +179,7 @@ public class NpcTalkManager : MonoBehaviour
     private IEnumerator CloseDialogueAfterDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
+        CloseTalk();
         if (dialoguePanel != null)
         {
             dialoguePanel.SetActive(false);
@@ -194,4 +188,98 @@ public class NpcTalkManager : MonoBehaviour
         currentNpcId = "";
         currentNpcName = "";
     }
+
+    void OnEnable()
+    {
+        PadCommandReceiver.OnOpenTextInput += HandleOpenTextInput;
+        PadCommandReceiver.OnCloseTextInput += HandleCloseTextInput;
+        PadCommandReceiver.OnSubmitText += HandleSubmitText;
+
+        if (padInput != null)
+        {
+            padInput.OnAPressed += OnAPressed;
+            padInput.OnXPressed += OnXPressed;
+        }
+    }
+
+    void OnDisable()
+    {
+        PadCommandReceiver.OnOpenTextInput -= HandleOpenTextInput;
+        PadCommandReceiver.OnCloseTextInput -= HandleCloseTextInput;
+        PadCommandReceiver.OnSubmitText -= HandleSubmitText;
+
+        if (padInput != null)
+        {
+            padInput.OnAPressed -= OnAPressed;
+            padInput.OnXPressed -= OnXPressed;
+        }
+        padInput.currentMode = PadInputEventRouter.InputMode.Player;
+    }
+
+    void OnAPressed()
+    {
+        if (!dialoguePanel.activeSelf) return;
+
+        Debug.Log("[Talk] A pressed → ask again");
+
+        dialogueText.text = "다른 질문이 있으면 입력해 주세요.";
+        commandSender.SendOpenTextInput(currentNpcName);
+    }
+
+    void OnXPressed()
+    {
+        if (!dialoguePanel.activeSelf) return;
+
+        Debug.Log("[Talk] X pressed → exit talk");
+        CloseTalk();
+    }
+
+    void HandleOpenTextInput()
+    {
+        if (!dialoguePanel.activeSelf) return;
+
+        // UI 포커스 이동
+        npcInputField.ActivateInputField();
+
+        // 플레이어 / 월드 입력 차단
+        if (playerController != null)
+            playerController.canMove = false;
+    }
+
+    void HandleCloseTextInput()
+    {
+        npcInputField.DeactivateInputField();
+
+        if (playerController != null)
+            playerController.canMove = true;
+        CloseTalk();
+    }
+
+    void HandleSubmitText(string text)
+    {
+        if (!dialoguePanel.activeSelf) return;
+        if (string.IsNullOrWhiteSpace(text)) return;
+
+        npcInputField.text = text;
+        OnSendMessage();   // 기존 서버 전송 로직 재사용
+    }
+    void CloseTalk()
+    {
+        dialoguePanel.SetActive(false);
+
+        // 조이패드 앱에 텍스트 입력 닫으라고 알림
+        commandSender.SendCloseTextInput();
+
+        // 플레이어 이동만 복구
+        if (playerController != null)
+            playerController.canMove = true;
+
+        // UI 차단 해제
+        UIManager.IsUIBlocking = false;
+        padInput.currentMode = PadInputEventRouter.InputMode.Player;
+
+        currentNpcId = "";
+        currentNpcName = "";
+    }
+
 }

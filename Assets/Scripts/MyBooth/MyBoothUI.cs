@@ -19,7 +19,9 @@ public class MyBoothUI : MonoBehaviour
     public GameObject infoGroup;
     public GameObject placeholderText;
 
-    private bool isPlacing = false;
+    public PadInputEventRouter padInput;
+    public MyBoothPadController padController;
+    public BoothManager boothManager;
 
     [SerializeField] int gridColumns = 5;
     [SerializeField] int gridRows = 3;
@@ -28,14 +30,19 @@ public class MyBoothUI : MonoBehaviour
     [SerializeField] Button prevPageBtn, nextPageBtn;
     [SerializeField] TMP_Text pageLabel;
 
-    List<InventoryItem> _items = new();
-    readonly List<GameObject> _slotPool = new();
-    int _currentPage;
-
     [SerializeField] PlacementController placement;
     [SerializeField] KeyCode rotateKey = KeyCode.R;
 
     string baseUrl, characterId, accessToken;
+
+    List<InventoryItem> _items = new();
+    readonly List<GameObject> _slotPool = new();
+    int _currentPage;
+
+    ItemDataDTO _current;
+    bool isPlacing = false;
+
+    public int SlotCount => _slotPool.Count;
 
     [System.Serializable]
     public class ItemDataDTO
@@ -49,7 +56,7 @@ public class MyBoothUI : MonoBehaviour
         public string map;
         public string item_rotation;
 
-        public Vector3 positionOffset;  // 위치 보정용 변수 추가
+        public Vector3 positionOffset;
     }
 
     [System.Serializable]
@@ -58,7 +65,7 @@ public class MyBoothUI : MonoBehaviour
         public string inventory_id;
         public ItemDataDTO item;
         public int slot_location;
-        public int count = 1; // 동일 아이템 수량 표시용
+        public int count = 1;
     }
 
     [System.Serializable]
@@ -66,8 +73,6 @@ public class MyBoothUI : MonoBehaviour
     {
         public List<InventoryItem> Items;
     }
-
-    ItemDataDTO _current;
 
     void Start()
     {
@@ -90,6 +95,12 @@ public class MyBoothUI : MonoBehaviour
         if (placeholderText) placeholderText.SetActive(true);
 
         StartCoroutine(LoadInventory());
+
+        if (padController != null)
+            padController.Activate();
+
+        UIManager.IsUIBlocking = true;
+        if (padInput != null) padInput.currentMode = PadInputEventRouter.InputMode.Popup;
     }
 
     public void CloseInventory()
@@ -99,6 +110,12 @@ public class MyBoothUI : MonoBehaviour
 
         if (infoGroup) infoGroup.SetActive(false);
         if (placeholderText) placeholderText.SetActive(false);
+
+        if (padController != null)
+            padController.Deactivate();
+
+        UIManager.IsUIBlocking = false;
+        if (padInput != null) padInput.currentMode = PadInputEventRouter.InputMode.Player;
     }
 
     IEnumerator LoadInventory()
@@ -112,7 +129,7 @@ public class MyBoothUI : MonoBehaviour
         www.SetRequestHeader("Authorization", "Bearer " + accessToken);
 
         yield return www.SendWebRequest();
-
+        Debug.Log("[MyBoothUI] Inventory response: " + www.downloadHandler.text);
         if (www.result != UnityWebRequest.Result.Success)
         {
             Debug.LogError(www.error);
@@ -120,26 +137,19 @@ public class MyBoothUI : MonoBehaviour
         }
 
         var wrapper = JsonUtility.FromJson<InventoryWrapper>("{\"Items\":" + www.downloadHandler.text + "}");
-        var rawItems = wrapper?.Items ?? new List<InventoryItem>();
+        var rawItems = wrapper?.Items;
 
-        // 동일한 아이템 병합 (item_icon or item_id 기준)
+        Debug.Log(rawItems == null ? "[MyBoothUI] rawItems == null" : $"[MyBoothUI] rawItems count = {rawItems.Count}");
+
         var mergedDict = new Dictionary<string, InventoryItem>();
         foreach (var inv in rawItems)
         {
-            if (inv == null || inv.item == null)
-                continue;
+            if (inv == null || inv.item == null) continue;
 
-            string key = !string.IsNullOrEmpty(inv.item.item_id)
-                ? inv.item.item_id
-                : inv.item.item_icon;
+            string key = !string.IsNullOrEmpty(inv.item.item_id) ? inv.item.item_id : inv.item.item_icon;
+            if (string.IsNullOrEmpty(key)) continue;
 
-            if (string.IsNullOrEmpty(key))
-                continue;
-
-            if (mergedDict.ContainsKey(key))
-            {
-                mergedDict[key].count += 1;
-            }
+            if (mergedDict.ContainsKey(key)) mergedDict[key].count += 1;
             else
             {
                 mergedDict[key] = inv;
@@ -149,29 +159,15 @@ public class MyBoothUI : MonoBehaviour
 
         _items = new List<InventoryItem>(mergedDict.Values);
 
-        // 슬롯 초기화 및 페이지 표시
         foreach (Transform c in slotParent)
             Destroy(c.gameObject);
 
         _slotPool.Clear();
 
-        // 위치 보정값 설정 (필요 시 조정)
         foreach (var invItem in _items)
         {
             if (invItem.item == null) continue;
-
-            switch (invItem.item.item_name)
-            {
-                case "Sofa":
-                    invItem.item.positionOffset = new Vector3(0f, 0.4f, 0f);
-                    break;
-                case "Table":
-                    invItem.item.positionOffset = new Vector3(0f, 0.2f, 0f);
-                    break;
-                default:
-                    invItem.item.positionOffset = Vector3.zero;
-                    break;
-            }
+            invItem.item.positionOffset = Vector3.zero; // 일단 단순화
         }
 
         BuildPoolIfNeeded();
@@ -190,14 +186,9 @@ public class MyBoothUI : MonoBehaviour
 
     void BindSlot(GameObject slot, InventoryItem inv)
     {
-        // 아이템 이름 + 수량 표시
         var itemNameTxt = slot.transform.Find("Button/ItemName")?.GetComponent<TMP_Text>();
         if (itemNameTxt)
-        {
-            itemNameTxt.text = inv.count > 1
-                ? $"{inv.item.item_name} x{inv.count}"
-                : inv.item.item_name;
-        }
+            itemNameTxt.text = inv.count > 1 ? $"{inv.item.item_name} x{inv.count}" : inv.item.item_name;
 
         var iconImg = slot.transform.Find("Button/ItemImage")?.GetComponent<Image>();
         var icon = Resources.Load<Sprite>("Icons/" + inv.item.item_icon);
@@ -229,8 +220,7 @@ public class MyBoothUI : MonoBehaviour
                 _slotPool[i].SetActive(true);
                 BindSlot(_slotPool[i], _items[idx]);
             }
-            else
-                _slotPool[i].SetActive(false);
+            else _slotPool[i].SetActive(false);
         }
 
         if (pageLabel) pageLabel.text = $"{_currentPage + 1} / {total}";
@@ -241,7 +231,6 @@ public class MyBoothUI : MonoBehaviour
     void ShowDetail(ItemDataDTO item)
     {
         detailPanel.SetActive(true);
-
         if (infoGroup) infoGroup.SetActive(true);
         if (placeholderText) placeholderText.SetActive(false);
 
@@ -259,27 +248,72 @@ public class MyBoothUI : MonoBehaviour
 
         putOnButton.onClick.RemoveAllListeners();
         putOnButton.GetComponentInChildren<TMP_Text>().text = "배치하기";
-        putOnButton.onClick.AddListener(() => BeginPlacement(item));
+        putOnButton.onClick.AddListener(() => BeginPlacement(item, false)); // 마우스
     }
 
-    // 원하는 위치
-    Vector3 fixedPosition = new Vector3(-465f, 127f, 0f);
-    void BeginPlacement(ItemDataDTO item)
+    Vector3 fixedPosition = new Vector3(-465f, 80f, 0f);
+
+    void BeginPlacement(ItemDataDTO item, bool fromPad)
     {
-        if (isPlacing) return;
+        if (placement == null) return;
+
         isPlacing = true;
         CloseInventory();
 
-        if (!placement)
-        {
-            Debug.LogWarning("PlacementController 없음");
-            isPlacing = false;
-            return;
-        }
-
         placement.rotateKey = rotateKey;
 
-        // 카탈로그 없이 Resources 폴더에서 직접 로드
-        placement.BeginPreview(item.item_icon, fixedPosition, item.positionOffset);
+        placement.BeginPreview(item.item_icon, fixedPosition, item.positionOffset, fromPad);
     }
+
+    public void BeginPlacementFromPad()
+    {
+        Debug.Log($"[BeginPlacementFromPad] current={_current}, isPlacing={isPlacing}");
+        if (_current == null) return;
+
+        BeginPlacement(_current, true); // 패드 배치
+    }
+
+    public void ShowDetailByIndex(int index)
+    {
+        if (_items == null || index < 0 || index >= _items.Count) return;
+
+        _current = _items[index].item;
+        ShowDetail(_current);
+    }
+
+    public GameObject GetSlotButton(int index)
+    {
+        if (index < 0 || index >= _slotPool.Count) return null;
+        return _slotPool[index].transform.Find("Button").gameObject;
+    }
+
+    void OnEnable()
+    {
+        if (padInput != null)
+            padInput.OnRPressed += ToggleFromBooth;
+
+        if (padInput != null)
+            padInput.OnYPressed += OnExitBooth;
+    }
+
+    void OnDisable()
+    {
+        if (padInput != null)
+            padInput.OnRPressed -= ToggleFromBooth;
+
+        if (padInput != null)
+            padInput.OnYPressed -= OnExitBooth;
+    }
+
+    void ToggleFromBooth()
+    {
+        if (inventoryPanel.activeSelf) CloseInventory();
+        else OpenInventory();
+    }
+    void OnExitBooth()
+    {
+        boothManager.SaveAndExit();
+    }
+
+
 }

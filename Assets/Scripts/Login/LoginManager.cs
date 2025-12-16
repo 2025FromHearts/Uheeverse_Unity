@@ -32,6 +32,18 @@ public class LoginManager : MonoBehaviour
         public string username;
         public string character_id;
     }
+    public class CharacterStatus
+    {
+        public string characterName;
+        public string characterStyle;
+    }
+
+    [System.Serializable]
+    public class CharacterResponse
+    {
+        public string character_id;
+        public CharacterStatus character_status;
+    }
 
     public void OnLoginButtonClick()
     {
@@ -74,6 +86,7 @@ public class LoginManager : MonoBehaviour
             Debug.Log("Login success! Access Token: " + accessToken);
 
             yield return StartCoroutine(GetUserInfo());
+            yield return StartCoroutine(GetCharacterInfo(characterId));
             FindObjectOfType<SceneLoader>().LoadSceneByCharacterCheck();
         }
     }
@@ -86,27 +99,31 @@ public class LoginManager : MonoBehaviour
         yield return www.SendWebRequest();
 
         if (www.result != UnityWebRequest.Result.Success)
-        {
-            Debug.LogError("User info request failed: " + www.error);
-        }
-        else
-        {
-            string json = www.downloadHandler.text;
-            Debug.Log("User info raw JSON: " + json);
+            yield break;
 
-            try
-            {
-                UserInfo userInfo = JsonConvert.DeserializeObject<UserInfo>(json);
-                characterId = userInfo.character_id;
-                Debug.Log("Parsed characterId: " + characterId);
-                PlayerPrefs.SetString("character_id", characterId);
-            }
-            catch (System.Exception e)
-            {
-                Debug.LogError("Failed to parse user info: " + e.Message);
-            }
-        }
+        UserInfo user = JsonConvert.DeserializeObject<UserInfo>(www.downloadHandler.text);
+
+        characterId = user.character_id;
+        PlayerPrefs.SetString("character_id", characterId);
+        PlayerPrefs.Save();
     }
 
+    IEnumerator GetCharacterInfo(string id)
+        {
+            UnityWebRequest www = UnityWebRequest.Get(ServerConfig.baseUrl + "/character/info/" + id + "/");
+            www.SetRequestHeader("Authorization", "Bearer " + accessToken);
 
+            yield return www.SendWebRequest();
+
+            if (www.result != UnityWebRequest.Result.Success)
+                yield break;
+
+            CharacterResponse res = JsonConvert.DeserializeObject<CharacterResponse>(www.downloadHandler.text);
+
+            string style = res.character_status.characterStyle;
+
+            PlayerPrefs.SetString("character_style", style);
+            PlayerPrefs.Save();
+        }
 }
+

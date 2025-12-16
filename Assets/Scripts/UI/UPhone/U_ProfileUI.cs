@@ -46,6 +46,11 @@ public class U_ProfileUI : MonoBehaviour
         }
     }
 
+    private void OnEnable()
+    {
+        StartCoroutine(GetUserInfo());
+    }
+
     // 메인 버튼 OnClick에 연결할 함수
     public void OpenProfile()
     {
