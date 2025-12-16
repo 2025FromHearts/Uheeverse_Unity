@@ -74,7 +74,7 @@ public class NpcGameManager : MonoBehaviour
         minigameSceneName = callerNpc.minigameSceneName;
 
         dialoguePanel.SetActive(true);
-        padInput.currentMode = PadInputEventRouter.InputMode.UPhone;
+        padInput.currentMode = PadInputEventRouter.InputMode.Dialogue;
 
         if (npcNameText != null)
             npcNameText.text = currentNpcName;

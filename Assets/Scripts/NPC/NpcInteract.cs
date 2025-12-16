@@ -12,6 +12,8 @@ public enum NpcType
 
 public class NpcInteract : MonoBehaviour
 {
+    PadInputEventRouter router;
+
     [Header("고정 키 (티켓/대화 체크용)")]
     [Tooltip("Inspector에서 직접 입력하는 고정 키 (예: apple_guide, apple_vendor1)")]
     public string talkKey;
@@ -38,6 +40,9 @@ public class NpcInteract : MonoBehaviour
     public GameObject roleUI;
     public TMP_Text roleText;
 
+    [Header("Pad Input")]
+    public PadInputEventRouter padInput;
+
     [Header("참조")]
     public Transform player;
     private string basePrompt;
@@ -52,10 +57,21 @@ public class NpcInteract : MonoBehaviour
         }
         if (roleText != null && !string.IsNullOrEmpty(npcName))
             roleText.text = npcName;
+        router = FindAnyObjectByType<PadInputEventRouter>();
     }
 
     void Update()
     {
+        if (UIManager.IsUIBlocking)
+        {
+            Debug.Log("[NpcInteract] blocked by UIManager");
+            return;
+        }
+
+        if (router != null &&
+            router.currentMode != PadInputEventRouter.InputMode.Player)
+            return;
+
         if (UIManager.IsUIBlocking)
             return;
 
@@ -90,6 +106,7 @@ public class NpcInteract : MonoBehaviour
     // 조이패드 A 입력시 호출할 함수
     public void InteractWithNpcByPad()
     {
+
         if (UIManager.IsUIBlocking)
             return;
 

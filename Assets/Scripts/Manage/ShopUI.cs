@@ -25,6 +25,11 @@ public class ShopUI : MonoBehaviour
     public PadInputEventRouter padInput;
     public float moveDelay = 0.25f;
 
+    [Header("Alarm")]
+    public GameObject alarmRoot;
+    public TMP_Text alarmText;
+    public float alarmDuration = 2f;
+
     float lastMoveTime;
 
     public GameObject infoGroup;
@@ -33,6 +38,8 @@ public class ShopUI : MonoBehaviour
     private ItemDataDTO currentSelectedItem;
     private string baseUrl;
     private string accessToken;
+
+    Coroutine alarmCoroutine;
 
     List<ShopSlot> slots = new List<ShopSlot>();
     int currentIndex = 0;
@@ -51,6 +58,9 @@ public class ShopUI : MonoBehaviour
 
     public void OpenShop()
     {
+        if (padInput != null)
+            padInput.currentMode = PadInputEventRouter.InputMode.Popup;
+
         shopPanel.SetActive(true);
 
         if (shopCanvasGroup != null)
@@ -133,6 +143,9 @@ public class ShopUI : MonoBehaviour
     {
         if (!shopPanel.activeInHierarchy) return;
         CloseShop();
+
+        if (padInput != null)
+            padInput.currentMode = PadInputEventRouter.InputMode.Player;
     }
     void OnAPressed()
     {
@@ -259,6 +272,19 @@ public class ShopUI : MonoBehaviour
         www.SetRequestHeader("Authorization", "Bearer " + accessToken);
 
         yield return www.SendWebRequest();
+
+        if (www.result == UnityWebRequest.Result.Success)
+        {
+            ShowAlarm("구매 완료! 인벤토리를 확인해보세요.");
+        }
+        else if (www.responseCode == 400)
+        {
+            ShowAlarm("코인이 부족합니다.");
+        }
+        else
+        {
+            ShowAlarm("구매에 실패했습니다. ERROR 확인 요망");
+        }
     }
 
     public static class JsonUtilityWrapper
@@ -274,5 +300,22 @@ public class ShopUI : MonoBehaviour
         {
             public List<T> Items;
         }
+    }
+    void ShowAlarm(string message)
+    {
+        if (alarmCoroutine != null)
+            StopCoroutine(alarmCoroutine);
+
+        alarmCoroutine = StartCoroutine(AlarmRoutine(message));
+    }
+
+    IEnumerator AlarmRoutine(string message)
+    {
+        alarmRoot.SetActive(true);
+        alarmText.text = message;
+
+        yield return new WaitForSecondsRealtime(alarmDuration);
+
+        alarmRoot.SetActive(false);
     }
 }

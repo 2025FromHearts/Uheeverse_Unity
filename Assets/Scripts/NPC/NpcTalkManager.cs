@@ -71,10 +71,16 @@ public class NpcTalkManager : MonoBehaviour
 
     public void TalkToNpc(NpcInteract callerNpc)
     {
+        if (padInput.currentMode != PadInputEventRouter.InputMode.Player)
+            return;
+
         currentNpcId = callerNpc.npcId;
         currentNpcName = callerNpc.npcName;
 
         dialoguePanel.SetActive(true);
+
+        padInput.currentMode = PadInputEventRouter.InputMode.Dialogue;
+        UIManager.IsUIBlocking = true;
 
         npcNameText.text = currentNpcName;
         dialogueText.text = initialNpcGreeting;
@@ -197,7 +203,7 @@ public class NpcTalkManager : MonoBehaviour
 
         if (padInput != null)
         {
-            padInput.OnAPressed += OnAPressed;
+            //padInput.OnAPressed += OnAPressed;
             padInput.OnXPressed += OnXPressed;
         }
     }
@@ -210,7 +216,7 @@ public class NpcTalkManager : MonoBehaviour
 
         if (padInput != null)
         {
-            padInput.OnAPressed -= OnAPressed;
+            //padInput.OnAPressed -= OnAPressed;
             padInput.OnXPressed -= OnXPressed;
         }
         padInput.currentMode = PadInputEventRouter.InputMode.Player;
@@ -218,11 +224,14 @@ public class NpcTalkManager : MonoBehaviour
 
     void OnAPressed()
     {
+        if (padInput.currentMode != PadInputEventRouter.InputMode.Dialogue)
+            return;
+
         if (!dialoguePanel.activeSelf) return;
 
         Debug.Log("[Talk] A pressed → ask again");
 
-        dialogueText.text = "다른 질문이 있으면 입력해 주세요.";
+        dialogueText.text = "사과 축제에 대해 궁금한 점을 입력해주세요!";
         commandSender.SendOpenTextInput(currentNpcName);
     }
 

@@ -39,7 +39,7 @@ public class NpcPhotoManager : MonoBehaviour
 
         dialoguePanel.SetActive(true);
 
-        padInput.currentMode = PadInputEventRouter.InputMode.UPhone;
+        padInput.currentMode = PadInputEventRouter.InputMode.Dialogue;
 
         titleText.text = caller.npcName;
         bodyText.text = "사진 촬영을 시작할까요?";
@@ -56,8 +56,6 @@ public class NpcPhotoManager : MonoBehaviour
         if (!dialoguePanel.activeSelf) return;
 
         dialoguePanel.SetActive(false);
-
-        padInput.currentMode = PadInputEventRouter.InputMode.Player;
 
         GameObject playerObj = GameObject.FindWithTag("Player");
         if (playerObj == null) return;

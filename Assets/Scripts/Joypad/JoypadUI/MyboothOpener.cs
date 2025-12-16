@@ -39,6 +39,9 @@ public class MyboothOpener : MonoBehaviour
 
     void TryMoveScene()
     {
+        if (padInput.currentMode == PadInputEventRouter.InputMode.UPhone)
+            return; //U폰 열려있으면 반응 차단
+
         if (!isPlayerInRange) return;
 
         // 씬 이동
