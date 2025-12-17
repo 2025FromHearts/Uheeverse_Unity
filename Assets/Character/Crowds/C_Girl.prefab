@@ -62,13 +62,7 @@ PrefabInstance:
       objectReference: {fileID: 9100000, guid: f1ed43dbd6a540f4286afe93be207370, type: 2}
     - target: {fileID: 5866666021909216657, guid: 50e08dbc004423e45964af64a4d251fb, type: 3}
       propertyPath: m_WarningMessage
-      value: "\nBinding warning: Some generic clip(s) animate transforms that are
-        already bound by a Humanoid avatar. These transforms can only be changed
-        by Humanoid clips.\n\tTransform 'mixamorig:Hips'\n\tTransform 'mixamorig:LeftFoot'\n\tTransform
-        'mixamorig:Spine1'\n\tTransform 'mixamorig:LeftToeBase'\n\tTransform 'mixamorig:RightArm'\n\tTransform
-        'mixamorig:LeftLeg'\n\tTransform 'mixamorig:LeftShoulder'\n\tTransform 'mixamorig:RightFoot'\n\tTransform
-        'mixamorig:Head'\n\tTransform 'mixamorig:LeftUpLeg'\n\tand more ...\n\tFrom
-        animation clip 'mixamo_sit_Girl'"
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 5866666021909216657, guid: 50e08dbc004423e45964af64a4d251fb, type: 3}
       propertyPath: m_ApplyRootMotion
@@ -87,6 +81,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 50e08dbc004423e45964af64a4d251fb, type: 3}
       insertIndex: -1
       addedObject: {fileID: 3514073490497554384}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 50e08dbc004423e45964af64a4d251fb, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6683024112522016316}
   m_SourcePrefab: {fileID: 100100000, guid: 50e08dbc004423e45964af64a4d251fb, type: 3}
 --- !u!1 &4550907853294714048 stripped
 GameObject:
@@ -157,3 +154,24 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 1.83, z: 0}
+--- !u!65 &6683024112522016316
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4550907853294714048}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 2.261742, y: 4.5867577, z: 2.4702406}
+  m_Center: {x: 0.030281126, y: 1.7933788, z: -0.0075974464}

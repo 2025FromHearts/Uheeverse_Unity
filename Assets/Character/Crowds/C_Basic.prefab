@@ -808,6 +808,7 @@ GameObject:
   - component: {fileID: 2881289641163208313}
   - component: {fileID: -8785997218041158983}
   - component: {fileID: 4831083950637755569}
+  - component: {fileID: -9203689130444710172}
   m_Layer: 0
   m_Name: C_Basic
   m_TagString: NPC
@@ -918,7 +919,28 @@ CharacterController:
   m_StepOffset: 0.3
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 1.83, z: 0}
+  m_Center: {x: 0, y: 1.83, z: 0.94}
+--- !u!65 &-9203689130444710172
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3660374497888724983}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 2.574716, y: 4.511066, z: 2.443931}
+  m_Center: {x: 0.060435295, y: 1.755533, z: 1.0603971}
 --- !u!1 &3848385252629642570
 GameObject:
   m_ObjectHideFlags: 0

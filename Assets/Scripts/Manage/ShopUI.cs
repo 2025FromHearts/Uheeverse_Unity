@@ -4,7 +4,6 @@ using TMPro;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.Networking;
-using NUnit.Framework.Interfaces;
 
 public class ShopUI : MonoBehaviour
 {
@@ -26,6 +25,13 @@ public class ShopUI : MonoBehaviour
     public GameObject infoGroup;
     public GameObject placeholderText;
 
+    [Header("구매 알림 UI")]
+    public GameObject alarmRoot;
+    public TMP_Text alarmText;
+    public float alarmDuration = 2f;
+
+    Coroutine alarmCoroutine;
+
     private ItemDataDTO currentSelectedItem;
     private string baseUrl;
     private string accessToken;
@@ -42,20 +48,17 @@ public class ShopUI : MonoBehaviour
         public string map;
     }
 
-    public void OnSlotClicked(ItemDataDTO item)
-    {
-        currentSelectedItem = item;
-        ShowDetail(item);
-    }
+    /* ===================== UI OPEN / CLOSE ===================== */
 
     public void OpenShop()
     {
         if (shopCanvasGroup != null)
         {
-            shopCanvasGroup.alpha = 1f;              // 보이기
-            shopCanvasGroup.interactable = true;     // 클릭 가능
-            shopCanvasGroup.blocksRaycasts = true;   // 이벤트 차단 O
+            shopCanvasGroup.alpha = 1f;
+            shopCanvasGroup.interactable = true;
+            shopCanvasGroup.blocksRaycasts = true;
         }
+
         shopPanel.SetActive(true);
         detailPanel.SetActive(true);
 
@@ -69,9 +72,9 @@ public class ShopUI : MonoBehaviour
     {
         if (shopCanvasGroup != null)
         {
-            shopCanvasGroup.alpha = 0f;              // 안 보이기
-            shopCanvasGroup.interactable = false;    // 클릭 불가
-            shopCanvasGroup.blocksRaycasts = false;  // 이벤트 차단 X
+            shopCanvasGroup.alpha = 0f;
+            shopCanvasGroup.interactable = false;
+            shopCanvasGroup.blocksRaycasts = false;
         }
         else
         {
@@ -83,14 +86,16 @@ public class ShopUI : MonoBehaviour
         if (placeholderText != null) placeholderText.SetActive(false);
     }
 
+    /* ===================== ITEM LOAD ===================== */
+
     IEnumerator LoadShopItems()
     {
         baseUrl = ServerConfig.baseUrl;
         accessToken = PlayerPrefs.GetString("access_token");
-        Debug.Log("🔥 토큰 확인: " + accessToken);
+
         if (string.IsNullOrEmpty(accessToken))
         {
-            Debug.LogError("❌ access_token이 없습니다. 로그인 먼저 하세요.");
+            Debug.LogError("❌ access_token이 없습니다.");
             yield break;
         }
 
@@ -103,46 +108,47 @@ public class ShopUI : MonoBehaviour
         if (www.result != UnityWebRequest.Result.Success)
         {
             Debug.LogError("❌ Shop item load failed: " + www.error);
+            yield break;
         }
-        else
+
+        List<ItemDataDTO> items =
+            JsonUtilityWrapper.FromJsonList<ItemDataDTO>(www.downloadHandler.text);
+
+        foreach (Transform child in slotParent)
+            Destroy(child.gameObject);
+
+        foreach (var item in items)
         {
-            List<ItemDataDTO> items = JsonUtilityWrapper.FromJsonList<ItemDataDTO>(www.downloadHandler.text);
+            GameObject slot = Instantiate(slotPrefab, slotParent);
 
-            foreach (Transform child in slotParent)
-                Destroy(child.gameObject);
+            TMP_Text text = slot.transform.Find("Button/ItemName")
+                ?.GetComponent<TMP_Text>();
+            if (text != null)
+                text.text = item.item_name;
 
-            foreach (var item in items)
+            Image iconImage = slot.transform.Find("Button/ItemImage")
+                ?.GetComponent<Image>();
+            if (iconImage != null)
             {
-                GameObject slot = Instantiate(slotPrefab, slotParent);
+                Sprite iconSprite = Resources.Load<Sprite>("Icons/" + item.item_icon);
+                if (iconSprite != null)
+                    iconImage.sprite = iconSprite;
+            }
 
-                TMP_Text text = slot.transform.Find("Button/ItemName")?.GetComponent<TMP_Text>();
-                if (text != null)
-                    text.text = item.item_name;
-
-                Transform iconTransform = slot.transform.Find("Button/ItemImage");
-                if (iconTransform != null)
+            Button btn = slot.transform.Find("Button")?.GetComponent<Button>();
+            if (btn != null)
+            {
+                ItemDataDTO capturedItem = item;
+                btn.onClick.AddListener(() =>
                 {
-                    Image iconImage = iconTransform.GetComponent<Image>();
-                    Sprite iconSprite = Resources.Load<Sprite>("Icons/" + item.item_icon);
-                    if (iconSprite != null)
-                        iconImage.sprite = iconSprite;
-                }
-
-                Button btn = slot.transform.Find("Button")?.GetComponent<Button>();
-                if (btn != null)
-                {
-                    ItemDataDTO capturedItem = item;
-                    btn.onClick.AddListener(() =>
-                    {
-                        currentSelectedItem = capturedItem;
-                        ShowDetail(capturedItem);
-                    });
-                }
+                    currentSelectedItem = capturedItem;
+                    ShowDetail(capturedItem);
+                });
             }
         }
     }
 
-
+    /* ===================== DETAIL ===================== */
 
     void ShowDetail(ItemDataDTO item)
     {
@@ -155,51 +161,79 @@ public class ShopUI : MonoBehaviour
         detailName.text = item.item_name;
         detailDescription.text = item.item_description;
 
-        Sprite iconSprite = Resources.Load<Sprite>("Icons/" + item.item_icon);
-        if (iconSprite != null && detailItemImage != null)
-            detailItemImage.sprite = iconSprite;
-        else
-            Debug.LogWarning("⚠️ 아이템 이미지 로드 실패: " + item.item_icon);
+        Sprite icon = Resources.Load<Sprite>("Icons/" + item.item_icon);
+        if (icon != null)
+            detailItemImage.sprite = icon;
 
         purchaseButton.onClick.RemoveAllListeners();
         purchaseButton.onClick.AddListener(() => PurchaseItem(item));
     }
 
+    public void OnSlotClicked(ItemDataDTO item)
+    {
+        currentSelectedItem = item;
+        ShowDetail(item);
+    }
+
+    /* ===================== PURCHASE ===================== */
+
     void PurchaseItem(ItemDataDTO item)
     {
-        Debug.Log($"💰 구매 시도: {item.item_name} (가격: {item.item_price})");
+        Debug.Log($"구매 시도: {item.item_name}");
         StartCoroutine(SendPurchaseRequest(item));
     }
 
     IEnumerator SendPurchaseRequest(ItemDataDTO item)
     {
-        string accessToken = PlayerPrefs.GetString("access_token");
         string url = $"{ServerConfig.baseUrl}/item/inventory/add/";
 
         WWWForm form = new WWWForm();
         form.AddField("item_id", item.item_id);
-
-        string characterId = PlayerPrefs.GetString("character_id");
-        form.AddField("character_id", characterId);
+        form.AddField("character_id", PlayerPrefs.GetString("character_id"));
 
         UnityWebRequest www = UnityWebRequest.Post(url, form);
         www.SetRequestHeader("Authorization", "Bearer " + accessToken.Trim());
 
         yield return www.SendWebRequest();
 
-        if (www.result != UnityWebRequest.Result.Success)
+        if (www.result == UnityWebRequest.Result.Success)
         {
-            Debug.LogError($"❌ 구매 실패: {www.error}, URL: {url}, Code: {www.responseCode}");
-            Debug.LogError($"응답 내용: {www.downloadHandler.text}");
+            ShowAlarm("구매 완료! 인벤토리를 확인해보세요.");
+        }
+        else if (www.responseCode == 400)
+        {
+            ShowAlarm("코인이 부족합니다.");
         }
         else
         {
-            Debug.Log($"✅ 구매 성공: {item.item_name}, 응답: {www.downloadHandler.text}");
+            ShowAlarm("구매에 실패했습니다.");
+            Debug.LogError(www.error);
         }
+    }
+
+    /* ===================== ALARM ===================== */
+
+    void ShowAlarm(string message)
+    {
+        if (alarmCoroutine != null)
+            StopCoroutine(alarmCoroutine);
+
+        alarmCoroutine = StartCoroutine(AlarmRoutine(message));
+    }
+
+    IEnumerator AlarmRoutine(string message)
+    {
+        alarmRoot.SetActive(true);
+        alarmText.text = message;
+
+        yield return new WaitForSecondsRealtime(alarmDuration);
+
+        alarmRoot.SetActive(false);
     }
 }
 
-// JsonUtility가 List를 파싱하지 못하므로 wrapper 사용
+/* ===================== JSON LIST WRAPPER ===================== */
+
 public static class JsonUtilityWrapper
 {
     public static List<T> FromJsonList<T>(string json)
@@ -214,5 +248,3 @@ public static class JsonUtilityWrapper
         public List<T> Items;
     }
 }
-
-
