@@ -143001,7 +143001,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 11d3352d4a19c0049a52a166f3fee0cb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetIp: 127.0.0.1
+  targetIp: 192.168.10.89
   targetPort: 9001
 --- !u!1001 &1340385828
 PrefabInstance:
