@@ -18,6 +18,19 @@ public class PadCommandSender : MonoBehaviour
     {
         string json = $"{{\"type\":\"open_text_input\",\"target\":\"{target}\"}}";
         Send(json);
+
+#if UNITY_ANDROID && !UNITY_EDITOR
+    TouchScreenKeyboard.Open(
+        "",
+        TouchScreenKeyboardType.Default,
+        false,
+        false,
+        false,
+        false,
+        target
+    );
+#endif
+
         Debug.Log("[PadCommandSender] open_text_input sent");
     }
 
@@ -25,6 +38,11 @@ public class PadCommandSender : MonoBehaviour
     {
         string json = "{\"type\":\"close_text_input\"}";
         Send(json);
+
+#if UNITY_ANDROID && !UNITY_EDITOR
+    TouchScreenKeyboard.hideInput = true;
+#endif
+
         Debug.Log("[PadCommandSender] close_text_input sent");
     }
 

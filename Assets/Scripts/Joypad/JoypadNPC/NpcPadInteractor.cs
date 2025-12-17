@@ -5,6 +5,15 @@ public class NpcPadInteractor : MonoBehaviour
     public PadInputEventRouter padInput;
     public float interactRadius = 50f;
 
+    Transform player;
+
+    void Awake()
+    {
+        var go = GameObject.FindWithTag("Player");
+        if (go != null)
+            player = go.transform;
+    }
+
     void OnEnable()
     {
         if (padInput != null)
@@ -20,14 +29,25 @@ public class NpcPadInteractor : MonoBehaviour
     void TryInteract()
     {
 
+        Debug.Log("NpcPadInteractor:TryInteract()");
+
         Debug.Log(
-    $"[TryInteract] UIBlock={UIManager.IsUIBlocking}, mode={padInput.currentMode}"
-);
-        Collider[] hits = Physics.OverlapSphere(transform.position, interactRadius);
+            $"[TryInteract] UIBlock={UIManager.IsUIBlocking}, mode={padInput.currentMode}"
+        );
+
+        if (padInput.currentMode != PadInputEventRouter.InputMode.Player)
+            return;
+
+        if (UIManager.IsUIBlocking)
+            return;
+
+        if (player == null) return;
+
+        Collider[] hits = Physics.OverlapSphere(player.position, interactRadius);
 
         foreach (var hit in hits)
         {
-            NpcInteract npc = hit.GetComponent<NpcInteract>();
+            NpcInteract npc = hit.GetComponentInParent<NpcInteract>();
             if (npc != null)
             {
                 npc.InteractWithNpcByPad();
@@ -35,4 +55,5 @@ public class NpcPadInteractor : MonoBehaviour
             }
         }
     }
+
 }

@@ -37,6 +37,9 @@ public class UIStoreOpener : MonoBehaviour
 
     void TryOpenPanel()
     {
+        if (padInput.currentMode == PadInputEventRouter.InputMode.UPhone)
+            return; //U폰 열려있으면 반응 차단
+
         if (!isPlayerInRange) return;
         if (targetPanel == null) return;
 

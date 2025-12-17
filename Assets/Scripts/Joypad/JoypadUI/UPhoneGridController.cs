@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 
 public class UPhoneGridController : MonoBehaviour
 {
@@ -146,8 +147,24 @@ public class UPhoneGridController : MonoBehaviour
 
     void OpenSelectedPanel()
     {
-        if (currentIndex < 0 || currentIndex >= panels.Count) return;
+        if (currentIndex < 0 || currentIndex >= panels.Count)
+            return;
 
+        if (currentIndex == 4)
+        {
+            Debug.Log("MyBooth로 이동");
+            SceneManager.LoadScene("MyBooth");
+            return;
+        }
+
+        if (currentIndex == 5)
+        {
+            Debug.Log("MyStation으로 이동");
+            SceneManager.LoadScene("MyStation");
+            return;
+        }
+
+        // 그 외는 기존 패널 열기
         if (currentPanel != null)
             currentPanel.SetActive(false);
 

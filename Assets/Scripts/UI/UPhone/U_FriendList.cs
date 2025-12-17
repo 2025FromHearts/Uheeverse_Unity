@@ -124,6 +124,10 @@ public class U_FriendList : MonoBehaviour
 
     void OnB()
     {
+        if (!friendPanel.activeInHierarchy) return;
+        if (padInput.currentMode != PadInputEventRouter.InputMode.UPhone) return;
+        if (listNavigation == null || listNavigation.scrollRect == null) return;
+
         ResetListState();
         plusOverlayPanel.SetActive(false);
         EventSystem.current.SetSelectedGameObject(null);

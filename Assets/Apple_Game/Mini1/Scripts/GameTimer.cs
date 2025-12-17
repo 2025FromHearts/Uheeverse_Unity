@@ -13,7 +13,7 @@ public class GameTimer : MonoBehaviour
     public PlayerScoreUI[] allPlayers;
     public GameObject winnerPanel;
     public TextMeshProUGUI winnerText;
-    public TextMeshProUGUI restartText;
+    public GameObject restartImage;
     public ScoreUploader scoreUploader;
     public Button quitButton;
     private bool gameEnded = false;
@@ -28,7 +28,7 @@ public class GameTimer : MonoBehaviour
         timerText.text = FormatTime(currentTime);
         gameOverPanel.SetActive(false);
         winnerPanel.SetActive(false);
-        restartText.text = "";
+        restartImage.gameObject.SetActive(false);
         quitButton.gameObject.SetActive(false);
         quitButton.onClick.AddListener(QuitGame);
     }
@@ -148,7 +148,7 @@ public class GameTimer : MonoBehaviour
         }
 
         // 항상 restart 텍스트와 quit 버튼은 표시
-        restartText.text = "Press R to Restart";
+        restartImage.gameObject.SetActive(true);
         quitButton.gameObject.SetActive(true);
 
         Debug.Log("ShowWinner 완료 - UI 표시됨");
@@ -160,7 +160,7 @@ public class GameTimer : MonoBehaviour
         winnerPanel.SetActive(true);
         if (winnerText != null)
             winnerText.text = "Game Over!";
-        restartText.text = "Press R to Restart";
+        restartImage.gameObject.SetActive(true);
         quitButton.gameObject.SetActive(true);
     }
 

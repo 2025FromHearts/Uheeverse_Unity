@@ -25,7 +25,8 @@ public class PadInputEventRouter : MonoBehaviour
         UPhone,
         Ticket,
         Gallery,
-        Popup
+        Popup,
+        Dialogue
     }
 
     public InputMode currentMode = InputMode.Player;
@@ -52,6 +53,7 @@ public class PadInputEventRouter : MonoBehaviour
             OnBPressed?.Invoke();
 
         // X
+
         if (!prevX && s.x && AllowX())
             OnXPressed?.Invoke();
 
@@ -86,6 +88,7 @@ public class PadInputEventRouter : MonoBehaviour
         // 일반 UI / 플레이어 상태
         return currentMode == InputMode.Player
             || currentMode == InputMode.UPhone
+            || currentMode == InputMode.Dialogue
             || currentMode == InputMode.Placement;
     }
 
@@ -93,7 +96,7 @@ public class PadInputEventRouter : MonoBehaviour
     {
         return currentMode == InputMode.UPhone
             || currentMode == InputMode.Gallery
-            || currentMode == InputMode.Popup            
+            || currentMode == InputMode.Popup
             || currentMode == InputMode.Placement;
 
     }
@@ -101,8 +104,10 @@ public class PadInputEventRouter : MonoBehaviour
     bool AllowX()
     {
         return currentMode == InputMode.UPhone
+            || currentMode == InputMode.Player
             || currentMode == InputMode.Gallery
             || currentMode == InputMode.Popup
+            || currentMode == InputMode.Dialogue
             || currentMode == InputMode.Placement;
     }
 
@@ -110,6 +115,7 @@ public class PadInputEventRouter : MonoBehaviour
     {
         return currentMode == InputMode.Player
             || currentMode == InputMode.Popup
+            || currentMode == InputMode.Dialogue
             || currentMode == InputMode.Placement;
     }
 
