@@ -249,7 +249,7 @@ MonoBehaviour:
   _ipv6BindAddress: 
   _port: 8888
   _maximumClients: 4095
-  _clientAddress: localhost
+  _clientAddress: 192.168.10.89
 --- !u!1 &1099316475
 GameObject:
   m_ObjectHideFlags: 0
