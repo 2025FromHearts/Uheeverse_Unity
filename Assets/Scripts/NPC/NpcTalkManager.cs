@@ -27,7 +27,7 @@ public class NpcTalkManager : MonoBehaviour
     private string currentNpcId = "";
     private string currentNpcName = "";
 
-    private string initialNpcGreeting = "안녕하세요! 축제와 관련된 궁금한 사항을 말씀해 주세요.";
+    private string initialNpcGreeting = "안녕하세요! 궁금한 사항이 있으신가요?";
 
     [System.Serializable]
     public class FestivalResponse

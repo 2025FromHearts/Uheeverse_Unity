@@ -1,56 +1,71 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
+﻿using UnityEngine;
 using TMPro;
 
 public class NpcShopManager : MonoBehaviour
 {
-    public TMP_Text dialogueText;
-    public TMP_Text npcNameText;
     public GameObject dialoguePanel;
-    public ShopUI shopUI;
+    public TMP_Text dialogueText;
 
+    public ShopUI shopUI;
     public GameObject shopUIPanel;
 
-    public string responseMessage = "축제만의 아이템들 구경하고 가세요!";
+    //public PadInputEventRouter padInput;
 
-    private string currentNpcName;
     private string currentNpcId;
+    private NpcInteract currentCaller;
 
-    public void ShowShopDialogue(NpcInteract callerNpc)
+    /*void OnEnable()
     {
-        currentNpcName = callerNpc.npcName;
-        currentNpcId = callerNpc.npcId;
+        if (padInput == null) return;
 
-        Debug.Log($"[Shop] NPC 이름: {currentNpcName}");
-        Debug.Log($"[Shop] 메시지: {responseMessage}");
+        padInput.OnAPressed += OpenShop;
+        padInput.OnXPressed += CancelShop;
+    }
+
+    void OnDisable()
+    {
+        if (padInput == null) return;
+
+        padInput.OnAPressed -= OpenShop;
+        padInput.OnXPressed -= CancelShop;
+    }*/
+
+    public void ShowShopDialogue(NpcInteract caller)
+    {
+        currentCaller = caller;
+        currentNpcId = caller.npcId;
 
         dialoguePanel.SetActive(true);
 
-        if (npcNameText != null)
-            npcNameText.text = currentNpcName;
+        //padInput.currentMode = PadInputEventRouter.InputMode.Dialogue;
 
         if (dialogueText != null)
-            dialogueText.text = responseMessage;
-
-        // 1.5초 후 상점 열기
-        StartCoroutine(ShowShopAfterDelay(1.5f));
+            dialogueText.text = "축제 전용 아이템을 구경해볼까요?";
     }
 
-    private IEnumerator ShowShopAfterDelay(float delay)
+    void OpenShop()
     {
-        yield return new WaitForSeconds(delay);
+        if (!dialoguePanel.activeSelf) return;
+
         dialoguePanel.SetActive(false);
 
-        NpcTalkTracker.Instance?.MarkNpcAsTalked(currentNpcId);
+        if (shopUIPanel != null)
+            shopUIPanel.SetActive(true);
 
         if (shopUI != null)
-        {
-            if (shopUIPanel != null)
-                shopUIPanel.SetActive(true);
-
             shopUI.OpenShop();
-        }
+
+        //padInput.currentMode = PadInputEventRouter.InputMode.Popup;
+
+        NpcTalkTracker.Instance?.MarkNpcAsTalked(currentNpcId);
+    }
+
+    void CancelShop()
+    {
+        if (!dialoguePanel.activeSelf) return;
+
+        dialoguePanel.SetActive(false);
+        currentCaller?.ResetTalkState();
+        //padInput.currentMode = PadInputEventRouter.InputMode.Player;
     }
 }

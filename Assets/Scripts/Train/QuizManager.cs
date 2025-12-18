@@ -87,7 +87,7 @@ public class QuizManager : MonoBehaviour
         }
 
         // 2. 해설 감상 시간 확보
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(1.5f);
 
         // 3. 마지막 문제일 경우 → 해설 지우고 결과 표시
         if (currentRound >= maxRounds)
@@ -117,7 +117,7 @@ public class QuizManager : MonoBehaviour
 
     private IEnumerator RequestQuizWithDelay()
     {
-        yield return new WaitForSeconds(2.5f);
+        yield return new WaitForSeconds(1.5f);
         RequestNextQuiz("청송"); // 다음 퀴즈 요청
     }
 
