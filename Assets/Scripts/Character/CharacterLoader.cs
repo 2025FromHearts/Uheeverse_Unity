@@ -8,12 +8,19 @@ public class CharacterLoader : MonoBehaviour
 
     void Awake()
     {
+        Debug.Log("캐릭터 로더 진입");
+        Debug.Log($"[CharacterLoader] Awake on {name}, prefabs count = {characterPrefabs?.Length}");
         // 모든 캐릭터의 Renderer만 끄기
         foreach (var c in characterPrefabs)
         {
+            
             var visual = c.GetComponent<CharacterVisual>();
             if (visual != null)
+            {
                 visual.SetVisible(false);
+                Debug.Log("캐릭터 비활성화 진입");
+            }
+                
         }
     }
 
@@ -41,10 +48,15 @@ public class CharacterLoader : MonoBehaviour
         {
             var visual = prefab.GetComponent<CharacterVisual>();
             if (visual != null)
+            {
+                Debug.Log("나머지 비활성화");
                 visual.SetVisible(false);
+            }
+                
 
             if (prefab.name.Equals(savedStyle, System.StringComparison.OrdinalIgnoreCase))
             {
+                Debug.Log("뿌까 활성화");
                 if (visual != null)
                     visual.SetVisible(true);
 

@@ -41,8 +41,9 @@ public class PlayerInputController : NetworkBehaviour
         if (cam == null) return;
 
         cam.transform.SetParent(transform);
-        cam.transform.localPosition = new Vector3(0f, 3f, -3f);
+        cam.transform.localPosition = new Vector3(0f, 4f, -4f);
         cam.transform.localRotation = Quaternion.identity;
+        cam.transform.localRotation = Quaternion.Euler(20f, 0f, 0f);
 
         cameraTransform = cam.transform;
     }
