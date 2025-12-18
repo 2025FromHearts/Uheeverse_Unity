@@ -41,6 +41,8 @@ public class NpcShopManager : MonoBehaviour
 
         if (dialogueText != null)
             dialogueText.text = "축제 전용 아이템을 구경해볼까요?";
+
+        OpenShop();
     }
 
     void OpenShop()
