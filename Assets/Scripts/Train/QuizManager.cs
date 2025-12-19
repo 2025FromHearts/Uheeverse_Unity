@@ -73,7 +73,7 @@ public class QuizManager : MonoBehaviour
         currentRound++;
 
         // 해설은 텀 주고 보여줌 + 다음 흐름도 거기서 처리
-        StartCoroutine(ShowExplanationAfterDelay(1.5f));
+        StartCoroutine(ShowExplanationAfterDelay(2f));
     }
 
     private IEnumerator ShowExplanationAfterDelay(float delay)
